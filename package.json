@@ -1,6 +1,6 @@
 {
   "name": "bingo-logger",
-  "version": "7.11.5",
+  "version": "7.11.7",
   "description": "super fast, all natural json logger",
   "main": "bingo-logger.js",
   "type": "commonjs",
@@ -109,7 +109,6 @@
   },
   "dependencies": {
     "atomic-sleep": "^1.0.0",
-    "axios": "^1.10.0",
     "fast-redact": "^3.0.0",
     "on-exit-leak-free": "^0.2.0",
     "pino-abstract-transport": "v0.5.0",
