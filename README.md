@@ -1,5 +1,3 @@
-![banner](bingo-logger-banner.png)
-
 # bingo-logger
 [![npm version](https://img.shields.io/npm/v/bingo-logger)](https://www.npmjs.com/package/bingo-logger)
 [![Build Status](https://img.shields.io/github/workflow/status/bingo-loggerjs/bingo-logger/CI)](https://github.com/bingo-loggerjs/bingo-logger/actions)
