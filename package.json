@@ -1,6 +1,6 @@
 {
   "name": "bingo-logger",
-  "version": "7.11.8",
+  "version": "7.11.9",
   "description": "super fast, all natural json logger",
   "main": "bingo-logger.js",
   "type": "commonjs",
