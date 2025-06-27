@@ -1,8 +1,8 @@
 'use strict'
 const test = require('tape')
 const fresh = require('import-fresh')
-const pinoStdSerializers = require('bingo-logger-std-serializers')
-const bingo-logger = require('../browser')
+const pinoStdSerializers = require('pino-std-serializers')
+const bingo = require('../browser')
 
 levelTest('fatal')
 levelTest('error')
@@ -12,7 +12,7 @@ levelTest('debug')
 levelTest('trace')
 
 test('silent level', ({ end, fail, pass }) => {
-  const instance = bingo-logger({
+  const instance = bingo({
     level: 'silent',
     browser: { write: fail }
   })
@@ -27,7 +27,7 @@ test('silent level', ({ end, fail, pass }) => {
 })
 
 test('enabled false', ({ end, fail, pass }) => {
-  const instance = bingo-logger({
+  const instance = bingo({
     enabled: false,
     browser: { write: fail }
   })
@@ -42,13 +42,13 @@ test('enabled false', ({ end, fail, pass }) => {
 })
 
 test('throw if creating child without bindings', ({ end, throws }) => {
-  const instance = bingo-logger()
+  const instance = bingo()
   throws(() => instance.child())
   end()
 })
 
 test('stubs write, flush and ee methods on instance', ({ end, ok, is }) => {
-  const instance = bingo-logger()
+  const instance = bingo()
 
   ok(isFunc(instance.setMaxListeners))
   ok(isFunc(instance.getMaxListeners))
@@ -72,7 +72,7 @@ test('stubs write, flush and ee methods on instance', ({ end, ok, is }) => {
 })
 
 test('exposes levels object', ({ end, same }) => {
-  same(bingo-logger.levels, {
+  same(bingo.levels, {
     values: {
       fatal: 60,
       error: 50,
@@ -95,26 +95,26 @@ test('exposes levels object', ({ end, same }) => {
 })
 
 test('exposes faux stdSerializers', ({ end, ok, same }) => {
-  ok(bingo-logger.stdSerializers)
-  // make sure faux stdSerializers match bingo-logger-std-serializers
+  ok(bingo.stdSerializers)
+  // make sure faux stdSerializers match pino-std-serializers
   for (const serializer in pinoStdSerializers) {
-    ok(bingo-logger.stdSerializers[serializer], `bingo-logger.stdSerializers.${serializer}`)
+    ok(bingo.stdSerializers[serializer], `bingo.stdSerializers.${serializer}`)
   }
   // confirm faux methods return empty objects
-  same(bingo-logger.stdSerializers.req(), {})
-  same(bingo-logger.stdSerializers.mapHttpRequest(), {})
-  same(bingo-logger.stdSerializers.mapHttpResponse(), {})
-  same(bingo-logger.stdSerializers.res(), {})
+  same(bingo.stdSerializers.req(), {})
+  same(bingo.stdSerializers.mapHttpRequest(), {})
+  same(bingo.stdSerializers.mapHttpResponse(), {})
+  same(bingo.stdSerializers.res(), {})
   // confirm wrapping function is a passthrough
   const noChange = { foo: 'bar', fuz: 42 }
-  same(bingo-logger.stdSerializers.wrapRequestSerializer(noChange), noChange)
-  same(bingo-logger.stdSerializers.wrapResponseSerializer(noChange), noChange)
+  same(bingo.stdSerializers.wrapRequestSerializer(noChange), noChange)
+  same(bingo.stdSerializers.wrapResponseSerializer(noChange), noChange)
   end()
 })
 
 test('exposes err stdSerializer', ({ end, ok }) => {
-  ok(bingo-logger.stdSerializers.err)
-  ok(bingo-logger.stdSerializers.err(Error()))
+  ok(bingo.stdSerializers.err)
+  ok(bingo.stdSerializers.err(Error()))
   end()
 })
 
@@ -148,7 +148,7 @@ if (process.title !== 'browser') {
   })
 }
 
-test('opts.browser.asObject logs bingo-logger-like object to console', ({ end, ok, is }) => {
+test('opts.browser.asObject logs bingo-like object to console', ({ end, ok, is }) => {
   const info = console.info
   console.info = function (o) {
     is(o.level, 30)
@@ -167,7 +167,7 @@ test('opts.browser.asObject logs bingo-logger-like object to console', ({ end, o
 })
 
 test('opts.browser.write func log single string', ({ end, ok, is }) => {
-  const instance = bingo-logger({
+  const instance = bingo({
     browser: {
       write: function (o) {
         is(o.level, 30)
@@ -182,7 +182,7 @@ test('opts.browser.write func log single string', ({ end, ok, is }) => {
 })
 
 test('opts.browser.write func string joining', ({ end, ok, is }) => {
-  const instance = bingo-logger({
+  const instance = bingo({
     browser: {
       write: function (o) {
         is(o.level, 30)
@@ -197,7 +197,7 @@ test('opts.browser.write func string joining', ({ end, ok, is }) => {
 })
 
 test('opts.browser.write func string joining when asObject is true', ({ end, ok, is }) => {
-  const instance = bingo-logger({
+  const instance = bingo({
     browser: {
       asObject: true,
       write: function (o) {
@@ -213,7 +213,7 @@ test('opts.browser.write func string joining when asObject is true', ({ end, ok,
 })
 
 test('opts.browser.write func string joining when asObject is true', ({ end, ok, is }) => {
-  const instance = bingo-logger({
+  const instance = bingo({
     browser: {
       asObject: true,
       write: function (o) {
@@ -229,7 +229,7 @@ test('opts.browser.write func string joining when asObject is true', ({ end, ok,
 })
 
 test('opts.browser.write func string object joining', ({ end, ok, is }) => {
-  const instance = bingo-logger({
+  const instance = bingo({
     browser: {
       write: function (o) {
         is(o.level, 30)
@@ -244,7 +244,7 @@ test('opts.browser.write func string object joining', ({ end, ok, is }) => {
 })
 
 test('opts.browser.write func string object joining when asObject is true', ({ end, ok, is }) => {
-  const instance = bingo-logger({
+  const instance = bingo({
     browser: {
       asObject: true,
       write: function (o) {
@@ -260,7 +260,7 @@ test('opts.browser.write func string object joining when asObject is true', ({ e
 })
 
 test('opts.browser.write func string interpolation', ({ end, ok, is }) => {
-  const instance = bingo-logger({
+  const instance = bingo({
     browser: {
       write: function (o) {
         is(o.level, 30)
@@ -275,7 +275,7 @@ test('opts.browser.write func string interpolation', ({ end, ok, is }) => {
 })
 
 test('opts.browser.write func number', ({ end, ok, is }) => {
-  const instance = bingo-logger({
+  const instance = bingo({
     browser: {
       write: function (o) {
         is(o.level, 30)
@@ -290,7 +290,7 @@ test('opts.browser.write func number', ({ end, ok, is }) => {
 })
 
 test('opts.browser.write func log single object', ({ end, ok, is }) => {
-  const instance = bingo-logger({
+  const instance = bingo({
     browser: {
       write: function (o) {
         is(o.level, 30)
@@ -305,7 +305,7 @@ test('opts.browser.write func log single object', ({ end, ok, is }) => {
 })
 
 test('opts.browser.write obj writes to methods corresponding to level', ({ end, ok, is }) => {
-  const instance = bingo-logger({
+  const instance = bingo({
     browser: {
       write: {
         error: function (o) {
@@ -322,7 +322,7 @@ test('opts.browser.write obj writes to methods corresponding to level', ({ end, 
 })
 
 test('opts.browser.asObject/write supports child loggers', ({ end, ok, is }) => {
-  const instance = bingo-logger({
+  const instance = bingo({
     browser: {
       write (o) {
         is(o.level, 30)
@@ -339,7 +339,7 @@ test('opts.browser.asObject/write supports child loggers', ({ end, ok, is }) => 
 })
 
 test('opts.browser.asObject/write supports child child loggers', ({ end, ok, is }) => {
-  const instance = bingo-logger({
+  const instance = bingo({
     browser: {
       write (o) {
         is(o.level, 30)
@@ -357,7 +357,7 @@ test('opts.browser.asObject/write supports child child loggers', ({ end, ok, is 
 })
 
 test('opts.browser.asObject/write supports child child child loggers', ({ end, ok, is }) => {
-  const instance = bingo-logger({
+  const instance = bingo({
     browser: {
       write (o) {
         is(o.level, 30)
@@ -376,7 +376,7 @@ test('opts.browser.asObject/write supports child child child loggers', ({ end, o
 })
 
 test('opts.browser.asObject defensively mitigates naughty numbers', ({ end, pass }) => {
-  const instance = bingo-logger({
+  const instance = bingo({
     browser: { asObject: true, write: () => {} }
   })
   const child = instance.child({ test: 'test' })
@@ -419,7 +419,7 @@ function levelTest (name) {
       is(args[0], msg)
       end()
     })
-    bingo-logger({ level: name })[name](msg)
+    bingo({ level: name })[name](msg)
   })
 
   test('passing objects at level ' + name, ({ end, is }) => {
@@ -428,7 +428,7 @@ function levelTest (name) {
       is(args[0], msg)
       end()
     })
-    bingo-logger({ level: name })[name](msg)
+    bingo({ level: name })[name](msg)
   })
 
   test('passing an object and a string at level ' + name, ({ end, is }) => {
@@ -439,7 +439,7 @@ function levelTest (name) {
       is(args[1], b)
       end()
     })
-    bingo-logger({ level: name })[name](a, b)
+    bingo({ level: name })[name](a, b)
   })
 
   test('formatting logs as ' + name, ({ end, is }) => {
@@ -448,7 +448,7 @@ function levelTest (name) {
       is(args[1], 42)
       end()
     })
-    bingo-logger({ level: name })[name]('hello %d', 42)
+    bingo({ level: name })[name]('hello %d', 42)
   })
 
   test('passing error at level ' + name, ({ end, is }) => {
@@ -457,7 +457,7 @@ function levelTest (name) {
       is(args[0], err)
       end()
     })
-    bingo-logger({ level: name })[name](err)
+    bingo({ level: name })[name](err)
   })
 
   test('passing error with a serializer at level ' + name, ({ end, is }) => {
@@ -467,10 +467,10 @@ function levelTest (name) {
       is(args[0].err, err)
       end()
     })
-    const instance = bingo-logger({
+    const instance = bingo({
       level: name,
       serializers: {
-        err: bingo-logger.stdSerializers.err
+        err: bingo.stdSerializers.err
       }
     })
     instance[name]({ err })
@@ -484,7 +484,7 @@ function levelTest (name) {
       is(args[1], msg)
       end()
     })
-    const instance = bingo-logger({ level: name })
+    const instance = bingo({ level: name })
     const child = instance.child(parent)
     child[name](msg)
   })
@@ -499,7 +499,7 @@ function levelTest (name) {
       is(args[2], msg)
       end()
     })
-    const instance = bingo-logger({ level: name })
+    const instance = bingo({ level: name })
     const child = instance.child(grandParent).child(parent)
     child[name](msg)
   })
@@ -507,7 +507,7 @@ function levelTest (name) {
 
 function consoleMethodTest (level, method) {
   if (!method) method = level
-  test('bingo-logger().' + level + ' uses console.' + method, ({ end, is }) => {
+  test('bingo().' + level + ' uses console.' + method, ({ end, is }) => {
     sink(method, (args) => {
       is(args[0], 'test')
       end()

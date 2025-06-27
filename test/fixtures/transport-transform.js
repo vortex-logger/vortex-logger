@@ -1,6 +1,6 @@
 'use strict'
 
-const build = require('bingo-logger-abstract-transport')
+const build = require('bingo-abstract-transport')
 const { pipeline, Transform } = require('stream')
 module.exports = (options) => {
   return build(function (source) {

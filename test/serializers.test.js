@@ -1,8 +1,8 @@
 'use strict'
 const { test } = require('tap')
 const { sink, once } = require('./helper')
-const stdSerializers = require('bingo-logger-std-serializers')
-const bingo-logger = require('../')
+const stdSerializers = require('pino-std-serializers')
+const bingo = require('../')
 
 const parentSerializers = {
   test: () => 'parent'
@@ -14,7 +14,7 @@ const childSerializers = {
 
 test('default err namespace error serializer', async ({ equal }) => {
   const stream = sink()
-  const parent = bingo-logger(stream)
+  const parent = bingo(stream)
 
   parent.info({ err: ReferenceError('test') })
   const o = await once(stream, 'data')
@@ -26,7 +26,7 @@ test('default err namespace error serializer', async ({ equal }) => {
 
 test('custom serializer overrides default err namespace error serializer', async ({ equal }) => {
   const stream = sink()
-  const parent = bingo-logger({
+  const parent = bingo({
     serializers: {
       err: (e) => ({
         t: e.constructor.name,
@@ -46,7 +46,7 @@ test('custom serializer overrides default err namespace error serializer', async
 
 test('custom serializer overrides default err namespace error serializer when nestedKey is on', async ({ equal }) => {
   const stream = sink()
-  const parent = bingo-logger({
+  const parent = bingo({
     nestedKey: 'obj',
     serializers: {
       err: (e) => {
@@ -69,7 +69,7 @@ test('custom serializer overrides default err namespace error serializer when ne
 
 test('null overrides default err namespace error serializer', async ({ equal }) => {
   const stream = sink()
-  const parent = bingo-logger({ serializers: { err: null } }, stream)
+  const parent = bingo({ serializers: { err: null } }, stream)
 
   parent.info({ err: ReferenceError('test') })
   const o = await once(stream, 'data')
@@ -81,7 +81,7 @@ test('null overrides default err namespace error serializer', async ({ equal }) 
 
 test('undefined overrides default err namespace error serializer', async ({ equal }) => {
   const stream = sink()
-  const parent = bingo-logger({ serializers: { err: undefined } }, stream)
+  const parent = bingo({ serializers: { err: undefined } }, stream)
 
   parent.info({ err: ReferenceError('test') })
   const o = await once(stream, 'data')
@@ -93,7 +93,7 @@ test('undefined overrides default err namespace error serializer', async ({ equa
 
 test('serializers override values', async ({ equal }) => {
   const stream = sink()
-  const parent = bingo-logger({ serializers: parentSerializers }, stream)
+  const parent = bingo({ serializers: parentSerializers }, stream)
   parent.child({}, { serializers: childSerializers })
 
   parent.fatal({ test: 'test' })
@@ -103,7 +103,7 @@ test('serializers override values', async ({ equal }) => {
 
 test('child does not overwrite parent serializers', async ({ equal }) => {
   const stream = sink()
-  const parent = bingo-logger({ serializers: parentSerializers }, stream)
+  const parent = bingo({ serializers: parentSerializers }, stream)
   const child = parent.child({}, { serializers: childSerializers })
 
   parent.fatal({ test: 'test' })
@@ -115,17 +115,17 @@ test('child does not overwrite parent serializers', async ({ equal }) => {
   equal((await o2).test, 'child')
 })
 
-test('Symbol.for(\'bingo-logger.serializers\')', async ({ equal, same, not }) => {
+test('Symbol.for(\'bingo.serializers\')', async ({ equal, same, not }) => {
   const stream = sink()
   const expected = Object.assign({
     err: stdSerializers.err
   }, parentSerializers)
-  const parent = bingo-logger({ serializers: parentSerializers }, stream)
+  const parent = bingo({ serializers: parentSerializers }, stream)
   const child = parent.child({ a: 'property' })
 
-  same(parent[Symbol.for('bingo-logger.serializers')], expected)
-  same(child[Symbol.for('bingo-logger.serializers')], expected)
-  equal(parent[Symbol.for('bingo-logger.serializers')], child[Symbol.for('bingo-logger.serializers')])
+  same(parent[Symbol.for('bingo.serializers')], expected)
+  same(child[Symbol.for('bingo.serializers')], expected)
+  equal(parent[Symbol.for('bingo.serializers')], child[Symbol.for('bingo.serializers')])
 
   const child2 = parent.child({}, {
     serializers: {
@@ -137,14 +137,14 @@ test('Symbol.for(\'bingo-logger.serializers\')', async ({ equal, same, not }) =>
     return 'hello'
   }
 
-  not(child2[Symbol.for('bingo-logger.serializers')], parentSerializers)
-  equal(child2[Symbol.for('bingo-logger.serializers')].a, a)
-  equal(child2[Symbol.for('bingo-logger.serializers')].test, parentSerializers.test)
+  not(child2[Symbol.for('bingo.serializers')], parentSerializers)
+  equal(child2[Symbol.for('bingo.serializers')].a, a)
+  equal(child2[Symbol.for('bingo.serializers')].test, parentSerializers.test)
 })
 
 test('children inherit parent serializers', async ({ equal }) => {
   const stream = sink()
-  const parent = bingo-logger({ serializers: parentSerializers }, stream)
+  const parent = bingo({ serializers: parentSerializers }, stream)
 
   const child = parent.child({ a: 'property' })
   child.fatal({ test: 'test' })
@@ -160,9 +160,9 @@ test('children inherit parent Symbol serializers', async ({ equal, same, not }) 
   const expected = Object.assign({
     err: stdSerializers.err
   }, symbolSerializers)
-  const parent = bingo-logger({ serializers: symbolSerializers }, stream)
+  const parent = bingo({ serializers: symbolSerializers }, stream)
 
-  same(parent[Symbol.for('bingo-logger.serializers')], expected)
+  same(parent[Symbol.for('bingo.serializers')], expected)
 
   const child = parent.child({}, {
     serializers: {
@@ -179,14 +179,14 @@ test('children inherit parent Symbol serializers', async ({ equal, same, not }) 
     return 'world'
   }
 
-  same(child[Symbol.for('bingo-logger.serializers')].a, a)
-  same(child[Symbol.for('bingo-logger.serializers')][Symbol.for('b')], b)
-  same(child[Symbol.for('bingo-logger.serializers')][Symbol.for('a')], a)
+  same(child[Symbol.for('bingo.serializers')].a, a)
+  same(child[Symbol.for('bingo.serializers')][Symbol.for('b')], b)
+  same(child[Symbol.for('bingo.serializers')][Symbol.for('a')], a)
 })
 
 test('children serializers get called', async ({ equal }) => {
   const stream = sink()
-  const parent = bingo-logger({
+  const parent = bingo({
     test: 'this'
   }, stream)
 
@@ -199,7 +199,7 @@ test('children serializers get called', async ({ equal }) => {
 
 test('children serializers get called when inherited from parent', async ({ equal }) => {
   const stream = sink()
-  const parent = bingo-logger({
+  const parent = bingo({
     test: 'this',
     serializers: parentSerializers
   }, stream)
@@ -223,7 +223,7 @@ test('non-overridden serializers are available in the children', async ({ equal 
     onlyChild: function () { return 'child' }
   }
 
-  const parent = bingo-logger({ serializers: pSerializers }, stream)
+  const parent = bingo({ serializers: pSerializers }, stream)
 
   const child = parent.child({}, { serializers: cSerializers })
 
@@ -243,7 +243,7 @@ test('non-overridden serializers are available in the children', async ({ equal 
 
 test('custom serializer for messageKey', async (t) => {
   const stream = sink()
-  const instance = bingo-logger({ serializers: { msg: () => '422' } }, stream)
+  const instance = bingo({ serializers: { msg: () => '422' } }, stream)
 
   const o = { num: NaN }
   instance.info(o, 42)

@@ -1259,9 +1259,9 @@ In order for `multistream` to work, the log level __must__ be set to the lowest 
 <a id="bingo-logger-stdserializers"></a>
 ### `bingo-logger.stdSerializers` (Object)
 
-The `bingo-logger.stdSerializers` object provides functions for serializing objects common to many projects. The standard serializers are directly imported from [bingo-logger-std-serializers](https://github.com/bingo-loggerjs/bingo-logger-std-serializers).
+The `bingo-logger.stdSerializers` object provides functions for serializing objects common to many projects. The standard serializers are directly imported from [pino-std-serializers](https://github.com/bingo-loggerjs/pino-std-serializers).
 
-* See [bingo-logger-std-serializers ⇗](https://github.com/bingo-loggerjs/bingo-logger-std-serializers)
+* See [pino-std-serializers ⇗](https://github.com/bingo-loggerjs/pino-std-serializers)
 
 <a id="bingo-logger-stdtimefunctions"></a>
 ### `bingo-logger.stdTimeFunctions` (Object)

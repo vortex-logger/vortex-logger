@@ -233,7 +233,7 @@ const withHooks = bingo-logger({
     },
 });
 
-// Properties/types imported from bingo-logger-std-serializers
+// Properties/types imported from pino-std-serializers
 const wrappedErrSerializer = bingo-logger.stdSerializers.wrapErrorSerializer((err: bingo-logger.SerializedError) => {
     return { ...err, newProp: "foo" };
 });

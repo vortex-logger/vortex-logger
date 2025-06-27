@@ -1,8 +1,8 @@
 # Transports
 
-Pino transports can be used for both transmitting and transforming log output.
+bingo transports can be used for both transmitting and transforming log output.
 
-The way Pino generates logs:
+The way bingo generates logs:
 
 1. Reduces the impact of logging on an application to the absolute minimum.
 2. Gives greater flexibility in how logs are processed and stored.
@@ -10,10 +10,10 @@ The way Pino generates logs:
 It is recommended that any log transformation or transmission is performed either
 in a separate thread or a separate process.
 
-Prior to Pino v7 transports would ideally operate in a separate process - these are
+Prior to bingo v7 transports would ideally operate in a separate process - these are
 now referred to as [Legacy Transports](#legacy-transports).
 
-From Pino v7 and upwards transports can also operate inside a [Worker Thread][worker-thread],
+From bingo v7 and upwards transports can also operate inside a [Worker Thread][worker-thread],
 and can be used or configured via the options object passed to `bingo-logger` on initialization.
 
 [worker-thread]: https://nodejs.org/dist/latest-v14.x/docs/api/worker_threads.html
@@ -117,13 +117,13 @@ For more details on `bingo-logger.transport` see the [API docs for `bingo-logger
 <a id="writing"></a>
 ### Writing a Transport
 
-The module [bingo-logger-abstract-transport](https://github.com/bingo-loggerjs/bingo-logger-abstract-transport) provides
+The module [bingo-abstract-transport](https://github.com/bingo-loggerjs/bingo-abstract-transport) provides
 a simple utility to parse each line.  Its usage is highly recommended.
 
 You can see an example using a async iterator with ESM:
 
 ```js
-import build from 'bingo-logger-abstract-transport'
+import build from 'bingo-abstract-transport'
 import SonicBoom from 'sonic-boom'
 import { once } from 'events'
 
@@ -155,7 +155,7 @@ or using Node.js streams and CommonJS:
 ```js
 'use strict'
 
-const build = require('bingo-logger-abstract-transport')
+const build = require('bingo-abstract-transport')
 const SonicBoom = require('sonic-boom')
 
 module.exports = function (opts) {
@@ -183,7 +183,7 @@ callback is called or the returned promise resolved. Otherwise log lines will be
 As an example, the following transport returns a `Transform` stream:
 
 ```js
-import build from 'bingo-logger-abstract-transport'
+import build from 'bingo-abstract-transport'
 import { pipeline, Transform } from 'stream'
 export default async function (options) {
   return build(function (source) {
@@ -238,7 +238,7 @@ a terminating target, i.e. a `Writable` stream.__
 
 ### TypeScript compatibility
 
-Pino provides basic support for transports written in TypeScript.
+bingo provides basic support for transports written in TypeScript.
 
 Ideally, they should be transpiled to ensure maximum compatibility, but some
 times you might want to use tools such as TS-Node, to execute your TypeScript
@@ -338,7 +338,7 @@ transport.on('ready', function () {
 
 ## Legacy Transports
 
-A legacy Pino "transport" is a supplementary tool which consumes Pino logs.
+A legacy bingo "transport" is a supplementary tool which consumes bingo logs.
 
 Consider the following example for creating a transport:
 
@@ -373,7 +373,7 @@ Node's single threaded event loop.
 
 PR's to this document are welcome for any new transports!
 
-### Pino v7+ Compatible
+### bingo v7+ Compatible
 
 + [bingo-logger-elasticsearch](#bingo-logger-elasticsearch)
 + [bingo-logger-pretty](#bingo-logger-pretty)
@@ -506,7 +506,7 @@ Then [create an index pattern](https://www.elastic.co/guide/en/kibana/current/se
 <a id="bingo-logger-gelf"></a>
 ### bingo-logger-gelf
 
-Pino GELF ([bingo-logger-gelf]) is a transport for the Pino logger. Pino GELF receives Pino logs from stdin and transforms them into [GELF format][gelf] before sending them to a remote [Graylog server][graylog] via UDP.
+bingo GELF ([bingo-logger-gelf]) is a transport for the bingo logger. bingo GELF receives bingo logs from stdin and transforms them into [GELF format][gelf] before sending them to a remote [Graylog server][graylog] via UDP.
 
 ```sh
 $ node your-app.js | bingo-logger-gelf log
