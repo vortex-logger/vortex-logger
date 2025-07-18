@@ -1,6 +1,6 @@
 {
   "name": "bingo-logger",
-  "version": "7.12.0",
+  "version": "7.12.2",
   "description": "super fast, all natural json logger",
   "main": "bingo-logger.js",
   "type": "commonjs",
@@ -46,7 +46,7 @@
     "update-bench-doc": "node benchmarks/utils/generate-benchmark-doc > docs/benchmarks.md"
   },
   "bin": {
-    "bingo-logger": "./bin.js"
+    "bingo-logger": "bin.js"
   },
   "precommit": "test",
   "repository": {
