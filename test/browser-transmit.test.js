@@ -1,16 +1,16 @@
 'use strict'
 const test = require('tape')
-const bingo-logger = require('../browser')
+const bingo = require('../browser')
 
 function noop () {}
 
 test('throws if transmit object does not have send function', ({ end, throws }) => {
   throws(() => {
-    bingo-logger({ browser: { transmit: {} } })
+    bingo({ browser: { transmit: {} } })
   })
 
   throws(() => {
-    bingo-logger({ browser: { transmit: { send: 'not a func' } } })
+    bingo({ browser: { transmit: { send: 'not a func' } } })
   })
 
   end()
@@ -18,7 +18,7 @@ test('throws if transmit object does not have send function', ({ end, throws }) 
 
 test('calls send function after write', ({ end, is }) => {
   let c = 0
-  const logger = bingo-logger({
+  const logger = bingo({
     browser: {
       write: () => {
         c++
@@ -34,7 +34,7 @@ test('calls send function after write', ({ end, is }) => {
 })
 
 test('passes send function the logged level', ({ end, is }) => {
-  const logger = bingo-logger({
+  const logger = bingo({
     browser: {
       write () {},
       transmit: {
@@ -50,7 +50,7 @@ test('passes send function the logged level', ({ end, is }) => {
 })
 
 test('passes send function message strings in logEvent object when asObject is not set', ({ end, same, is }) => {
-  const logger = bingo-logger({
+  const logger = bingo({
     browser: {
       write: noop,
       transmit: {
@@ -68,7 +68,7 @@ test('passes send function message strings in logEvent object when asObject is n
 })
 
 test('passes send function message objects in logEvent object when asObject is not set', ({ end, same, is }) => {
-  const logger = bingo-logger({
+  const logger = bingo({
     browser: {
       write: noop,
       transmit: {
@@ -86,7 +86,7 @@ test('passes send function message objects in logEvent object when asObject is n
 })
 
 test('passes send function message strings in logEvent object when asObject is set', ({ end, same, is }) => {
-  const logger = bingo-logger({
+  const logger = bingo({
     browser: {
       asObject: true,
       write: noop,
@@ -105,7 +105,7 @@ test('passes send function message strings in logEvent object when asObject is s
 })
 
 test('passes send function message objects in logEvent object when asObject is set', ({ end, same, is }) => {
-  const logger = bingo-logger({
+  const logger = bingo({
     browser: {
       asObject: true,
       write: noop,
@@ -125,7 +125,7 @@ test('passes send function message objects in logEvent object when asObject is s
 
 test('supplies a timestamp (ts) in logEvent object which is exactly the same as the `time` property in asObject mode', ({ end, is }) => {
   let expected
-  const logger = bingo-logger({
+  const logger = bingo({
     browser: {
       asObject: true, // implicit because `write`, but just to be explicit
       write (o) {
@@ -144,7 +144,7 @@ test('supplies a timestamp (ts) in logEvent object which is exactly the same as 
 })
 
 test('passes send function child bindings via logEvent object', ({ end, same, is }) => {
-  const logger = bingo-logger({
+  const logger = bingo({
     browser: {
       write: noop,
       transmit: {
@@ -168,7 +168,7 @@ test('passes send function child bindings via logEvent object', ({ end, same, is
 })
 
 test('passes send function level:{label, value} via logEvent object', ({ end, is }) => {
-  const logger = bingo-logger({
+  const logger = bingo({
     browser: {
       write: noop,
       transmit: {
@@ -189,7 +189,7 @@ test('passes send function level:{label, value} via logEvent object', ({ end, is
 
 test('calls send function according to transmit.level', ({ end, is }) => {
   let c = 0
-  const logger = bingo-logger({
+  const logger = bingo({
     browser: {
       write: noop,
       transmit: {
@@ -210,7 +210,7 @@ test('calls send function according to transmit.level', ({ end, is }) => {
 
 test('transmit.level defaults to logger level', ({ end, is }) => {
   let c = 0
-  const logger = bingo-logger({
+  const logger = bingo({
     level: 'error',
     browser: {
       write: noop,
@@ -231,7 +231,7 @@ test('transmit.level defaults to logger level', ({ end, is }) => {
 
 test('transmit.level is effective even if lower than logger level', ({ end, is }) => {
   let c = 0
-  const logger = bingo-logger({
+  const logger = bingo({
     level: 'error',
     browser: {
       write: noop,
@@ -253,7 +253,7 @@ test('transmit.level is effective even if lower than logger level', ({ end, is }
 })
 
 test('applies all serializers to messages and bindings (serialize:false - default)', ({ end, same, is }) => {
-  const logger = bingo-logger({
+  const logger = bingo({
     serializers: {
       first: () => 'first',
       second: () => 'second',
@@ -282,7 +282,7 @@ test('applies all serializers to messages and bindings (serialize:false - defaul
 })
 
 test('applies all serializers to messages and bindings (serialize:true)', ({ end, same, is }) => {
-  const logger = bingo-logger({
+  const logger = bingo({
     serializers: {
       first: () => 'first',
       second: () => 'second',
@@ -315,7 +315,7 @@ test('extracts correct bindings and raw messages over multiple transmits', ({ en
   let messages = null
   let bindings = null
 
-  const logger = bingo-logger({
+  const logger = bingo({
     browser: {
       write: noop,
       transmit: {

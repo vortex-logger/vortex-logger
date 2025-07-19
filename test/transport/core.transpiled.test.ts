@@ -4,7 +4,7 @@ import { once } from 'events'
 import fs from 'fs'
 import { watchFileCreated } from '../helper'
 import { test } from 'tap'
-import bingo-logger from '../../'
+import bingo from '../../'
 import * as url from 'url'
 import { default as strip } from 'strip-ansi'
 import execa from 'execa'
@@ -17,17 +17,17 @@ const hostname = os.hostname()
 
 // A subset of the test from core.test.js, we don't need all of them to check for compatibility
 function runTests(esVersion: string): void {
-  test(`(ts -> ${esVersion}) bingo-logger.transport with file`, async ({ same, teardown }) => {
+  test(`(ts -> ${esVersion}) bingo.transport with file`, async ({ same, teardown }) => {
     const destination = join(
       os.tmpdir(),
       '_' + Math.random().toString(36).substr(2, 9)
     )
-    const transport = bingo-logger.transport({
+    const transport = bingo.transport({
       target: join(__dirname, '..', 'fixtures', 'ts', `to-file-transport.${esVersion}.cjs`),
       options: { destination }
     })
     teardown(transport.end.bind(transport))
-    const instance = bingo-logger(transport)
+    const instance = bingo(transport)
     instance.info('hello')
     await watchFileCreated(destination)
     const result = JSON.parse(await readFile(destination, { encoding: 'utf8' }))
@@ -40,17 +40,17 @@ function runTests(esVersion: string): void {
     })
   })
 
-  test(`(ts -> ${esVersion}) bingo-logger.transport with file URL`, async ({ same, teardown }) => {
+  test(`(ts -> ${esVersion}) bingo.transport with file URL`, async ({ same, teardown }) => {
     const destination = join(
       os.tmpdir(),
       '_' + Math.random().toString(36).substr(2, 9)
     )
-    const transport = bingo-logger.transport({
+    const transport = bingo.transport({
       target: url.pathToFileURL(join(__dirname, '..', 'fixtures', 'ts', `to-file-transport.${esVersion}.cjs`)).href,
       options: { destination }
     })
     teardown(transport.end.bind(transport))
-    const instance = bingo-logger(transport)
+    const instance = bingo(transport)
     instance.info('hello')
     await watchFileCreated(destination)
     const result = JSON.parse(await readFile(destination, { encoding: 'utf8' }))
@@ -63,7 +63,7 @@ function runTests(esVersion: string): void {
     })
   })
 
-  test(`(ts -> ${esVersion}) bingo-logger.transport with two files`, async ({ same, teardown }) => {
+  test(`(ts -> ${esVersion}) bingo.transport with two files`, async ({ same, teardown }) => {
     const dest1 = join(
       os.tmpdir(),
       '_' + Math.random().toString(36).substr(2, 9)
@@ -72,7 +72,7 @@ function runTests(esVersion: string): void {
       os.tmpdir(),
       '_' + Math.random().toString(36).substr(2, 9)
     )
-    const transport = bingo-logger.transport({
+    const transport = bingo.transport({
       targets: [{
         level: 'info',
         target: join(__dirname, '..', 'fixtures', 'ts', `to-file-transport.${esVersion}.cjs`),
@@ -86,7 +86,7 @@ function runTests(esVersion: string): void {
 
     teardown(transport.end.bind(transport))
 
-    const instance = bingo-logger(transport)
+    const instance = bingo(transport)
     instance.info('hello')
 
     await Promise.all([watchFileCreated(dest1), watchFileCreated(dest2)])

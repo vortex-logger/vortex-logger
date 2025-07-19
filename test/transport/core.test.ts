@@ -4,7 +4,7 @@ import { once } from 'events'
 import fs from 'fs'
 import { watchFileCreated } from '../helper'
 import { test } from 'tap'
-import bingo-logger from '../../'
+import bingo from '../../'
 import * as url from 'url'
 import { default as strip } from 'strip-ansi'
 import execa from 'execa'
@@ -19,17 +19,17 @@ const readFile = fs.promises.readFile
 const { pid } = process
 const hostname = os.hostname()
 
-test('bingo-logger.transport with file', async ({ same, teardown }) => {
+test('bingo.transport with file', async ({ same, teardown }) => {
   const destination = join(
     os.tmpdir(),
     '_' + Math.random().toString(36).substr(2, 9)
   )
-  const transport = bingo-logger.transport({
+  const transport = bingo.transport({
     target: join(__dirname, '..', 'fixtures', 'ts', 'to-file-transport.ts'),
     options: { destination }
   })
   teardown(transport.end.bind(transport))
-  const instance = bingo-logger(transport)
+  const instance = bingo(transport)
   instance.info('hello')
   await watchFileCreated(destination)
   const result = JSON.parse(await readFile(destination, { encoding: 'utf8' }))
@@ -42,25 +42,25 @@ test('bingo-logger.transport with file', async ({ same, teardown }) => {
   })
 })
 
-test('bingo-logger.transport with file (no options + error handling)', async ({ equal }) => {
-  const transport = bingo-logger.transport({
+test('bingo.transport with file (no options + error handling)', async ({ equal }) => {
+  const transport = bingo.transport({
     target: join(__dirname, '..', 'fixtures', 'ts', 'to-file-transport.ts')
   })
   const [err] = await once(transport, 'error')
   equal(err.message, 'kaboom')
 })
 
-test('bingo-logger.transport with file URL', async ({ same, teardown }) => {
+test('bingo.transport with file URL', async ({ same, teardown }) => {
   const destination = join(
     os.tmpdir(),
     '_' + Math.random().toString(36).substr(2, 9)
   )
-  const transport = bingo-logger.transport({
+  const transport = bingo.transport({
     target: url.pathToFileURL(join(__dirname, '..', 'fixtures', 'ts', 'to-file-transport.ts')).href,
     options: { destination }
   })
   teardown(transport.end.bind(transport))
-  const instance = bingo-logger(transport)
+  const instance = bingo(transport)
   instance.info('hello')
   await watchFileCreated(destination)
   const result = JSON.parse(await readFile(destination, { encoding: 'utf8' }))
@@ -73,7 +73,7 @@ test('bingo-logger.transport with file URL', async ({ same, teardown }) => {
   })
 })
 
-test('bingo-logger.transport with two files', async ({ same, teardown }) => {
+test('bingo.transport with two files', async ({ same, teardown }) => {
   const dest1 = join(
     os.tmpdir(),
     '_' + Math.random().toString(36).substr(2, 9)
@@ -82,7 +82,7 @@ test('bingo-logger.transport with two files', async ({ same, teardown }) => {
     os.tmpdir(),
     '_' + Math.random().toString(36).substr(2, 9)
   )
-  const transport = bingo-logger.transport({
+  const transport = bingo.transport({
     targets: [{
       level: 'info',
       target: join(__dirname, '..', 'fixtures', 'ts', 'to-file-transport.ts'),
@@ -96,7 +96,7 @@ test('bingo-logger.transport with two files', async ({ same, teardown }) => {
 
   teardown(transport.end.bind(transport))
 
-  const instance = bingo-logger(transport)
+  const instance = bingo(transport)
   instance.info('hello')
 
   await Promise.all([watchFileCreated(dest1), watchFileCreated(dest2)])
@@ -124,11 +124,11 @@ test('no transport.end()', async ({ same, teardown }) => {
     os.tmpdir(),
     '_' + Math.random().toString(36).substr(2, 9)
   )
-  const transport = bingo-logger.transport({
+  const transport = bingo.transport({
     target: join(__dirname, '..', 'fixtures', 'ts', 'to-file-transport.ts'),
     options: { destination }
   })
-  const instance = bingo-logger(transport)
+  const instance = bingo(transport)
   instance.info('hello')
   await watchFileCreated(destination)
   const result = JSON.parse(await readFile(destination, { encoding: 'utf8' }))
@@ -147,7 +147,7 @@ test('autoEnd = false', async ({ equal, same, teardown }) => {
     '_' + Math.random().toString(36).substr(2, 9)
   )
   const count = process.listenerCount('exit')
-  const transport = bingo-logger.transport({
+  const transport = bingo.transport({
     target: join(__dirname, '..', 'fixtures', 'ts', 'to-file-transport.ts'),
     options: { destination },
     worker: { autoEnd: false }
@@ -155,7 +155,7 @@ test('autoEnd = false', async ({ equal, same, teardown }) => {
   teardown(transport.end.bind(transport))
   await once(transport, 'ready')
 
-  const instance = bingo-logger(transport)
+  const instance = bingo(transport)
   instance.info('hello')
 
   await watchFileCreated(destination)

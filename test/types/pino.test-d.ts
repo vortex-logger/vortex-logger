@@ -1,10 +1,10 @@
-import P, { bingo-logger } from "../../";
+import P, { bingo } from "../../";
 import { IncomingMessage, ServerResponse } from "http";
 import { Socket } from "net";
 import { expectError } from 'tsd'
 import Logger = P.Logger;
 
-const log = bingo-logger();
+const log = bingo();
 const info = log.info;
 const error = log.error;
 
@@ -17,75 +17,75 @@ info({ obj: { aa: "bbb" } }, "another");
 setImmediate(info, "after setImmediate");
 error(new Error("an error"));
 
-const writeSym = bingo-logger.symbols.writeSym;
+const writeSym = bingo.symbols.writeSym;
 
 const testUniqSymbol = {
-    [bingo-logger.symbols.needsMetadataGsym]: true,
-}[bingo-logger.symbols.needsMetadataGsym];
+    [bingo.symbols.needsMetadataGsym]: true,
+}[bingo.symbols.needsMetadataGsym];
 
-const log2: P.Logger = bingo-logger({
+const log2: P.Logger = bingo({
     name: "myapp",
     safe: true,
     serializers: {
-        req: bingo-logger.stdSerializers.req,
-        res: bingo-logger.stdSerializers.res,
-        err: bingo-logger.stdSerializers.err,
+        req: bingo.stdSerializers.req,
+        res: bingo.stdSerializers.res,
+        err: bingo.stdSerializers.err,
     },
 });
 
-bingo-logger({
+bingo({
     write(o) {},
 });
 
-bingo-logger({
+bingo({
     mixin() {
         return { customName: "unknown", customId: 111 };
     },
 });
 
-bingo-logger({
+bingo({
     mixin: () => ({ customName: "unknown", customId: 111 }),
 });
 
-bingo-logger({
+bingo({
     mixin: (context: object) => ({ customName: "unknown", customId: 111 }),
 });
 
-bingo-logger({
+bingo({
     mixin: (context: object, level: number) => ({ customName: "unknown", customId: 111 }),
 });
 
-bingo-logger({
+bingo({
     redact: { paths: [], censor: "SECRET" },
 });
 
-bingo-logger({
+bingo({
     redact: { paths: [], censor: () => "SECRET" },
 });
 
-bingo-logger({
+bingo({
     redact: { paths: [], censor: (value) => value },
 });
 
-bingo-logger({
+bingo({
     redact: { paths: [], censor: (value, path) => path.join() },
 });
 
-bingo-logger({
+bingo({
     depthLimit: 1
 });
 
-bingo-logger({
+bingo({
     edgeLimit: 1
 });
 
-bingo-logger({
+bingo({
     browser: {
         write(o) {},
     },
 });
 
-bingo-logger({
+bingo({
     browser: {
         write: {
             info(o) {},
@@ -106,9 +106,9 @@ bingo-logger({
     },
 });
 
-bingo-logger({ base: null });
+bingo({ base: null });
 // @ts-expect-error
-if ("bingo-logger" in log) console.log(`bingo-logger version: ${log.bingo-logger}`);
+if ("bingo" in log) console.log(`bingo version: ${log.bingo}`);
 
 log.child({ a: "property" }).info("hello child!");
 log.level = "error";
@@ -125,15 +125,15 @@ const customSerializers = {
         return "this is my serializer";
     },
 };
-bingo-logger().child({}, { serializers: customSerializers }).info({ test: "should not show up" });
+bingo().child({}, { serializers: customSerializers }).info({ test: "should not show up" });
 const child2 = log.child({ father: true });
 const childChild = child2.child({ baby: true });
-const childRedacted = bingo-logger().child({}, { redact: ["path"] })
+const childRedacted = bingo().child({}, { redact: ["path"] })
 childRedacted.info({
   msg: "logged with redacted properties",
   path: "Not shown",
 });
-const childAnotherRedacted = bingo-logger().child({}, {
+const childAnotherRedacted = bingo().child({}, {
     redact: {
         paths: ["anotherPath"],
         censor: "Not the log you\re looking for",
@@ -159,10 +159,10 @@ log.level = "trace";
 log.removeListener("level-change", listener);
 log.level = "info";
 
-bingo-logger.levels.values.error === 50;
-bingo-logger.levels.labels[50] === "error";
+bingo.levels.values.error === 50;
+bingo.levels.labels[50] === "error";
 
-const logstderr: bingo-logger.Logger = bingo-logger(process.stderr);
+const logstderr: bingo.Logger = bingo(process.stderr);
 logstderr.error("on stderr instead of stdout");
 
 log.useLevelLabels = true;
@@ -170,7 +170,7 @@ log.info("lol");
 log.level === "info";
 const isEnabled: boolean = log.isLevelEnabled("info");
 
-const redacted = bingo-logger({
+const redacted = bingo({
     redact: ["path"],
 });
 
@@ -179,7 +179,7 @@ redacted.info({
     path: "Not shown",
 });
 
-const anotherRedacted = bingo-logger({
+const anotherRedacted = bingo({
     redact: {
         paths: ["anotherPath"],
         censor: "Not the log you\re looking for",
@@ -191,7 +191,7 @@ anotherRedacted.info({
     anotherPath: "Not shown",
 });
 
-const pretty = bingo-logger({
+const pretty = bingo({
     prettyPrint: {
         colorize: true,
         crlf: false,
@@ -206,7 +206,7 @@ const pretty = bingo-logger({
     },
 });
 
-const withMessageFormatFunc = bingo-logger({
+const withMessageFormatFunc = bingo({
     prettyPrint: {
         ignore: "requestId",
         messageFormat: (log, messageKey: string) => {
@@ -217,15 +217,15 @@ const withMessageFormatFunc = bingo-logger({
     },
 });
 
-const withTimeFn = bingo-logger({
-    timestamp: bingo-logger.stdTimeFunctions.isoTime,
+const withTimeFn = bingo({
+    timestamp: bingo.stdTimeFunctions.isoTime,
 });
 
-const withNestedKey = bingo-logger({
+const withNestedKey = bingo({
     nestedKey: "payload",
 });
 
-const withHooks = bingo-logger({
+const withHooks = bingo({
     hooks: {
         logMethod(args, method, level) {
             return method.apply(this, ['msg', ...args]);
@@ -234,13 +234,13 @@ const withHooks = bingo-logger({
 });
 
 // Properties/types imported from pino-std-serializers
-const wrappedErrSerializer = bingo-logger.stdSerializers.wrapErrorSerializer((err: bingo-logger.SerializedError) => {
+const wrappedErrSerializer = bingo.stdSerializers.wrapErrorSerializer((err: bingo.SerializedError) => {
     return { ...err, newProp: "foo" };
 });
-const wrappedReqSerializer = bingo-logger.stdSerializers.wrapRequestSerializer((req: bingo-logger.SerializedRequest) => {
+const wrappedReqSerializer = bingo.stdSerializers.wrapRequestSerializer((req: bingo.SerializedRequest) => {
     return { ...req, newProp: "foo" };
 });
-const wrappedResSerializer = bingo-logger.stdSerializers.wrapResponseSerializer((res: bingo-logger.SerializedResponse) => {
+const wrappedResSerializer = bingo.stdSerializers.wrapResponseSerializer((res: bingo.SerializedResponse) => {
     return { ...res, newProp: "foo" };
 });
 
@@ -248,32 +248,32 @@ const socket = new Socket();
 const incomingMessage = new IncomingMessage(socket);
 const serverResponse = new ServerResponse(incomingMessage);
 
-const mappedHttpRequest: { req: bingo-logger.SerializedRequest } = bingo-logger.stdSerializers.mapHttpRequest(incomingMessage);
-const mappedHttpResponse: { res: bingo-logger.SerializedResponse } = bingo-logger.stdSerializers.mapHttpResponse(serverResponse);
+const mappedHttpRequest: { req: bingo.SerializedRequest } = bingo.stdSerializers.mapHttpRequest(incomingMessage);
+const mappedHttpResponse: { res: bingo.SerializedResponse } = bingo.stdSerializers.mapHttpResponse(serverResponse);
 
-const serializedErr: bingo-logger.SerializedError = bingo-logger.stdSerializers.err(new Error());
-const serializedReq: bingo-logger.SerializedRequest = bingo-logger.stdSerializers.req(incomingMessage);
-const serializedRes: bingo-logger.SerializedResponse = bingo-logger.stdSerializers.res(serverResponse);
+const serializedErr: bingo.SerializedError = bingo.stdSerializers.err(new Error());
+const serializedReq: bingo.SerializedRequest = bingo.stdSerializers.req(incomingMessage);
+const serializedRes: bingo.SerializedResponse = bingo.stdSerializers.res(serverResponse);
 
 /**
  * Destination static method
  */
-const destinationViaDefaultArgs = bingo-logger.destination();
-const destinationViaStrFileDescriptor = bingo-logger.destination("/log/path");
-const destinationViaNumFileDescriptor = bingo-logger.destination(2);
-const destinationViaStream = bingo-logger.destination(process.stdout);
-const destinationViaOptionsObject = bingo-logger.destination({ dest: "/log/path", sync: false });
+const destinationViaDefaultArgs = bingo.destination();
+const destinationViaStrFileDescriptor = bingo.destination("/log/path");
+const destinationViaNumFileDescriptor = bingo.destination(2);
+const destinationViaStream = bingo.destination(process.stdout);
+const destinationViaOptionsObject = bingo.destination({ dest: "/log/path", sync: false });
 
-bingo-logger(destinationViaDefaultArgs);
-bingo-logger({ name: "my-logger" }, destinationViaDefaultArgs);
-bingo-logger(destinationViaStrFileDescriptor);
-bingo-logger({ name: "my-logger" }, destinationViaStrFileDescriptor);
-bingo-logger(destinationViaNumFileDescriptor);
-bingo-logger({ name: "my-logger" }, destinationViaNumFileDescriptor);
-bingo-logger(destinationViaStream);
-bingo-logger({ name: "my-logger" }, destinationViaStream);
-bingo-logger(destinationViaOptionsObject);
-bingo-logger({ name: "my-logger" }, destinationViaOptionsObject);
+bingo(destinationViaDefaultArgs);
+bingo({ name: "my-logger" }, destinationViaDefaultArgs);
+bingo(destinationViaStrFileDescriptor);
+bingo({ name: "my-logger" }, destinationViaStrFileDescriptor);
+bingo(destinationViaNumFileDescriptor);
+bingo({ name: "my-logger" }, destinationViaNumFileDescriptor);
+bingo(destinationViaStream);
+bingo({ name: "my-logger" }, destinationViaStream);
+bingo(destinationViaOptionsObject);
+bingo({ name: "my-logger" }, destinationViaOptionsObject);
 
 try {
     throw new Error('Some error')
@@ -290,21 +290,21 @@ info<StrictShape>({
     activity: "Required property",
 });
 
-const logLine: bingo-logger.LogDescriptor = {
+const logLine: bingo.LogDescriptor = {
     level: 20,
     msg: "A log message",
     time: new Date().getTime(),
     aCustomProperty: true,
 };
 
-interface CustomLogger extends bingo-logger.Logger {
+interface CustomLogger extends bingo.Logger {
     customMethod(msg: string, ...args: unknown[]): void;
 }
 
-const serializerFunc: bingo-logger.SerializerFn = () => {}
-const writeFunc: bingo-logger.WriteFn = () => {}
+const serializerFunc: bingo.SerializerFn = () => {}
+const writeFunc: bingo.WriteFn = () => {}
 
-interface CustomBaseLogger extends bingo-logger.BaseLogger {
+interface CustomBaseLogger extends bingo.BaseLogger {
   child(): CustomBaseLogger
 }
 
@@ -321,7 +321,7 @@ const customBaseLogger: CustomBaseLogger = {
 }
 
 // custom levels
-const log3 = bingo-logger({ customLevels: { myLevel: 100 } })
+const log3 = bingo({ customLevels: { myLevel: 100 } })
 expectError(log3.log())
 log3.level = 'myLevel'
 log3.myLevel('')

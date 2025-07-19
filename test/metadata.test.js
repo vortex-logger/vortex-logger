@@ -2,15 +2,15 @@
 
 const os = require('os')
 const { test } = require('tap')
-const bingo-logger = require('../')
+const bingo = require('../')
 
 const { pid } = process
 const hostname = os.hostname()
 
 test('metadata works', async ({ ok, same, equal }) => {
   const now = Date.now()
-  const instance = bingo-logger({}, {
-    [Symbol.for('bingo-logger.metadata')]: true,
+  const instance = bingo({}, {
+    [Symbol.for('bingo.metadata')]: true,
     write (chunk) {
       equal(instance, this.lastLogger)
       equal(30, this.lastLevel)
@@ -34,8 +34,8 @@ test('metadata works', async ({ ok, same, equal }) => {
 })
 
 test('child loggers works', async ({ ok, same, equal }) => {
-  const instance = bingo-logger({}, {
-    [Symbol.for('bingo-logger.metadata')]: true,
+  const instance = bingo({}, {
+    [Symbol.for('bingo.metadata')]: true,
     write (chunk) {
       equal(child, this.lastLogger)
       equal(30, this.lastLevel)
@@ -60,8 +60,8 @@ test('child loggers works', async ({ ok, same, equal }) => {
 })
 
 test('without object', async ({ ok, same, equal }) => {
-  const instance = bingo-logger({}, {
-    [Symbol.for('bingo-logger.metadata')]: true,
+  const instance = bingo({}, {
+    [Symbol.for('bingo.metadata')]: true,
     write (chunk) {
       equal(instance, this.lastLogger)
       equal(30, this.lastLevel)
@@ -83,8 +83,8 @@ test('without object', async ({ ok, same, equal }) => {
 })
 
 test('without msg', async ({ ok, same, equal }) => {
-  const instance = bingo-logger({}, {
-    [Symbol.for('bingo-logger.metadata')]: true,
+  const instance = bingo({}, {
+    [Symbol.for('bingo.metadata')]: true,
     write (chunk) {
       equal(instance, this.lastLogger)
       equal(30, this.lastLevel)

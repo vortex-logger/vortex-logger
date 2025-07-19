@@ -3,7 +3,7 @@
 const os = require('os')
 const { test } = require('tap')
 const { sink, once } = require('./helper')
-const bingo-logger = require('../')
+const bingo = require('../')
 
 const { pid } = process
 const hostname = os.hostname()
@@ -11,7 +11,7 @@ const hostname = os.hostname()
 function testEscape (ch, key) {
   test('correctly escape ' + ch, async ({ same }) => {
     const stream = sink()
-    const instance = bingo-logger({
+    const instance = bingo({
       name: 'hello'
     }, stream)
     instance.fatal('this contains ' + key)
@@ -75,7 +75,7 @@ toEscape.forEach((key) => {
 
 test('correctly escape `hello \\u001F world \\n \\u0022`', async ({ same }) => {
   const stream = sink()
-  const instance = bingo-logger({
+  const instance = bingo({
     name: 'hello'
   }, stream)
   instance.fatal('hello \u001F world \n \u0022')

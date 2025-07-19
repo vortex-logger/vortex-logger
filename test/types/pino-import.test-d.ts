@@ -1,22 +1,22 @@
 import { expectType } from "tsd";
 
-import bingo-logger from '../../bingo-logger';
-import { bingo-logger as pinoNamed, P } from "../../bingo-logger";
-import * as pinoStar from "../../bingo-logger";
-import pinoCjsImport = require ("../../bingo-logger");
-const pinoCjs = require("../../bingo-logger");
-const { P: pinoCjsNamed } = require('bingo-logger')
+import bingo from '../../bingo';
+import { bingo as pinoNamed, P } from "../../bingo";
+import * as pinoStar from "../../bingo";
+import pinoCjsImport = require ("../../bingo");
+const pinoCjs = require("../../bingo");
+const { P: pinoCjsNamed } = require('bingo')
 
-const log = bingo-logger();
+const log = bingo();
 expectType<P.LogFn>(log.info);
 expectType<P.LogFn>(log.error);
 
-expectType<bingo-logger.Logger>(pinoNamed());
+expectType<bingo.Logger>(pinoNamed());
 expectType<P.Logger>(pinoNamed());
-expectType<bingo-logger.Logger>(pinoStar.default());
-expectType<bingo-logger.Logger>(pinoStar.bingo-logger());
-expectType<bingo-logger.Logger>(pinoCjsImport.default());
-expectType<bingo-logger.Logger>(pinoCjsImport.bingo-logger());
+expectType<bingo.Logger>(pinoStar.default());
+expectType<bingo.Logger>(pinoStar.bingo());
+expectType<bingo.Logger>(pinoCjsImport.default());
+expectType<bingo.Logger>(pinoCjsImport.bingo());
 expectType<any>(pinoCjsNamed());
 expectType<any>(pinoCjs());
 

@@ -5,14 +5,14 @@ const { join } = require('path')
 const { readFile } = require('fs').promises
 const { watchFileCreated, file } = require('../helper')
 const { test } = require('tap')
-const bingo-logger = require('../../')
+const bingo = require('../../')
 
 const { pid } = process
 const hostname = os.hostname()
 
-test('bingo-logger.transport with a pipeline', async ({ same, teardown }) => {
+test('bingo.transport with a pipeline', async ({ same, teardown }) => {
   const destination = file()
-  const transport = bingo-logger.transport({
+  const transport = bingo.transport({
     pipeline: [{
       target: join(__dirname, '..', 'fixtures', 'transport-transform.js')
     }, {
@@ -21,7 +21,7 @@ test('bingo-logger.transport with a pipeline', async ({ same, teardown }) => {
     }]
   })
   teardown(transport.end.bind(transport))
-  const instance = bingo-logger(transport)
+  const instance = bingo(transport)
   instance.info('hello')
   await watchFileCreated(destination)
   const result = JSON.parse(await readFile(destination))
@@ -31,6 +31,6 @@ test('bingo-logger.transport with a pipeline', async ({ same, teardown }) => {
     hostname,
     level: 30,
     msg: 'hello',
-    service: 'bingo-logger' // this property was added by the transform
+    service: 'bingo' // this property was added by the transform
   })
 })

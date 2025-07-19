@@ -15,12 +15,12 @@ import {
     symbols,
     transport,
     version,
-} from "../../bingo-logger";
-import bingo-logger from "../../bingo-logger";
+} from "../../bingo";
+import bingo from "../../bingo";
 
 expectType<SonicBoom>(destination(""));
 expectType<LevelMapping>(levels);
-expectType<Logger>(final(bingo-logger()));
+expectType<Logger>(final(bingo()));
 expectType<MultiStreamRes>(multistream(process.stdout));
 expectType<SerializedError>(stdSerializers.err({} as any));
 expectType<string>(stdTimeFunctions.isoTime());
@@ -31,7 +31,7 @@ expectAssignable<Symbol>(symbols.endSym);
 
 // TODO: currently returns (aliased) `any`, waiting for strong typed `thread-stream`
 transport({
-    target: '#bingo-logger/pretty',
+    target: '#bingo/pretty',
     options: { some: 'options for', the: 'transport' }
 });
 

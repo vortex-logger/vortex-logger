@@ -1,9 +1,9 @@
-import bingo-logger from '../../..'
+import bingo from '../../..'
 
-const transport = bingo-logger.transport({
-  target: 'bingo-logger/file'
+const transport = bingo.transport({
+  target: 'bingo/file'
 })
-const logger = bingo-logger(transport)
+const logger = bingo(transport)
 
 transport.on('ready', function () {
   logger.info('Hello')

@@ -7,7 +7,7 @@ const { test } = require('tap')
 const { isWin, isYarnPnp, watchFileCreated, file } = require('../helper')
 const { once } = require('events')
 const execa = require('execa')
-const bingo-logger = require('../../')
+const bingo = require('../../')
 const rimraf = require('rimraf')
 
 const { pid } = process
@@ -39,12 +39,12 @@ async function uninstallTransportModule () {
 }
 
 // TODO make this test pass on Windows
-test('bingo-logger.transport with package', { skip: isWin }, async ({ same, teardown }) => {
+test('bingo.transport with package', { skip: isWin }, async ({ same, teardown }) => {
   const destination = file()
 
   await installTransportModule()
 
-  const transport = bingo-logger.transport({
+  const transport = bingo.transport({
     target: 'transport',
     options: { destination }
   })
@@ -53,7 +53,7 @@ test('bingo-logger.transport with package', { skip: isWin }, async ({ same, tear
     await uninstallTransportModule()
     transport.end()
   })
-  const instance = bingo-logger(transport)
+  const instance = bingo(transport)
   instance.info('hello')
   await watchFileCreated(destination)
   const result = JSON.parse(await readFile(destination))
@@ -67,12 +67,12 @@ test('bingo-logger.transport with package', { skip: isWin }, async ({ same, tear
 })
 
 // TODO make this test pass on Windows
-test('bingo-logger.transport with package as a target', { skip: isWin }, async ({ same, teardown }) => {
+test('bingo.transport with package as a target', { skip: isWin }, async ({ same, teardown }) => {
   const destination = file()
 
   await installTransportModule()
 
-  const transport = bingo-logger.transport({
+  const transport = bingo.transport({
     targets: [{
       target: 'transport',
       options: { destination }
@@ -82,7 +82,7 @@ test('bingo-logger.transport with package as a target', { skip: isWin }, async (
     await uninstallTransportModule()
     transport.end()
   })
-  const instance = bingo-logger(transport)
+  const instance = bingo(transport)
   instance.info('hello')
   await watchFileCreated(destination)
   const result = JSON.parse(await readFile(destination))
@@ -96,7 +96,7 @@ test('bingo-logger.transport with package as a target', { skip: isWin }, async (
 })
 
 // TODO make this test pass on Windows
-test('bingo-logger({ transport })', { skip: isWin || isYarnPnp }, async ({ same, teardown }) => {
+test('bingo({ transport })', { skip: isWin || isYarnPnp }, async ({ same, teardown }) => {
   const folder = join(
     os.tmpdir(),
     '_' + Math.random().toString(36).substr(2, 9)
@@ -110,10 +110,10 @@ test('bingo-logger({ transport })', { skip: isWin || isYarnPnp }, async ({ same,
 
   await mkdir(join(folder, 'node_modules'), { recursive: true })
 
-  // Link bingo-logger
+  // Link bingo
   await symlink(
     join(__dirname, '..', '..'),
-    join(folder, 'node_modules', 'bingo-logger')
+    join(folder, 'node_modules', 'bingo')
   )
 
   await installTransportModule(folder)
@@ -121,8 +121,8 @@ test('bingo-logger({ transport })', { skip: isWin || isYarnPnp }, async ({ same,
   const toRun = join(folder, 'index.js')
 
   const toRunContent = `
-    const bingo-logger = require('bingo-logger')
-    const logger = bingo-logger({
+    const bingo = require('bingo')
+    const logger = bingo({
       transport: {
         target: 'transport',
         options: { destination: '${destination}' }
@@ -148,7 +148,7 @@ test('bingo-logger({ transport })', { skip: isWin || isYarnPnp }, async ({ same,
 })
 
 // TODO make this test pass on Windows
-test('bingo-logger({ transport }) from a wrapped dependency', { skip: isWin || isYarnPnp }, async ({ same, teardown }) => {
+test('bingo({ transport }) from a wrapped dependency', { skip: isWin || isYarnPnp }, async ({ same, teardown }) => {
   const folder = join(
     os.tmpdir(),
     '_' + Math.random().toString(36).substr(2, 9)
@@ -169,10 +169,10 @@ test('bingo-logger({ transport }) from a wrapped dependency', { skip: isWin || i
     rimraf.sync(folder)
   })
 
-  // Link bingo-logger
+  // Link bingo
   await symlink(
     join(__dirname, '..', '..'),
-    join(wrappedFolder, 'node_modules', 'bingo-logger')
+    join(wrappedFolder, 'node_modules', 'bingo')
   )
 
   // Link get-caller-file
@@ -190,7 +190,7 @@ test('bingo-logger({ transport }) from a wrapped dependency', { skip: isWin || i
   await installTransportModule(folder)
 
   const pkgjsonContent = {
-    name: 'bingo-logger'
+    name: 'bingo'
   }
 
   await writeFile(join(wrappedFolder, 'package.json'), JSON.stringify(pkgjsonContent))
@@ -198,11 +198,11 @@ test('bingo-logger({ transport }) from a wrapped dependency', { skip: isWin || i
   const wrapped = join(wrappedFolder, 'index.js')
 
   const wrappedContent = `
-    const bingo-logger = require('bingo-logger')
+    const bingo = require('bingo')
     const getCaller = require('get-caller-file')
 
     module.exports = function build () {
-      const logger = bingo-logger({
+      const logger = bingo({
         transport: {
           caller: getCaller(),
           target: 'transport',

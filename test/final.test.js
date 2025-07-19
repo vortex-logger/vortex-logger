@@ -1,5 +1,5 @@
 'use strict'
-const bingo-logger = require('..')
+const bingo = require('..')
 const fs = require('fs')
 const { test } = require('tap')
 const { sleep, getPathToNull } = require('./helper')
@@ -8,16 +8,16 @@ const { sleep, getPathToNull } = require('./helper')
 // will be emitted. Let's raise this so we do not scare everybody.
 process.setMaxListeners(100)
 
-test('should show warning for bingo-logger.final on node 14+', ({ equal, end, plan }) => {
+test('should show warning for bingo.final on node 14+', ({ equal, end, plan }) => {
   const major = Number(process.versions.node.split('.')[0])
   if (major < 14) return end()
 
   plan(1)
-  const dest = bingo-logger.destination({ dest: getPathToNull(), sync: false })
+  const dest = bingo.destination({ dest: getPathToNull(), sync: false })
   dest.flushSync = () => {}
-  const instance = bingo-logger(dest)
+  const instance = bingo(dest)
 
-  bingo-logger.final(instance, (_, finalLogger) => {
+  bingo.final(instance, (_, finalLogger) => {
     finalLogger.info('hello')
   })()
 
@@ -33,105 +33,105 @@ test('should show warning for bingo-logger.final on node 14+', ({ equal, end, pl
 
 test('replaces onTerminated option', async ({ throws }) => {
   throws(() => {
-    bingo-logger({
+    bingo({
       onTerminated: () => {}
     })
-  }, Error('The onTerminated option has been removed, use bingo-logger.final instead'))
+  }, Error('The onTerminated option has been removed, use bingo.final instead'))
 })
 
 test('throws if not supplied a logger instance', async ({ throws }) => {
   throws(() => {
-    bingo-logger.final()
-  }, Error('expected a bingo-logger logger instance'))
+    bingo.final()
+  }, Error('expected a bingo logger instance'))
 })
 
 test('throws if the supplied handler is not a function', async ({ throws }) => {
   throws(() => {
-    bingo-logger.final(bingo-logger(), 'dummy')
+    bingo.final(bingo(), 'dummy')
   }, Error('if supplied, the handler parameter should be a function'))
 })
 
-test('throws if not supplied logger with bingo-logger.destination instance with sync false', async ({ throws, doesNotThrow }) => {
+test('throws if not supplied logger with bingo.destination instance with sync false', async ({ throws, doesNotThrow }) => {
   throws(() => {
-    bingo-logger.final(bingo-logger(fs.createWriteStream(getPathToNull())), () => {})
-  }, Error('final requires a stream that has a flushSync method, such as bingo-logger.destination'))
+    bingo.final(bingo(fs.createWriteStream(getPathToNull())), () => {})
+  }, Error('final requires a stream that has a flushSync method, such as bingo.destination'))
 
   doesNotThrow(() => {
-    bingo-logger.final(bingo-logger(bingo-logger.destination({ sync: false })), () => {})
+    bingo.final(bingo(bingo.destination({ sync: false })), () => {})
   })
 
   doesNotThrow(() => {
-    bingo-logger.final(bingo-logger(bingo-logger.destination({ sync: false })), () => {})
+    bingo.final(bingo(bingo.destination({ sync: false })), () => {})
   })
 })
 
 test('returns an exit listener function', async ({ equal }) => {
-  equal(typeof bingo-logger.final(bingo-logger(bingo-logger.destination({ sync: false })), () => {}), 'function')
+  equal(typeof bingo.final(bingo(bingo.destination({ sync: false })), () => {}), 'function')
 })
 
 test('listener function immediately sync flushes when fired (sync false)', async ({ pass, fail }) => {
-  const dest = bingo-logger.destination({ dest: getPathToNull(), sync: false })
+  const dest = bingo.destination({ dest: getPathToNull(), sync: false })
   let passed = false
   dest.flushSync = () => {
     passed = true
     pass('flushSync called')
     dest.flushSync = () => {}
   }
-  bingo-logger.final(bingo-logger(dest), () => {})()
+  bingo.final(bingo(dest), () => {})()
   await sleep(10)
   if (passed === false) fail('flushSync not called')
 })
 
 test('listener function immediately sync flushes when fired (sync true)', async ({ pass, fail }) => {
-  const dest = bingo-logger.destination({ dest: getPathToNull(), sync: true })
+  const dest = bingo.destination({ dest: getPathToNull(), sync: true })
   let passed = false
   dest.flushSync = () => {
     passed = true
     pass('flushSync called')
     dest.flushSync = () => {}
   }
-  bingo-logger.final(bingo-logger(dest), () => {})()
+  bingo.final(bingo(dest), () => {})()
   await sleep(10)
   if (passed === false) fail('flushSync not called')
 })
 
 test('immediately sync flushes when no handler is provided (sync false)', async ({ pass, fail }) => {
-  const dest = bingo-logger.destination({ dest: getPathToNull(), sync: false })
+  const dest = bingo.destination({ dest: getPathToNull(), sync: false })
   let passed = false
   dest.flushSync = () => {
     passed = true
     pass('flushSync called')
     dest.flushSync = () => {}
   }
-  bingo-logger.final(bingo-logger(dest))
+  bingo.final(bingo(dest))
   await sleep(10)
   if (passed === false) fail('flushSync not called')
 })
 
 test('immediately sync flushes when no handler is provided (sync true)', async ({ pass, fail }) => {
-  const dest = bingo-logger.destination({ dest: getPathToNull(), sync: true })
+  const dest = bingo.destination({ dest: getPathToNull(), sync: true })
   let passed = false
   dest.flushSync = () => {
     passed = true
     pass('flushSync called')
     dest.flushSync = () => {}
   }
-  bingo-logger.final(bingo-logger(dest))
+  bingo.final(bingo(dest))
   await sleep(10)
   if (passed === false) fail('flushSync not called')
 })
 
 test('swallows the non-ready error', async ({ doesNotThrow }) => {
-  const dest = bingo-logger.destination({ dest: getPathToNull(), sync: false })
+  const dest = bingo.destination({ dest: getPathToNull(), sync: false })
   doesNotThrow(() => {
-    bingo-logger.final(bingo-logger(dest), () => {})()
+    bingo.final(bingo(dest), () => {})()
   })
 })
 
 test('listener function triggers handler function parameter', async ({ pass, fail }) => {
-  const dest = bingo-logger.destination({ dest: getPathToNull(), sync: false })
+  const dest = bingo.destination({ dest: getPathToNull(), sync: false })
   let passed = false
-  bingo-logger.final(bingo-logger(dest), () => {
+  bingo.final(bingo(dest), () => {
     passed = true
     pass('handler function triggered')
   })()
@@ -140,16 +140,16 @@ test('listener function triggers handler function parameter', async ({ pass, fai
 })
 
 test('passes any error to the handler', async ({ equal }) => {
-  const dest = bingo-logger.destination({ dest: getPathToNull(), sync: false })
-  bingo-logger.final(bingo-logger(dest), (err) => {
+  const dest = bingo.destination({ dest: getPathToNull(), sync: false })
+  bingo.final(bingo(dest), (err) => {
     equal(err.message, 'test')
   })(Error('test'))
 })
 
 test('passes a specialized final logger instance', async ({ equal, not, error }) => {
-  const dest = bingo-logger.destination({ dest: getPathToNull(), sync: false })
-  const logger = bingo-logger(dest)
-  bingo-logger.final(logger, (err, finalLogger) => {
+  const dest = bingo.destination({ dest: getPathToNull(), sync: false })
+  const logger = bingo(dest)
+  bingo.final(logger, (err, finalLogger) => {
     error(err)
     equal(typeof finalLogger.trace, 'function')
     equal(typeof finalLogger.debug, 'function')
@@ -171,9 +171,9 @@ test('passes a specialized final logger instance', async ({ equal, not, error })
 })
 
 test('returns a specialized final logger instance if no handler is passed', async ({ equal, not }) => {
-  const dest = bingo-logger.destination({ dest: getPathToNull(), sync: false })
-  const logger = bingo-logger(dest)
-  const finalLogger = bingo-logger.final(logger)
+  const dest = bingo.destination({ dest: getPathToNull(), sync: false })
+  const logger = bingo(dest)
+  const finalLogger = bingo.final(logger)
   equal(typeof finalLogger.trace, 'function')
   equal(typeof finalLogger.debug, 'function')
   equal(typeof finalLogger.info, 'function')
@@ -193,8 +193,8 @@ test('returns a specialized final logger instance if no handler is passed', asyn
 })
 
 test('final logger instances synchronously flush after a log method call', async ({ pass, fail, error }) => {
-  const dest = bingo-logger.destination({ dest: getPathToNull(), sync: false })
-  const logger = bingo-logger(dest)
+  const dest = bingo.destination({ dest: getPathToNull(), sync: false })
+  const logger = bingo(dest)
   let passed = false
   let count = 0
   dest.flushSync = () => {
@@ -204,7 +204,7 @@ test('final logger instances synchronously flush after a log method call', async
       pass('flushSync called')
     }
   }
-  bingo-logger.final(logger, (err, finalLogger) => {
+  bingo.final(logger, (err, finalLogger) => {
     error(err)
     finalLogger.info('hello')
   })()
@@ -213,8 +213,8 @@ test('final logger instances synchronously flush after a log method call', async
 })
 
 test('also instruments custom log methods', async ({ pass, fail, error }) => {
-  const dest = bingo-logger.destination({ dest: getPathToNull(), sync: false })
-  const logger = bingo-logger({
+  const dest = bingo.destination({ dest: getPathToNull(), sync: false })
+  const logger = bingo({
     customLevels: {
       foo: 35
     }
@@ -228,7 +228,7 @@ test('also instruments custom log methods', async ({ pass, fail, error }) => {
       pass('flushSync called')
     }
   }
-  bingo-logger.final(logger, (err, finalLogger) => {
+  bingo.final(logger, (err, finalLogger) => {
     error(err)
     finalLogger.foo('hello')
   })()

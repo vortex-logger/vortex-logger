@@ -3,7 +3,7 @@
 const { test } = require('tap')
 const { sink, once } = require('./helper')
 const { PassThrough } = require('stream')
-const bingo-logger = require('../')
+const bingo = require('../')
 
 test('Proxy and stream objects', async ({ equal }) => {
   const s = new PassThrough()
@@ -11,7 +11,7 @@ test('Proxy and stream objects', async ({ equal }) => {
   s.write('', () => {})
   const obj = { s, p: new Proxy({}, { get () { throw new Error('kaboom') } }) }
   const stream = sink()
-  const instance = bingo-logger(stream)
+  const instance = bingo(stream)
   instance.info({ obj })
 
   const result = await once(stream, 'data')
@@ -25,7 +25,7 @@ test('Proxy and stream objects', async ({ equal }) => {
   s.write('', () => {})
   const obj = { s, p: new Proxy({}, { get () { throw new Error('kaboom') } }) }
   const stream = sink()
-  const instance = bingo-logger(stream)
+  const instance = bingo(stream)
   instance.info(obj)
 
   const result = await once(stream, 'data')

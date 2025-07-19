@@ -3,62 +3,62 @@ const os = require('os')
 const { readFileSync } = require('fs')
 const { test } = require('tap')
 const { sink, check, once, watchFileCreated, file } = require('./helper')
-const bingo-logger = require('../')
+const bingo = require('../')
 const { version } = require('../package.json')
 const { pid } = process
 const hostname = os.hostname()
 
-test('bingo-logger version is exposed on export', async ({ equal }) => {
-  equal(bingo-logger.version, version)
+test('bingo version is exposed on export', async ({ equal }) => {
+  equal(bingo.version, version)
 })
 
-test('bingo-logger version is exposed on instance', async ({ equal }) => {
-  const instance = bingo-logger()
+test('bingo version is exposed on instance', async ({ equal }) => {
+  const instance = bingo()
   equal(instance.version, version)
 })
 
-test('child instance exposes bingo-logger version', async ({ equal }) => {
-  const child = bingo-logger().child({ foo: 'bar' })
+test('child instance exposes bingo version', async ({ equal }) => {
+  const child = bingo().child({ foo: 'bar' })
   equal(child.version, version)
 })
 
 test('bindings are exposed on every instance', async ({ same }) => {
-  const instance = bingo-logger()
+  const instance = bingo()
   same(instance.bindings(), {})
 })
 
 test('bindings contain the name and the child bindings', async ({ same }) => {
-  const instance = bingo-logger({ name: 'basicTest', level: 'info' }).child({ foo: 'bar' }).child({ a: 2 })
+  const instance = bingo({ name: 'basicTest', level: 'info' }).child({ foo: 'bar' }).child({ a: 2 })
   same(instance.bindings(), { name: 'basicTest', foo: 'bar', a: 2 })
 })
 
 test('set bindings on instance', async ({ same }) => {
-  const instance = bingo-logger({ name: 'basicTest', level: 'info' })
+  const instance = bingo({ name: 'basicTest', level: 'info' })
   instance.setBindings({ foo: 'bar' })
   same(instance.bindings(), { name: 'basicTest', foo: 'bar' })
 })
 
 test('newly set bindings overwrite old bindings', async ({ same }) => {
-  const instance = bingo-logger({ name: 'basicTest', level: 'info', base: { foo: 'bar' } })
+  const instance = bingo({ name: 'basicTest', level: 'info', base: { foo: 'bar' } })
   instance.setBindings({ foo: 'baz' })
   same(instance.bindings(), { name: 'basicTest', foo: 'baz' })
 })
 
 test('set bindings on child instance', async ({ same }) => {
-  const child = bingo-logger({ name: 'basicTest', level: 'info' }).child({})
+  const child = bingo({ name: 'basicTest', level: 'info' }).child({})
   child.setBindings({ foo: 'bar' })
   same(child.bindings(), { name: 'basicTest', foo: 'bar' })
 })
 
 test('child should have bindings set by parent', async ({ same }) => {
-  const instance = bingo-logger({ name: 'basicTest', level: 'info' })
+  const instance = bingo({ name: 'basicTest', level: 'info' })
   instance.setBindings({ foo: 'bar' })
   const child = instance.child({})
   same(child.bindings(), { name: 'basicTest', foo: 'bar' })
 })
 
 test('child should not share bindings of parent set after child creation', async ({ same }) => {
-  const instance = bingo-logger({ name: 'basicTest', level: 'info' })
+  const instance = bingo({ name: 'basicTest', level: 'info' })
   const child = instance.child({})
   instance.setBindings({ foo: 'bar' })
   same(instance.bindings(), { name: 'basicTest', foo: 'bar' })
@@ -68,7 +68,7 @@ test('child should not share bindings of parent set after child creation', async
 function levelTest (name, level) {
   test(`${name} logs as ${level}`, async ({ equal }) => {
     const stream = sink()
-    const instance = bingo-logger(stream)
+    const instance = bingo(stream)
     instance.level = name
     instance[name]('hello world')
     check(equal, await once(stream, 'data'), level, 'hello world')
@@ -76,7 +76,7 @@ function levelTest (name, level) {
 
   test(`passing objects at level ${name}`, async ({ equal, same }) => {
     const stream = sink()
-    const instance = bingo-logger(stream)
+    const instance = bingo(stream)
     instance.level = name
     const obj = { hello: 'world' }
     instance[name](obj)
@@ -92,7 +92,7 @@ function levelTest (name, level) {
 
   test(`passing an object and a string at level ${name}`, async ({ equal, same }) => {
     const stream = sink()
-    const instance = bingo-logger(stream)
+    const instance = bingo(stream)
     instance.level = name
     const obj = { hello: 'world' }
     instance[name](obj, 'a string')
@@ -111,7 +111,7 @@ function levelTest (name, level) {
 
   test(`overriding object key by string at level ${name}`, async ({ equal, same }) => {
     const stream = sink()
-    const instance = bingo-logger(stream)
+    const instance = bingo(stream)
     instance.level = name
     instance[name]({ hello: 'world', msg: 'object' }, 'string')
     const result = await once(stream, 'data')
@@ -128,7 +128,7 @@ function levelTest (name, level) {
 
   test(`formatting logs as ${name}`, async ({ equal }) => {
     const stream = sink()
-    const instance = bingo-logger(stream)
+    const instance = bingo(stream)
     instance.level = name
     instance[name]('hello %d', 42)
     const result = await once(stream, 'data')
@@ -137,7 +137,7 @@ function levelTest (name, level) {
 
   test(`formatting a symbol at level ${name}`, async ({ equal }) => {
     const stream = sink()
-    const instance = bingo-logger(stream)
+    const instance = bingo(stream)
     instance.level = name
 
     const sym = Symbol('foo')
@@ -151,9 +151,9 @@ function levelTest (name, level) {
   test(`passing error with a serializer at level ${name}`, async ({ equal, same }) => {
     const stream = sink()
     const err = new Error('myerror')
-    const instance = bingo-logger({
+    const instance = bingo({
       serializers: {
-        err: bingo-logger.stdSerializers.err
+        err: bingo.stdSerializers.err
       }
     }, stream)
     instance.level = name
@@ -176,7 +176,7 @@ function levelTest (name, level) {
 
   test(`child logger for level ${name}`, async ({ equal, same }) => {
     const stream = sink()
-    const instance = bingo-logger(stream)
+    const instance = bingo(stream)
     instance.level = name
     const child = instance.child({ hello: 'world' })
     child[name]('hello world')
@@ -202,7 +202,7 @@ levelTest('trace', 10)
 
 test('serializers can return undefined to strip field', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo-logger({
+  const instance = bingo({
     serializers: {
       test () { return undefined }
     }
@@ -215,7 +215,7 @@ test('serializers can return undefined to strip field', async ({ equal }) => {
 
 test('does not explode with a circular ref', async ({ doesNotThrow }) => {
   const stream = sink()
-  const instance = bingo-logger(stream)
+  const instance = bingo(stream)
   const b = {}
   const a = {
     hello: b
@@ -226,7 +226,7 @@ test('does not explode with a circular ref', async ({ doesNotThrow }) => {
 
 test('set the name', async ({ equal, same }) => {
   const stream = sink()
-  const instance = bingo-logger({
+  const instance = bingo({
     name: 'hello'
   }, stream)
   instance.fatal('this is fatal')
@@ -246,7 +246,7 @@ test('set the messageKey', async ({ equal, same }) => {
   const stream = sink()
   const message = 'hello world'
   const messageKey = 'fooMessage'
-  const instance = bingo-logger({
+  const instance = bingo({
     messageKey
   }, stream)
   instance.info(message)
@@ -265,7 +265,7 @@ test('set the nestedKey', async ({ equal, same }) => {
   const stream = sink()
   const object = { hello: 'world' }
   const nestedKey = 'stuff'
-  const instance = bingo-logger({
+  const instance = bingo({
     nestedKey
   }, stream)
   instance.info(object)
@@ -282,7 +282,7 @@ test('set the nestedKey', async ({ equal, same }) => {
 
 test('set undefined properties', async ({ equal, same }) => {
   const stream = sink()
-  const instance = bingo-logger(stream)
+  const instance = bingo(stream)
   instance.info({ hello: 'world', property: undefined })
   const result = await once(stream, 'data')
   equal(new Date(result.time) <= new Date(), true, 'time is greater than Date.now()')
@@ -297,7 +297,7 @@ test('set undefined properties', async ({ equal, same }) => {
 
 test('prototype properties are not logged', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo-logger(stream)
+  const instance = bingo(stream)
   instance.info(Object.create({ hello: 'world' }))
   const { hello } = await once(stream, 'data')
   equal(hello, undefined)
@@ -305,7 +305,7 @@ test('prototype properties are not logged', async ({ equal }) => {
 
 test('set the base', async ({ equal, same }) => {
   const stream = sink()
-  const instance = bingo-logger({
+  const instance = bingo({
     base: {
       a: 'b'
     }
@@ -324,7 +324,7 @@ test('set the base', async ({ equal, same }) => {
 
 test('set the base to null', async ({ equal, same }) => {
   const stream = sink()
-  const instance = bingo-logger({
+  const instance = bingo({
     base: null
   }, stream)
   instance.fatal('this is fatal')
@@ -339,11 +339,11 @@ test('set the base to null', async ({ equal, same }) => {
 
 test('set the base to null and use a formatter', async ({ equal, same }) => {
   const stream = sink()
-  const instance = bingo-logger({
+  const instance = bingo({
     base: null,
     formatters: {
       log (input) {
-        return Object.assign({}, input, { additionalMessage: 'using bingo-logger' })
+        return Object.assign({}, input, { additionalMessage: 'using bingo' })
       }
     }
   }, stream)
@@ -354,13 +354,13 @@ test('set the base to null and use a formatter', async ({ equal, same }) => {
   same(result, {
     level: 60,
     msg: 'this is fatal too',
-    additionalMessage: 'using bingo-logger'
+    additionalMessage: 'using bingo'
   })
 })
 
 test('throw if creating child without bindings', async ({ equal, fail }) => {
   const stream = sink()
-  const instance = bingo-logger(stream)
+  const instance = bingo(stream)
   try {
     instance.child()
     fail('it should throw')
@@ -371,7 +371,7 @@ test('throw if creating child without bindings', async ({ equal, fail }) => {
 
 test('correctly escapes msg strings with stray double quote at end', async ({ same }) => {
   const stream = sink()
-  const instance = bingo-logger({
+  const instance = bingo({
     name: 'hello'
   }, stream)
 
@@ -389,7 +389,7 @@ test('correctly escapes msg strings with stray double quote at end', async ({ sa
 
 test('correctly escape msg strings with unclosed double quote', async ({ same }) => {
   const stream = sink()
-  const instance = bingo-logger({
+  const instance = bingo({
     name: 'hello'
   }, stream)
   instance.fatal('" this contains')
@@ -404,10 +404,10 @@ test('correctly escape msg strings with unclosed double quote', async ({ same })
   })
 })
 
-// https://github.com/bingo-loggerjs/bingo-logger/issues/139
+// https://github.com/bingojs/bingo/issues/139
 test('object and format string', async ({ same }) => {
   const stream = sink()
-  const instance = bingo-logger(stream)
+  const instance = bingo(stream)
   instance.info({}, 'foo %s', 'bar')
 
   const result = await once(stream, 'data')
@@ -422,7 +422,7 @@ test('object and format string', async ({ same }) => {
 
 test('object and format string property', async ({ same }) => {
   const stream = sink()
-  const instance = bingo-logger(stream)
+  const instance = bingo(stream)
   instance.info({ answer: 42 }, 'foo %s', 'bar')
   const result = await once(stream, 'data')
   delete result.time
@@ -437,7 +437,7 @@ test('object and format string property', async ({ same }) => {
 
 test('correctly strip undefined when returned from toJSON', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo-logger({
+  const instance = bingo({
     test: 'this'
   }, stream)
   instance.fatal({ test: { toJSON () { return undefined } } })
@@ -460,13 +460,13 @@ test('correctly supports stderr', async ({ same }) => {
       })
     }
   }
-  const instance = bingo-logger(dest)
+  const instance = bingo(dest)
   instance.fatal('a message')
 })
 
 test('normalize number to string', async ({ same }) => {
   const stream = sink()
-  const instance = bingo-logger(stream)
+  const instance = bingo(stream)
   instance.info(1)
   const result = await once(stream, 'data')
   delete result.time
@@ -480,7 +480,7 @@ test('normalize number to string', async ({ same }) => {
 
 test('normalize number to string with an object', async ({ same }) => {
   const stream = sink()
-  const instance = bingo-logger(stream)
+  const instance = bingo(stream)
   instance.info({ answer: 42 }, 1)
   const result = await once(stream, 'data')
   delete result.time
@@ -495,7 +495,7 @@ test('normalize number to string with an object', async ({ same }) => {
 
 test('handles objects with null prototype', async ({ same }) => {
   const stream = sink()
-  const instance = bingo-logger(stream)
+  const instance = bingo(stream)
   const o = Object.create(null)
   o.test = 'test'
   instance.info(o)
@@ -509,9 +509,9 @@ test('handles objects with null prototype', async ({ same }) => {
   })
 })
 
-test('bingo-logger.destination', async ({ same }) => {
+test('bingo.destination', async ({ same }) => {
   const tmp = file()
-  const instance = bingo-logger(bingo-logger.destination(tmp))
+  const instance = bingo(bingo.destination(tmp))
   instance.info('hello')
   await watchFileCreated(tmp)
   const result = JSON.parse(readFileSync(tmp).toString())
@@ -524,9 +524,9 @@ test('bingo-logger.destination', async ({ same }) => {
   })
 })
 
-test('auto bingo-logger.destination with a string', async ({ same }) => {
+test('auto bingo.destination with a string', async ({ same }) => {
   const tmp = file()
-  const instance = bingo-logger(tmp)
+  const instance = bingo(tmp)
   instance.info('hello')
   await watchFileCreated(tmp)
   const result = JSON.parse(readFileSync(tmp).toString())
@@ -539,9 +539,9 @@ test('auto bingo-logger.destination with a string', async ({ same }) => {
   })
 })
 
-test('auto bingo-logger.destination with a string as second argument', async ({ same }) => {
+test('auto bingo.destination with a string as second argument', async ({ same }) => {
   const tmp = file()
-  const instance = bingo-logger(null, tmp)
+  const instance = bingo(null, tmp)
   instance.info('hello')
   await watchFileCreated(tmp)
   const result = JSON.parse(readFileSync(tmp).toString())
@@ -556,7 +556,7 @@ test('auto bingo-logger.destination with a string as second argument', async ({ 
 
 test('does not override opts with a string as second argument', async ({ same }) => {
   const tmp = file()
-  const instance = bingo-logger({
+  const instance = bingo({
     timestamp: () => ',"time":"none"'
   }, tmp)
   instance.info('hello')
@@ -571,10 +571,10 @@ test('does not override opts with a string as second argument', async ({ same })
   })
 })
 
-// https://github.com/bingo-loggerjs/bingo-logger/issues/222
+// https://github.com/bingojs/bingo/issues/222
 test('children with same names render in correct order', async ({ equal }) => {
   const stream = sink()
-  const root = bingo-logger(stream)
+  const root = bingo(stream)
   root.child({ a: 1 }).child({ a: 2 }).info({ a: 3 })
   const { a } = await once(stream, 'data')
   equal(a, 3, 'last logged object takes precedence')
@@ -582,7 +582,7 @@ test('children with same names render in correct order', async ({ equal }) => {
 
 test('use `safe-stable-stringify` to avoid circular dependencies', async ({ same }) => {
   const stream = sink()
-  const root = bingo-logger(stream)
+  const root = bingo(stream)
   // circular depth
   const obj = {}
   obj.a = obj
@@ -593,7 +593,7 @@ test('use `safe-stable-stringify` to avoid circular dependencies', async ({ same
 
 test('correctly log non circular objects', async ({ same }) => {
   const stream = sink()
-  const root = bingo-logger(stream)
+  const root = bingo(stream)
   const obj = {}
   let parent = obj
   for (let i = 0; i < 10; i++) {
@@ -607,7 +607,7 @@ test('correctly log non circular objects', async ({ same }) => {
 
 test('safe-stable-stringify must be used when interpolating', async (t) => {
   const stream = sink()
-  const instance = bingo-logger(stream)
+  const instance = bingo(stream)
 
   const o = { a: { b: {} } }
   o.a.b.c = o.a.b
@@ -619,7 +619,7 @@ test('safe-stable-stringify must be used when interpolating', async (t) => {
 
 test('throws when setting useOnlyCustomLevels without customLevels', async ({ throws }) => {
   throws(() => {
-    bingo-logger({
+    bingo({
       useOnlyCustomLevels: true
     })
   }, 'customLevels is required if useOnlyCustomLevels is set true')
@@ -627,7 +627,7 @@ test('throws when setting useOnlyCustomLevels without customLevels', async ({ th
 
 test('correctly log Infinity', async (t) => {
   const stream = sink()
-  const instance = bingo-logger(stream)
+  const instance = bingo(stream)
 
   const o = { num: Infinity }
   instance.info(o)
@@ -638,7 +638,7 @@ test('correctly log Infinity', async (t) => {
 
 test('correctly log -Infinity', async (t) => {
   const stream = sink()
-  const instance = bingo-logger(stream)
+  const instance = bingo(stream)
 
   const o = { num: -Infinity }
   instance.info(o)
@@ -649,7 +649,7 @@ test('correctly log -Infinity', async (t) => {
 
 test('correctly log NaN', async (t) => {
   const stream = sink()
-  const instance = bingo-logger(stream)
+  const instance = bingo(stream)
 
   const o = { num: NaN }
   instance.info(o)
@@ -659,17 +659,17 @@ test('correctly log NaN', async (t) => {
 })
 
 test('offers a .default() method to please typescript', async ({ equal }) => {
-  equal(bingo-logger.default, bingo-logger)
+  equal(bingo.default, bingo)
 
   const stream = sink()
-  const instance = bingo-logger.default(stream)
+  const instance = bingo.default(stream)
   instance.info('hello world')
   check(equal, await once(stream, 'data'), 30, 'hello world')
 })
 
 test('correctly skip function', async (t) => {
   const stream = sink()
-  const instance = bingo-logger(stream)
+  const instance = bingo(stream)
 
   const o = { num: NaN }
   instance.info(o, () => {})
@@ -680,7 +680,7 @@ test('correctly skip function', async (t) => {
 
 test('correctly skip Infinity', async (t) => {
   const stream = sink()
-  const instance = bingo-logger(stream)
+  const instance = bingo(stream)
 
   const o = { num: NaN }
   instance.info(o, Infinity)
@@ -691,7 +691,7 @@ test('correctly skip Infinity', async (t) => {
 
 test('correctly log number', async (t) => {
   const stream = sink()
-  const instance = bingo-logger(stream)
+  const instance = bingo(stream)
 
   const o = { num: NaN }
   instance.info(o, 42)
@@ -704,7 +704,7 @@ test('nestedKey should not be used for non-objects', async ({ strictSame }) => {
   const stream = sink()
   const message = 'hello'
   const nestedKey = 'stuff'
-  const instance = bingo-logger({
+  const instance = bingo({
     nestedKey
   }, stream)
   instance.info(message)

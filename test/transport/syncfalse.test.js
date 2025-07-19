@@ -1,7 +1,7 @@
 'use strict'
 
 const os = require('os')
-const bingo-logger = require('../..')
+const bingo = require('../..')
 const { join } = require('path')
 const { test } = require('tap')
 const { readFile } = require('fs').promises
@@ -12,11 +12,11 @@ const hostname = os.hostname()
 
 test('thread-stream async flush', async ({ same }) => {
   const destination = file()
-  const transport = bingo-logger.transport({
+  const transport = bingo.transport({
     target: join(__dirname, '..', 'fixtures', 'to-file-transport.js'),
     options: { destination }
   })
-  const instance = bingo-logger(transport)
+  const instance = bingo(transport)
   instance.info('hello')
   instance.flush()
   await watchFileCreated(destination)

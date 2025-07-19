@@ -1,10 +1,10 @@
 /* global test */
-const bingo-logger = require('../../bingo-logger')
+const bingo = require('../../bingo')
 
 test('transport should work in jest', function () {
-  bingo-logger({
+  bingo({
     transport: {
-      target: 'bingo-logger-pretty'
+      target: 'bingo-pretty'
     }
   })
 })

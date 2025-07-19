@@ -4,7 +4,7 @@ const t = require('tap')
 const { join } = require('path')
 const { fork } = require('child_process')
 const { once } = require('./helper')
-const bingo-logger = require('..')
+const bingo = require('..')
 
 function test (file) {
   file = join('fixtures', 'broken-pipe', file)
@@ -27,11 +27,11 @@ test('syncfalse.js')
 
 t.test('let error pass through', ({ equal, plan }) => {
   plan(3)
-  const stream = bingo-logger.destination()
+  const stream = bingo.destination()
 
-  // side effect of the bingo-logger constructor is that it will set an
+  // side effect of the bingo constructor is that it will set an
   // event handler for error
-  bingo-logger(stream)
+  bingo(stream)
 
   process.nextTick(() => stream.emit('error', new Error('kaboom')))
   process.nextTick(() => stream.emit('error', new Error('kaboom')))

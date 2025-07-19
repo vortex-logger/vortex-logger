@@ -1,11 +1,11 @@
 import { expectAssignable, expectType } from "tsd";
 
-import bingo-logger from "../../";
-import type {LevelWithSilent, Logger, LogFn, P} from "../../bingo-logger";
+import bingo from "../../";
+import type {LevelWithSilent, Logger, LogFn, P} from "../../bingo";
 
-// NB: can also use `import * as bingo-logger`, but that form is callable as `bingo-logger()`
-// under `esModuleInterop: false` or `bingo-logger.default()` under `esModuleInterop: true`.
-const log = bingo-logger();
+// NB: can also use `import * as bingo`, but that form is callable as `bingo()`
+// under `esModuleInterop: false` or `bingo.default()` under `esModuleInterop: true`.
+const log = bingo();
 expectType<Logger>(log);
 expectType<LogFn>(log.info);
 

@@ -6,8 +6,8 @@ const execa = require('execa')
 const writer = require('flush-write-stream')
 const { once } = require('./helper')
 
-// https://github.com/bingo-loggerjs/bingo-logger/issues/542
-test('bingo-logger.destination log everything when calling process.exit(0)', async ({ not }) => {
+// https://github.com/bingojs/bingo/issues/542
+test('bingo.destination log everything when calling process.exit(0)', async ({ not }) => {
   let actual = ''
   const child = execa(process.argv[0], [join(__dirname, 'fixtures', 'destination-exit.js')])
 
@@ -22,7 +22,7 @@ test('bingo-logger.destination log everything when calling process.exit(0)', asy
   not(actual.match(/world/), null)
 })
 
-test('bingo-logger with no args log everything when calling process.exit(0)', async ({ not }) => {
+test('bingo with no args log everything when calling process.exit(0)', async ({ not }) => {
   let actual = ''
   const child = execa(process.argv[0], [join(__dirname, 'fixtures', 'default-exit.js')])
 

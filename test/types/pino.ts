@@ -1,4 +1,4 @@
-import { bingo-logger } from '../../bingo-logger'
+import { bingo } from '../../bingo'
 import { join } from 'path'
 import { tmpdir } from 'os'
 
@@ -8,35 +8,35 @@ const destination = join(
 )
 
 // Single
-const transport = bingo-logger.transport({
-    target: 'bingo-logger-pretty',
+const transport = bingo.transport({
+    target: 'bingo-pretty',
     options: { some: 'options for', the: 'transport' }
 })
-const logger = bingo-logger(transport)
+const logger = bingo(transport)
 logger.setBindings({ some: 'bindings' })
 logger.info('test2')
 logger.flush()
 
-const transport2 = bingo-logger.transport({
-    target: 'bingo-logger-pretty',
+const transport2 = bingo.transport({
+    target: 'bingo-pretty',
 })
-const logger2 = bingo-logger(transport2)
+const logger2 = bingo(transport2)
 logger2.info('test2')
 
 
 // Multiple
 
-const transports = bingo-logger.transport({targets: [
+const transports = bingo.transport({targets: [
     {
         level: 'info',
-        target: 'bingo-logger-pretty',
+        target: 'bingo-pretty',
         options: { some: 'options for', the: 'transport' }
     },
     {
         level: 'trace',
-        target: 'bingo-logger/file',
+        target: 'bingo/file',
         options: { destination }
     }
 ]})
-const loggerMulti = bingo-logger(transports)
+const loggerMulti = bingo(transports)
 loggerMulti.info('test2')

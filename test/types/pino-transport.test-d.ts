@@ -1,98 +1,98 @@
-import { bingo-logger } from '../../bingo-logger'
+import { bingo } from '../../bingo'
 import { expectType } from "tsd";
 
 // Single
-const transport = bingo-logger.transport({
-    target: '#bingo-logger/pretty',
+const transport = bingo.transport({
+    target: '#bingo/pretty',
     options: { some: 'options for', the: 'transport' }
 })
-bingo-logger(transport)
+bingo(transport)
 
-expectType<bingo-logger.Logger>(bingo-logger({
+expectType<bingo.Logger>(bingo({
     transport: {
-        target: 'bingo-logger-pretty'
+        target: 'bingo-pretty'
     },
 }))
 
 // Multiple
-const transports = bingo-logger.transport({targets: [
+const transports = bingo.transport({targets: [
     {
         level: 'info',
-        target: '#bingo-logger/pretty',
+        target: '#bingo/pretty',
         options: { some: 'options for', the: 'transport' }
     },
     {
         level: 'trace',
-        target: '#bingo-logger/file',
+        target: '#bingo/file',
         options: { destination: './test.log' }
     }
 ]})
-bingo-logger(transports)
+bingo(transports)
 
-expectType<bingo-logger.Logger>(bingo-logger({
+expectType<bingo.Logger>(bingo({
     transport: {targets: [
             {
                 level: 'info',
-                target: '#bingo-logger/pretty',
+                target: '#bingo/pretty',
                 options: { some: 'options for', the: 'transport' }
             },
             {
                 level: 'trace',
-                target: '#bingo-logger/file',
+                target: '#bingo/file',
                 options: { destination: './test.log' }
             }
         ]},
 }))
 
-const transportsWithCustomLevels = bingo-logger.transport({targets: [
+const transportsWithCustomLevels = bingo.transport({targets: [
     {
         level: 'info',
-        target: '#bingo-logger/pretty',
+        target: '#bingo/pretty',
         options: { some: 'options for', the: 'transport' }
     },
     {
         level: 'foo',
-        target: '#bingo-logger/file',
+        target: '#bingo/file',
         options: { destination: './test.log' }
     }
 ], levels: { foo: 35 }})
-bingo-logger(transports)
+bingo(transports)
 
-expectType<bingo-logger.Logger>(bingo-logger({
+expectType<bingo.Logger>(bingo({
     transport: {targets: [
             {
                 level: 'info',
-                target: '#bingo-logger/pretty',
+                target: '#bingo/pretty',
                 options: { some: 'options for', the: 'transport' }
             },
             {
                 level: 'trace',
-                target: '#bingo-logger/file',
+                target: '#bingo/file',
                 options: { destination: './test.log' }
             }
         ], levels: { foo: 35 }
     },
 }))
 
-const pipelineTransport = bingo-logger.transport({
+const pipelineTransport = bingo.transport({
     pipeline: [{
         target: './my-transform.js'
     }, {
-        // Use target: 'bingo-logger/file' to write to stdout
+        // Use target: 'bingo/file' to write to stdout
         // without any change.
-        target: 'bingo-logger-pretty'
+        target: 'bingo-pretty'
     }]
 })
-bingo-logger(pipelineTransport)
+bingo(pipelineTransport)
 
-expectType<bingo-logger.Logger>(bingo-logger({
+expectType<bingo.Logger>(bingo({
     transport: {
         pipeline: [{
             target: './my-transform.js'
         }, {
-            // Use target: 'bingo-logger/file' to write to stdout
+            // Use target: 'bingo/file' to write to stdout
             // without any change.
-            target: 'bingo-logger-pretty'
+            target: 'bingo-pretty'
         }]
     }
 }))
@@ -102,14 +102,14 @@ type TransportConfig = {
 }
 
 // Custom transport params
-const customTransport = bingo-logger.transport<TransportConfig>({
+const customTransport = bingo.transport<TransportConfig>({
     target: 'custom',
     options: { id: 'abc' }
 })
-bingo-logger(customTransport)
+bingo(customTransport)
 
 // Worker
-bingo-logger.transport({
+bingo.transport({
     target: 'custom',
     worker: {
         argv: ['a', 'b'],

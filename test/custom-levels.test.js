@@ -4,7 +4,7 @@
 
 const { test } = require('tap')
 const { sink, once } = require('./helper')
-const bingo-logger = require('../')
+const bingo = require('../')
 
 // Silence all warnings for this test
 process.removeAllListeners('warning')
@@ -12,7 +12,7 @@ process.on('warning', () => {})
 
 test('adds additional levels', async ({ equal }) => {
   const stream = sink()
-  const logger = bingo-logger({
+  const logger = bingo({
     customLevels: {
       foo: 35,
       bar: 45
@@ -26,7 +26,7 @@ test('adds additional levels', async ({ equal }) => {
 
 test('custom levels does not override default levels', async ({ equal }) => {
   const stream = sink()
-  const logger = bingo-logger({
+  const logger = bingo({
     customLevels: {
       foo: 35
     }
@@ -39,7 +39,7 @@ test('custom levels does not override default levels', async ({ equal }) => {
 
 test('default levels can be redefined using custom levels', async ({ equal }) => {
   const stream = sink()
-  const logger = bingo-logger({
+  const logger = bingo({
     customLevels: {
       info: 35,
       debug: 45
@@ -56,7 +56,7 @@ test('default levels can be redefined using custom levels', async ({ equal }) =>
 
 test('custom levels overrides default level label if use useOnlyCustomLevels', async ({ equal }) => {
   const stream = sink()
-  const logger = bingo-logger({
+  const logger = bingo({
     customLevels: {
       foo: 35
     },
@@ -69,7 +69,7 @@ test('custom levels overrides default level label if use useOnlyCustomLevels', a
 
 test('custom levels overrides default level value if use useOnlyCustomLevels', async ({ equal }) => {
   const stream = sink()
-  const logger = bingo-logger({
+  const logger = bingo({
     customLevels: {
       foo: 35
     },
@@ -82,7 +82,7 @@ test('custom levels overrides default level value if use useOnlyCustomLevels', a
 
 test('custom levels are inherited by children', async ({ equal }) => {
   const stream = sink()
-  const logger = bingo-logger({
+  const logger = bingo({
     customLevels: {
       foo: 35
     }
@@ -97,7 +97,7 @@ test('custom levels are inherited by children', async ({ equal }) => {
 
 test('custom levels can be specified on child bindings', async ({ equal }) => {
   const stream = sink()
-  const logger = bingo-logger(stream).child({
+  const logger = bingo(stream).child({
     childMsg: 'ok'
   }, {
     customLevels: {
@@ -114,7 +114,7 @@ test('custom levels can be specified on child bindings', async ({ equal }) => {
 
 test('customLevels property child bindings does not get logged', async ({ equal }) => {
   const stream = sink()
-  const logger = bingo-logger(stream).child({
+  const logger = bingo(stream).child({
     childMsg: 'ok'
   }, {
     customLevels: {
@@ -129,7 +129,7 @@ test('customLevels property child bindings does not get logged', async ({ equal 
 
 test('throws when specifying pre-existing parent labels via child bindings', async ({ throws }) => {
   const stream = sink()
-  throws(() => bingo-logger({
+  throws(() => bingo({
     customLevels: {
       foo: 35
     }
@@ -142,7 +142,7 @@ test('throws when specifying pre-existing parent labels via child bindings', asy
 
 test('throws when specifying pre-existing parent values via child bindings', async ({ throws }) => {
   const stream = sink()
-  throws(() => bingo-logger({
+  throws(() => bingo({
     customLevels: {
       foo: 35
     }
@@ -155,7 +155,7 @@ test('throws when specifying pre-existing parent values via child bindings', asy
 
 test('throws when specifying core values via child bindings', async ({ throws }) => {
   const stream = sink()
-  throws(() => bingo-logger(stream).child({}, {
+  throws(() => bingo(stream).child({}, {
     customLevels: {
       foo: 30
     }
@@ -164,23 +164,23 @@ test('throws when specifying core values via child bindings', async ({ throws })
 
 test('throws when useOnlyCustomLevels is set true without customLevels', async ({ throws }) => {
   const stream = sink()
-  throws(() => bingo-logger({
+  throws(() => bingo({
     useOnlyCustomLevels: true
   }, stream), 'customLevels is required if useOnlyCustomLevels is set true')
 })
 
 test('custom level on one instance does not affect other instances', async ({ equal }) => {
-  bingo-logger({
+  bingo({
     customLevels: {
       foo: 37
     }
   })
-  equal(typeof bingo-logger().foo, 'undefined')
+  equal(typeof bingo().foo, 'undefined')
 })
 
 test('setting level below or at custom level will successfully log', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo-logger({ customLevels: { foo: 35 } }, stream)
+  const instance = bingo({ customLevels: { foo: 35 } }, stream)
   instance.level = 'foo'
   instance.info('nope')
   instance.foo('bar')
@@ -190,7 +190,7 @@ test('setting level below or at custom level will successfully log', async ({ eq
 
 test('custom level below level threshold will not log', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo-logger({ customLevels: { foo: 15 } }, stream)
+  const instance = bingo({ customLevels: { foo: 15 } }, stream)
   instance.level = 'info'
   instance.info('bar')
   instance.foo('nope')
@@ -200,7 +200,7 @@ test('custom level below level threshold will not log', async ({ equal }) => {
 
 test('does not share custom level state across siblings', async ({ doesNotThrow }) => {
   const stream = sink()
-  const logger = bingo-logger(stream)
+  const logger = bingo(stream)
   logger.child({}, {
     customLevels: { foo: 35 }
   })
@@ -213,7 +213,7 @@ test('does not share custom level state across siblings', async ({ doesNotThrow 
 
 test('custom level does not affect the levels serializer', async ({ equal }) => {
   const stream = sink()
-  const logger = bingo-logger({
+  const logger = bingo({
     customLevels: {
       foo: 35,
       bar: 45
@@ -232,7 +232,7 @@ test('custom level does not affect the levels serializer', async ({ equal }) => 
 
 test('When useOnlyCustomLevels is set to true, the level formatter should only get custom levels', async ({ equal }) => {
   const stream = sink()
-  const logger = bingo-logger({
+  const logger = bingo({
     customLevels: {
       answer: 42
     },
@@ -254,7 +254,7 @@ test('When useOnlyCustomLevels is set to true, the level formatter should only g
 
 test('custom levels accessible in prettifier function', async ({ plan, same }) => {
   plan(1)
-  const logger = bingo-logger({
+  const logger = bingo({
     prettyPrint: true,
     prettifier: function prettifierFactory () {
       const instance = this

@@ -2,14 +2,14 @@
 
 const tap = require('tap')
 const { sink, once } = require('./helper')
-const bingo-logger = require('../')
+const bingo = require('../')
 
 tap.test('log method hook', t => {
   t.test('gets invoked', async t => {
     t.plan(8)
 
     const stream = sink()
-    const logger = bingo-logger({
+    const logger = bingo({
       hooks: {
         logMethod (args, method, level) {
           t.type(args, Array)
@@ -35,7 +35,7 @@ tap.test('log method hook', t => {
     t.plan(2)
 
     const stream = sink()
-    const logger = bingo-logger({
+    const logger = bingo({
       hooks: {
         logMethod (args, method) {
           t.pass()
@@ -53,7 +53,7 @@ tap.test('log method hook', t => {
     t.plan(4)
 
     const stream = sink()
-    const root = bingo-logger({
+    const root = bingo({
       hooks: {
         logMethod (args, method) {
           t.pass()
@@ -77,7 +77,7 @@ tap.test('log method hook', t => {
     t.plan(3)
 
     const stream = sink()
-    const logger = bingo-logger({
+    const logger = bingo({
       hooks: {
         logMethod (args, method, level) {
           t.type(level, 'number')

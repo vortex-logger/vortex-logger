@@ -4,7 +4,7 @@ if (typeof $1 !== 'undefined') $1 = arguments.callee.caller.arguments[0]
 
 const test = require('tape')
 const fresh = require('import-fresh')
-const bingo-logger = require('../browser')
+const bingo = require('../browser')
 
 const parentSerializers = {
   test: () => 'parent'
@@ -15,7 +15,7 @@ const childSerializers = {
 }
 
 test('serializers override values', ({ end, is }) => {
-  const parent = bingo-logger({
+  const parent = bingo({
     serializers: parentSerializers,
     browser: {
       serialize: true,
@@ -30,7 +30,7 @@ test('serializers override values', ({ end, is }) => {
 })
 
 test('without the serialize option, serializers do not override values', ({ end, is }) => {
-  const parent = bingo-logger({
+  const parent = bingo({
     serializers: parentSerializers,
     browser: {
       write (o) {
@@ -48,7 +48,7 @@ if (process.title !== 'browser') {
     const err = Error('test')
     err.code = 'test'
     err.type = 'Error' // get that cov
-    const expect = bingo-logger.stdSerializers.err(err)
+    const expect = bingo.stdSerializers.err(err)
 
     const consoleError = console.error
     console.error = function (err) {
@@ -68,7 +68,7 @@ if (process.title !== 'browser') {
   test('if serialize option is array, standard error serializer is auto enabled', ({ end, same }) => {
     const err = Error('test')
     err.code = 'test'
-    const expect = bingo-logger.stdSerializers.err(err)
+    const expect = bingo.stdSerializers.err(err)
 
     const consoleError = console.error
     console.error = function (err) {
@@ -246,7 +246,7 @@ if (process.title !== 'browser') {
 
 test('child does not overwrite parent serializers', ({ end, is }) => {
   let c = 0
-  const parent = bingo-logger({
+  const parent = bingo({
     serializers: parentSerializers,
     browser: {
       serialize: true,
@@ -267,7 +267,7 @@ test('child does not overwrite parent serializers', ({ end, is }) => {
 })
 
 test('children inherit parent serializers', ({ end, is }) => {
-  const parent = bingo-logger({
+  const parent = bingo({
     serializers: parentSerializers,
     browser: {
       serialize: true,
@@ -283,7 +283,7 @@ test('children inherit parent serializers', ({ end, is }) => {
 })
 
 test('children serializers get called', ({ end, is }) => {
-  const parent = bingo-logger({
+  const parent = bingo({
     test: 'this',
     browser: {
       serialize: true,
@@ -300,7 +300,7 @@ test('children serializers get called', ({ end, is }) => {
 })
 
 test('children serializers get called when inherited from parent', ({ end, is }) => {
-  const parent = bingo-logger({
+  const parent = bingo({
     test: 'this',
     serializers: parentSerializers,
     browser: {
@@ -330,7 +330,7 @@ test('non overridden serializers are available in the children', ({ end, is }) =
 
   let c = 0
 
-  const parent = bingo-logger({
+  const parent = bingo({
     serializers: pSerializers,
     browser: {
       serialize: true,

@@ -5,23 +5,23 @@ const { join } = require('path')
 const { readFile } = require('fs').promises
 const { watchFileCreated, file } = require('../helper')
 const { test } = require('tap')
-const bingo-logger = require('../../bingo-logger')
+const bingo = require('../../bingo')
 
 const { pid } = process
 const hostname = os.hostname()
 
-test('bingo-logger.transport with destination overriden by bundler', async ({ same, teardown }) => {
+test('bingo.transport with destination overriden by bundler', async ({ same, teardown }) => {
   globalThis.__bundlerPathsOverrides = {
     foobar: join(__dirname, '..', 'fixtures', 'to-file-transport.js')
   }
 
   const destination = file()
-  const transport = bingo-logger.transport({
+  const transport = bingo.transport({
     target: 'foobar',
     options: { destination }
   })
   teardown(transport.end.bind(transport))
-  const instance = bingo-logger(transport)
+  const instance = bingo(transport)
   instance.info('hello')
   await watchFileCreated(destination)
   const result = JSON.parse(await readFile(destination))
@@ -36,13 +36,13 @@ test('bingo-logger.transport with destination overriden by bundler', async ({ sa
   globalThis.__bundlerPathsOverrides = undefined
 })
 
-test('bingo-logger.transport with worker destination overriden by bundler', async ({ same, teardown }) => {
+test('bingo.transport with worker destination overriden by bundler', async ({ same, teardown }) => {
   globalThis.__bundlerPathsOverrides = {
-    'bingo-logger-worker': join(__dirname, '..', '..', 'lib/worker.js')
+    'bingo-worker': join(__dirname, '..', '..', 'lib/worker.js')
   }
 
   const destination = file()
-  const transport = bingo-logger.transport({
+  const transport = bingo.transport({
     targets: [
       {
         target: join(__dirname, '..', 'fixtures', 'to-file-transport.js'),
@@ -51,7 +51,7 @@ test('bingo-logger.transport with worker destination overriden by bundler', asyn
     ]
   })
   teardown(transport.end.bind(transport))
-  const instance = bingo-logger(transport)
+  const instance = bingo(transport)
   instance.info('hello')
   await watchFileCreated(destination)
   const result = JSON.parse(await readFile(destination))
@@ -66,13 +66,13 @@ test('bingo-logger.transport with worker destination overriden by bundler', asyn
   globalThis.__bundlerPathsOverrides = undefined
 })
 
-test('bingo-logger.transport with worker-pipeline destination overriden by bundler', async ({ same, teardown }) => {
+test('bingo.transport with worker-pipeline destination overriden by bundler', async ({ same, teardown }) => {
   globalThis.__bundlerPathsOverrides = {
-    'bingo-logger-pipeline-worker': join(__dirname, '..', '..', 'lib/worker-pipeline.js')
+    'bingo-pipeline-worker': join(__dirname, '..', '..', 'lib/worker-pipeline.js')
   }
 
   const destination = file()
-  const transport = bingo-logger.transport({
+  const transport = bingo.transport({
     pipeline: [
       {
         target: join(__dirname, '..', 'fixtures', 'to-file-transport.js'),
@@ -81,7 +81,7 @@ test('bingo-logger.transport with worker-pipeline destination overriden by bundl
     ]
   })
   teardown(transport.end.bind(transport))
-  const instance = bingo-logger(transport)
+  const instance = bingo(transport)
   instance.info('hello')
   await watchFileCreated(destination)
   const result = JSON.parse(await readFile(destination))

@@ -19,10 +19,10 @@ test('asynchronous logging', async ({ equal, teardown }) => {
   Date.now = () => 1459875739796
   os.hostname = () => 'abcdefghijklmnopqr'
   delete require.cache[require.resolve('../')]
-  const bingo-logger = require('../')
+  const bingo = require('../')
   let expected = ''
   let actual = ''
-  const normal = bingo-logger(writer((s, enc, cb) => {
+  const normal = bingo(writer((s, enc, cb) => {
     expected += s
     cb()
   }))
@@ -31,7 +31,7 @@ test('asynchronous logging', async ({ equal, teardown }) => {
   dest.write = (s) => {
     actual += s
   }
-  const asyncLogger = bingo-logger(dest)
+  const asyncLogger = bingo(dest)
 
   let i = 44
   while (i--) {
@@ -73,17 +73,17 @@ test('sync false with child', async ({ equal, teardown }) => {
     return 'abcdefghijklmnopqr'
   }
   delete require.cache[require.resolve('../')]
-  const bingo-logger = require('../')
+  const bingo = require('../')
   let expected = ''
   let actual = ''
-  const normal = bingo-logger(writer((s, enc, cb) => {
+  const normal = bingo(writer((s, enc, cb) => {
     expected += s
     cb()
   })).child({ hello: 'world' })
 
   const dest = createWriteStream(getPathToNull())
   dest.write = function (s) { actual += s }
-  const asyncLogger = bingo-logger(dest).child({ hello: 'world' })
+  const asyncLogger = bingo(dest).child({ hello: 'world' })
 
   let i = 500
   while (i--) {

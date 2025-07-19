@@ -6,7 +6,7 @@ const { join } = require('path')
 const execa = require('execa')
 const writer = require('flush-write-stream')
 const { once } = require('./helper')
-const bingo-logger = require('../')
+const bingo = require('../')
 const strip = require('strip-ansi')
 
 // silence warnings
@@ -20,12 +20,12 @@ test('deprecation', ({ equal, plan }) => {
     equal(warning.code, 'PINODEP008')
   })
 
-  bingo-logger({
+  bingo({
     prettyPrint: true
   })
 })
 
-test('can be enabled via exported bingo-logger function', async ({ not }) => {
+test('can be enabled via exported bingo function', async ({ not }) => {
   let actual = ''
   const child = execa(process.argv[0], [join(__dirname, 'fixtures', 'pretty', 'basic.js')])
 
@@ -37,7 +37,7 @@ test('can be enabled via exported bingo-logger function', async ({ not }) => {
   not(strip(actual).match(/\(123456 on abcdefghijklmnopqr\): h/), null)
 })
 
-test('can be enabled via exported bingo-logger function with pretty configuration', async ({ not }) => {
+test('can be enabled via exported bingo function with pretty configuration', async ({ not }) => {
   let actual = ''
   const child = execa(process.argv[0], [join(__dirname, 'fixtures', 'pretty', 'level-first.js')])
 
@@ -49,7 +49,7 @@ test('can be enabled via exported bingo-logger function with pretty configuratio
   not(strip(actual).match(/^INFO.*h/), null)
 })
 
-test('can be enabled via exported bingo-logger function with prettifier', async ({ not }) => {
+test('can be enabled via exported bingo function with prettifier', async ({ not }) => {
   let actual = ''
   const child = execa(process.argv[0], [join(__dirname, 'fixtures', 'pretty', 'pretty-factory.js')])
 
@@ -63,23 +63,23 @@ test('can be enabled via exported bingo-logger function with prettifier', async 
 })
 
 test('does not throw error when enabled with stream specified', async ({ doesNotThrow }) => {
-  doesNotThrow(() => bingo-logger({ prettyPrint: true }, process.stdout))
+  doesNotThrow(() => bingo({ prettyPrint: true }, process.stdout))
 })
 
-test('throws when prettyPrint is true but bingo-logger-pretty module is not installed', async ({ throws }) => {
-  // bingo-logger pretty *is* installed, and probably also cached, so rather than
+test('throws when prettyPrint is true but bingo-pretty module is not installed', async ({ throws }) => {
+  // bingo pretty *is* installed, and probably also cached, so rather than
   // messing with the filesystem the simplest way to generate a not found
   // error is to simulate it:
   const prettyFactory = require('pino-pretty').prettyFactory
   require('pino-pretty').prettyFactory = () => {
-    throw Error('Cannot find module \'bingo-logger-pretty\'')
+    throw Error('Cannot find module \'bingo-pretty\'')
   }
-  throws(() => bingo-logger({ prettyPrint: true }), 'Missing `bingo-logger-pretty` module: `bingo-logger-pretty` must be installed separately')
+  throws(() => bingo({ prettyPrint: true }), 'Missing `bingo-pretty` module: `bingo-pretty` must be installed separately')
   require('pino-pretty').prettyFactory = prettyFactory
 })
 
 test('throws when prettyPrint has invalid options', async ({ throws }) => {
-  throws(() => bingo-logger({ prettyPrint: { ignore: ['hostname'] } }), 'opts.ignore.split is not a function')
+  throws(() => bingo({ prettyPrint: { ignore: ['hostname'] } }), 'opts.ignore.split is not a function')
 })
 
 test('can send pretty print to custom stream', async ({ equal }) => {
@@ -90,7 +90,7 @@ test('can send pretty print to custom stream', async ({ equal }) => {
     }
   })
 
-  const log = bingo-logger({
+  const log = bingo({
     prettifier: require('pino-pretty').prettyFactory,
     prettyPrint: {
       levelFirst: true,
@@ -287,7 +287,7 @@ test('final works with pretty', async ({ not }) => {
     cb()
   }))
   await once(child, 'close')
-  not(strip(actual).match(/WARN\s+\(123456 on abcdefghijklmnopqr\): bingo-logger.final with prettyPrint does not support flushing/), null)
+  not(strip(actual).match(/WARN\s+\(123456 on abcdefghijklmnopqr\): bingo.final with prettyPrint does not support flushing/), null)
   not(strip(actual).match(/INFO\s+\(123456 on abcdefghijklmnopqr\): beforeExit/), null)
 })
 
@@ -300,7 +300,7 @@ test('final works when returning a logger', async ({ not }) => {
     cb()
   }))
   await once(child, 'close')
-  not(strip(actual).match(/WARN\s+\(123456 on abcdefghijklmnopqr\): bingo-logger.final with prettyPrint does not support flushing/), null)
+  not(strip(actual).match(/WARN\s+\(123456 on abcdefghijklmnopqr\): bingo.final with prettyPrint does not support flushing/), null)
   not(strip(actual).match(/INFO\s+\(123456 on abcdefghijklmnopqr\): after/), null)
 })
 
@@ -313,7 +313,7 @@ test('final works without prior logging', async ({ not }) => {
     cb()
   }))
   await once(child, 'close')
-  not(strip(actual).match(/WARN\s*: bingo-logger.final with prettyPrint does not support flushing/), null)
+  not(strip(actual).match(/WARN\s*: bingo.final with prettyPrint does not support flushing/), null)
   not(strip(actual).match(/INFO\s*\(123456 on abcdefghijklmnopqr\): beforeExit/), null)
 })
 
@@ -326,7 +326,7 @@ test('suppress flush sync warning when corresponding option is specified', async
     cb()
   }))
   await once(child, 'close')
-  equal(strip(actual).match(/WARN\s+\(123456 on abcdefghijklmnopqr\): bingo-logger.final with prettyPrint does not support flushing/), null)
+  equal(strip(actual).match(/WARN\s+\(123456 on abcdefghijklmnopqr\): bingo.final with prettyPrint does not support flushing/), null)
 })
 
 test('works as expected with an object with the msg prop', async ({ not }) => {
@@ -365,9 +365,9 @@ test('should not lose stream metadata for streams with `needsMetadataGsym` flag'
     }
   })
 
-  dest[bingo-logger.symbols.needsMetadataGsym] = true
+  dest[bingo.symbols.needsMetadataGsym] = true
 
-  const log = bingo-logger({
+  const log = bingo({
     prettyPrint: true
   }, dest)
   log.info('foo')
@@ -385,7 +385,7 @@ test('should not add stream metadata for streams without `needsMetadataGsym` fla
     }
   })
 
-  const log = bingo-logger({
+  const log = bingo({
     prettyPrint: true
   }, dest)
   log.info('foo')

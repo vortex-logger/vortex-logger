@@ -5,14 +5,14 @@ const os = require('os')
 const semver = require('semver')
 const { test, skip } = require('tap')
 const { sink, once } = require('./helper')
-const bingo-logger = require('../')
+const bingo = require('../')
 
 const { pid } = process
 const hostname = os.hostname()
 
 test('http request support', async ({ ok, same, error, teardown }) => {
   let originalReq
-  const instance = bingo-logger(sink((chunk, enc) => {
+  const instance = bingo(sink((chunk, enc) => {
     ok(new Date(chunk.time) <= new Date(), 'time is greater than Date.now()')
     delete chunk.time
     same(chunk, {
@@ -46,9 +46,9 @@ test('http request support', async ({ ok, same, error, teardown }) => {
 
 test('http request support via serializer', async ({ ok, same, error, teardown }) => {
   let originalReq
-  const instance = bingo-logger({
+  const instance = bingo({
     serializers: {
-      req: bingo-logger.stdSerializers.req
+      req: bingo.stdSerializers.req
     }
   }, sink((chunk, enc) => {
     ok(new Date(chunk.time) <= new Date(), 'time is greater than Date.now()')
@@ -86,9 +86,9 @@ test('http request support via serializer', async ({ ok, same, error, teardown }
 // skipped because request connection is deprecated since v13, and request socket is always available
 skip('http request support via serializer without request connection', async ({ ok, same, error, teardown }) => {
   let originalReq
-  const instance = bingo-logger({
+  const instance = bingo({
     serializers: {
-      req: bingo-logger.stdSerializers.req
+      req: bingo.stdSerializers.req
     }
   }, sink((chunk, enc) => {
     ok(new Date(chunk.time) <= new Date(), 'time is greater than Date.now()')
@@ -129,7 +129,7 @@ skip('http request support via serializer without request connection', async ({ 
 
 test('http response support', async ({ ok, same, error, teardown }) => {
   let originalRes
-  const instance = bingo-logger(sink((chunk, enc) => {
+  const instance = bingo(sink((chunk, enc) => {
     ok(new Date(chunk.time) <= new Date(), 'time is greater than Date.now()')
     delete chunk.time
     same(chunk, {
@@ -161,9 +161,9 @@ test('http response support', async ({ ok, same, error, teardown }) => {
 })
 
 test('http response support via a serializer', async ({ ok, same, error, teardown }) => {
-  const instance = bingo-logger({
+  const instance = bingo({
     serializers: {
-      res: bingo-logger.stdSerializers.res
+      res: bingo.stdSerializers.res
     }
   }, sink((chunk, enc) => {
     ok(new Date(chunk.time) <= new Date(), 'time is greater than Date.now()')
@@ -202,9 +202,9 @@ test('http response support via a serializer', async ({ ok, same, error, teardow
 
 test('http request support via serializer in a child', async ({ ok, same, error, teardown }) => {
   let originalReq
-  const instance = bingo-logger({
+  const instance = bingo({
     serializers: {
-      req: bingo-logger.stdSerializers.req
+      req: bingo.stdSerializers.req
     }
   }, sink((chunk, enc) => {
     ok(new Date(chunk.time) <= new Date(), 'time is greater than Date.now()')

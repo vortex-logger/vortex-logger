@@ -2,47 +2,47 @@
 
 const { test } = require('tap')
 const { sink, once } = require('./helper')
-const bingo-logger = require('../')
+const bingo = require('../')
 
 test('redact option – throws if not array', async ({ throws }) => {
   throws(() => {
-    bingo-logger({ redact: 'req.headers.cookie' })
+    bingo({ redact: 'req.headers.cookie' })
   })
 })
 
 test('redact option – throws if array does not only contain strings', async ({ throws }) => {
   throws(() => {
-    bingo-logger({ redact: ['req.headers.cookie', {}] })
+    bingo({ redact: ['req.headers.cookie', {}] })
   })
 })
 
 test('redact option – throws if array contains an invalid path', async ({ throws }) => {
   throws(() => {
-    bingo-logger({ redact: ['req,headers.cookie'] })
+    bingo({ redact: ['req,headers.cookie'] })
   })
 })
 
 test('redact.paths option – throws if not array', async ({ throws }) => {
   throws(() => {
-    bingo-logger({ redact: { paths: 'req.headers.cookie' } })
+    bingo({ redact: { paths: 'req.headers.cookie' } })
   })
 })
 
 test('redact.paths option – throws if array does not only contain strings', async ({ throws }) => {
   throws(() => {
-    bingo-logger({ redact: { paths: ['req.headers.cookie', {}] } })
+    bingo({ redact: { paths: ['req.headers.cookie', {}] } })
   })
 })
 
 test('redact.paths option – throws if array contains an invalid path', async ({ throws }) => {
   throws(() => {
-    bingo-logger({ redact: { paths: ['req,headers.cookie'] } })
+    bingo({ redact: { paths: ['req,headers.cookie'] } })
   })
 })
 
 test('redact option – top level key', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo-logger({ redact: ['key'] }, stream)
+  const instance = bingo({ redact: ['key'] }, stream)
   instance.info({
     key: { redact: 'me' }
   })
@@ -52,7 +52,7 @@ test('redact option – top level key', async ({ equal }) => {
 
 test('redact option – top level key next level key', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo-logger({ redact: ['key', 'key.foo'] }, stream)
+  const instance = bingo({ redact: ['key', 'key.foo'] }, stream)
   instance.info({
     key: { redact: 'me' }
   })
@@ -62,7 +62,7 @@ test('redact option – top level key next level key', async ({ equal }) => {
 
 test('redact option – next level key then top level key', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo-logger({ redact: ['key.foo', 'key'] }, stream)
+  const instance = bingo({ redact: ['key.foo', 'key'] }, stream)
   instance.info({
     key: { redact: 'me' }
   })
@@ -72,7 +72,7 @@ test('redact option – next level key then top level key', async ({ equal }) =>
 
 test('redact option – object', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo-logger({ redact: ['req.headers.cookie'] }, stream)
+  const instance = bingo({ redact: ['req.headers.cookie'] }, stream)
   instance.info({
     req: {
       id: 7915,
@@ -93,7 +93,7 @@ test('redact option – object', async ({ equal }) => {
 
 test('redact option – child object', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo-logger({ redact: ['req.headers.cookie'] }, stream)
+  const instance = bingo({ redact: ['req.headers.cookie'] }, stream)
   instance.child({
     req: {
       id: 7915,
@@ -114,7 +114,7 @@ test('redact option – child object', async ({ equal }) => {
 
 test('redact option – interpolated object', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo-logger({ redact: ['req.headers.cookie'] }, stream)
+  const instance = bingo({ redact: ['req.headers.cookie'] }, stream)
 
   instance.info('test %j', {
     req: {
@@ -136,7 +136,7 @@ test('redact option – interpolated object', async ({ equal }) => {
 
 test('redact.paths option – object', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo-logger({ redact: { paths: ['req.headers.cookie'] } }, stream)
+  const instance = bingo({ redact: { paths: ['req.headers.cookie'] } }, stream)
   instance.info({
     req: {
       id: 7915,
@@ -157,7 +157,7 @@ test('redact.paths option – object', async ({ equal }) => {
 
 test('redact.paths option – child object', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo-logger({ redact: { paths: ['req.headers.cookie'] } }, stream)
+  const instance = bingo({ redact: { paths: ['req.headers.cookie'] } }, stream)
   instance.child({
     req: {
       id: 7915,
@@ -178,7 +178,7 @@ test('redact.paths option – child object', async ({ equal }) => {
 
 test('redact.paths option – interpolated object', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo-logger({ redact: { paths: ['req.headers.cookie'] } }, stream)
+  const instance = bingo({ redact: { paths: ['req.headers.cookie'] } }, stream)
 
   instance.info('test %j', {
     req: {
@@ -200,7 +200,7 @@ test('redact.paths option – interpolated object', async ({ equal }) => {
 
 test('redact.censor option – sets the redact value', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo-logger({ redact: { paths: ['req.headers.cookie'], censor: 'test' } }, stream)
+  const instance = bingo({ redact: { paths: ['req.headers.cookie'], censor: 'test' } }, stream)
   instance.info({
     req: {
       id: 7915,
@@ -221,7 +221,7 @@ test('redact.censor option – sets the redact value', async ({ equal }) => {
 
 test('redact.censor option – can be a function that accepts value and path arguments', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo-logger({ redact: { paths: ['topLevel'], censor: (value, path) => value + ' ' + path.join('.') } }, stream)
+  const instance = bingo({ redact: { paths: ['topLevel'], censor: (value, path) => value + ' ' + path.join('.') } }, stream)
   instance.info({
     topLevel: 'test'
   })
@@ -231,7 +231,7 @@ test('redact.censor option – can be a function that accepts value and path arg
 
 test('redact.censor option – can be a function that accepts value and path arguments (nested path)', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo-logger({ redact: { paths: ['req.headers.cookie'], censor: (value, path) => value + ' ' + path.join('.') } }, stream)
+  const instance = bingo({ redact: { paths: ['req.headers.cookie'], censor: (value, path) => value + ' ' + path.join('.') } }, stream)
   instance.info({
     req: {
       id: 7915,
@@ -252,7 +252,7 @@ test('redact.censor option – can be a function that accepts value and path arg
 
 test('redact.remove option – removes both key and value', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo-logger({ redact: { paths: ['req.headers.cookie'], remove: true } }, stream)
+  const instance = bingo({ redact: { paths: ['req.headers.cookie'], remove: true } }, stream)
   instance.info({
     req: {
       id: 7915,
@@ -273,7 +273,7 @@ test('redact.remove option – removes both key and value', async ({ equal }) =>
 
 test('redact.remove – top level key - object value', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo-logger({ redact: { paths: ['key'], remove: true } }, stream)
+  const instance = bingo({ redact: { paths: ['key'], remove: true } }, stream)
   instance.info({
     key: { redact: 'me' }
   })
@@ -283,7 +283,7 @@ test('redact.remove – top level key - object value', async ({ equal }) => {
 
 test('redact.remove – top level key - number value', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo-logger({ redact: { paths: ['key'], remove: true } }, stream)
+  const instance = bingo({ redact: { paths: ['key'], remove: true } }, stream)
   instance.info({
     key: 1
   })
@@ -293,7 +293,7 @@ test('redact.remove – top level key - number value', async ({ equal }) => {
 
 test('redact.remove – top level key - boolean value', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo-logger({ redact: { paths: ['key'], remove: true } }, stream)
+  const instance = bingo({ redact: { paths: ['key'], remove: true } }, stream)
   instance.info({
     key: false
   })
@@ -304,7 +304,7 @@ test('redact.remove – top level key - boolean value', async ({ equal }) => {
 test('redact.remove – top level key in child logger', async ({ equal }) => {
   const stream = sink()
   const opts = { redact: { paths: ['key'], remove: true } }
-  const instance = bingo-logger(opts, stream).child({ key: { redact: 'me' } })
+  const instance = bingo(opts, stream).child({ key: { redact: 'me' } })
   instance.info('test')
   const o = await once(stream, 'data')
   equal('key' in o, false)
@@ -312,7 +312,7 @@ test('redact.remove – top level key in child logger', async ({ equal }) => {
 
 test('redact.paths preserves original object values after the log write', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo-logger({ redact: ['req.headers.cookie'] }, stream)
+  const instance = bingo({ redact: ['req.headers.cookie'] }, stream)
   const obj = {
     req: {
       id: 7915,
@@ -335,7 +335,7 @@ test('redact.paths preserves original object values after the log write', async 
 
 test('redact.paths preserves original object values after the log write', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo-logger({ redact: { paths: ['req.headers.cookie'] } }, stream)
+  const instance = bingo({ redact: { paths: ['req.headers.cookie'] } }, stream)
   const obj = {
     req: {
       id: 7915,
@@ -358,7 +358,7 @@ test('redact.paths preserves original object values after the log write', async 
 
 test('redact.censor preserves original object values after the log write', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo-logger({ redact: { paths: ['req.headers.cookie'], censor: 'test' } }, stream)
+  const instance = bingo({ redact: { paths: ['req.headers.cookie'], censor: 'test' } }, stream)
   const obj = {
     req: {
       id: 7915,
@@ -381,7 +381,7 @@ test('redact.censor preserves original object values after the log write', async
 
 test('redact.remove preserves original object values after the log write', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo-logger({ redact: { paths: ['req.headers.cookie'], remove: true } }, stream)
+  const instance = bingo({ redact: { paths: ['req.headers.cookie'], remove: true } }, stream)
   const obj = {
     req: {
       id: 7915,
@@ -404,7 +404,7 @@ test('redact.remove preserves original object values after the log write', async
 
 test('redact – supports last position wildcard paths', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo-logger({ redact: ['req.headers.*'] }, stream)
+  const instance = bingo({ redact: ['req.headers.*'] }, stream)
   instance.info({
     req: {
       id: 7915,
@@ -427,7 +427,7 @@ test('redact – supports last position wildcard paths', async ({ equal }) => {
 
 test('redact – supports first position wildcard paths', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo-logger({ redact: ['*.headers'] }, stream)
+  const instance = bingo({ redact: ['*.headers'] }, stream)
   instance.info({
     req: {
       id: 7915,
@@ -448,7 +448,7 @@ test('redact – supports first position wildcard paths', async ({ equal }) => {
 
 test('redact – supports first position wildcards before other paths', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo-logger({ redact: ['*.headers.cookie', 'req.id'] }, stream)
+  const instance = bingo({ redact: ['*.headers.cookie', 'req.id'] }, stream)
   instance.info({
     req: {
       id: 7915,
@@ -470,7 +470,7 @@ test('redact – supports first position wildcards before other paths', async ({
 
 test('redact – supports first position wildcards after other paths', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo-logger({ redact: ['req.id', '*.headers.cookie'] }, stream)
+  const instance = bingo({ redact: ['req.id', '*.headers.cookie'] }, stream)
   instance.info({
     req: {
       id: 7915,
@@ -492,7 +492,7 @@ test('redact – supports first position wildcards after other paths', async ({ 
 
 test('redact – supports first position wildcards after top level keys', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo-logger({ redact: ['key', '*.headers.cookie'] }, stream)
+  const instance = bingo({ redact: ['key', '*.headers.cookie'] }, stream)
   instance.info({
     req: {
       id: 7915,
@@ -513,7 +513,7 @@ test('redact – supports first position wildcards after top level keys', async 
 
 test('redact – supports top level wildcard', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo-logger({ redact: ['*'] }, stream)
+  const instance = bingo({ redact: ['*'] }, stream)
   instance.info({
     req: {
       id: 7915,
@@ -534,7 +534,7 @@ test('redact – supports top level wildcard', async ({ equal }) => {
 
 test('redact – supports top level wildcard with a censor function', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo-logger({
+  const instance = bingo({
     redact: {
       paths: ['*'],
       censor: () => '[Redacted]'
@@ -560,7 +560,7 @@ test('redact – supports top level wildcard with a censor function', async ({ e
 
 test('redact – supports top level wildcard and leading wildcard', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo-logger({ redact: ['*', '*.req'] }, stream)
+  const instance = bingo({ redact: ['*', '*.req'] }, stream)
   instance.info({
     req: {
       id: 7915,
@@ -581,7 +581,7 @@ test('redact – supports top level wildcard and leading wildcard', async ({ equ
 
 test('redact – supports intermediate wildcard paths', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo-logger({ redact: ['req.*.cookie'] }, stream)
+  const instance = bingo({ redact: ['req.*.cookie'] }, stream)
   instance.info({
     req: {
       id: 7915,
@@ -602,7 +602,7 @@ test('redact – supports intermediate wildcard paths', async ({ equal }) => {
 
 test('redacts numbers at the top level', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo-logger({ redact: ['id'] }, stream)
+  const instance = bingo({ redact: ['id'] }, stream)
   const obj = {
     id: 7915
   }
@@ -613,7 +613,7 @@ test('redacts numbers at the top level', async ({ equal }) => {
 
 test('redacts booleans at the top level', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo-logger({ redact: ['maybe'] }, stream)
+  const instance = bingo({ redact: ['maybe'] }, stream)
   const obj = {
     maybe: true
   }
@@ -624,7 +624,7 @@ test('redacts booleans at the top level', async ({ equal }) => {
 
 test('redacts strings at the top level', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo-logger({ redact: ['s'] }, stream)
+  const instance = bingo({ redact: ['s'] }, stream)
   const obj = {
     s: 's'
   }
@@ -635,7 +635,7 @@ test('redacts strings at the top level', async ({ equal }) => {
 
 test('does not redact primitives if not objects', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo-logger({ redact: ['a.b'] }, stream)
+  const instance = bingo({ redact: ['a.b'] }, stream)
   const obj = {
     a: 42
   }
@@ -646,7 +646,7 @@ test('does not redact primitives if not objects', async ({ equal }) => {
 
 test('redacts null at the top level', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo-logger({ redact: ['n'] }, stream)
+  const instance = bingo({ redact: ['n'] }, stream)
   const obj = {
     n: null
   }
@@ -657,7 +657,7 @@ test('redacts null at the top level', async ({ equal }) => {
 
 test('supports bracket notation', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo-logger({ redact: ['a["b.b"]'] }, stream)
+  const instance = bingo({ redact: ['a["b.b"]'] }, stream)
   const obj = {
     a: { 'b.b': 'c' }
   }
@@ -668,7 +668,7 @@ test('supports bracket notation', async ({ equal }) => {
 
 test('supports bracket notation with further nesting', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo-logger({ redact: ['a["b.b"].c'] }, stream)
+  const instance = bingo({ redact: ['a["b.b"].c'] }, stream)
   const obj = {
     a: { 'b.b': { c: 'd' } }
   }
@@ -679,7 +679,7 @@ test('supports bracket notation with further nesting', async ({ equal }) => {
 
 test('supports bracket notation with empty string as path segment', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo-logger({ redact: ['a[""].c'] }, stream)
+  const instance = bingo({ redact: ['a[""].c'] }, stream)
   const obj = {
     a: { '': { c: 'd' } }
   }
@@ -690,7 +690,7 @@ test('supports bracket notation with empty string as path segment', async ({ equ
 
 test('supports leading bracket notation (single quote)', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo-logger({ redact: ['[\'a.a\'].b'] }, stream)
+  const instance = bingo({ redact: ['[\'a.a\'].b'] }, stream)
   const obj = {
     'a.a': { b: 'c' }
   }
@@ -701,7 +701,7 @@ test('supports leading bracket notation (single quote)', async ({ equal }) => {
 
 test('supports leading bracket notation (double quote)', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo-logger({ redact: ['["a.a"].b'] }, stream)
+  const instance = bingo({ redact: ['["a.a"].b'] }, stream)
   const obj = {
     'a.a': { b: 'c' }
   }
@@ -712,7 +712,7 @@ test('supports leading bracket notation (double quote)', async ({ equal }) => {
 
 test('supports leading bracket notation (backtick quote)', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo-logger({ redact: ['[`a.a`].b'] }, stream)
+  const instance = bingo({ redact: ['[`a.a`].b'] }, stream)
   const obj = {
     'a.a': { b: 'c' }
   }
@@ -723,7 +723,7 @@ test('supports leading bracket notation (backtick quote)', async ({ equal }) => 
 
 test('supports leading bracket notation (single-segment path)', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo-logger({ redact: ['[`a.a`]'] }, stream)
+  const instance = bingo({ redact: ['[`a.a`]'] }, stream)
   const obj = {
     'a.a': { b: 'c' }
   }
@@ -734,7 +734,7 @@ test('supports leading bracket notation (single-segment path)', async ({ equal }
 
 test('supports leading bracket notation (single-segment path, wilcard)', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo-logger({ redact: ['[*]'] }, stream)
+  const instance = bingo({ redact: ['[*]'] }, stream)
   const obj = {
     'a.a': { b: 'c' }
   }
@@ -745,7 +745,7 @@ test('supports leading bracket notation (single-segment path, wilcard)', async (
 
 test('child bindings are redacted using wildcard path', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo-logger({ redact: ['*.headers.cookie'] }, stream)
+  const instance = bingo({ redact: ['*.headers.cookie'] }, stream)
   instance.child({
     req: {
       method: 'GET',
@@ -761,7 +761,7 @@ test('child bindings are redacted using wildcard path', async ({ equal }) => {
 
 test('child bindings are redacted using wildcard and plain path keys', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo-logger({ redact: ['req.method', '*.headers.cookie'] }, stream)
+  const instance = bingo({ redact: ['req.method', '*.headers.cookie'] }, stream)
   instance.child({
     req: {
       method: 'GET',
@@ -778,7 +778,7 @@ test('child bindings are redacted using wildcard and plain path keys', async ({ 
 
 test('redacts boolean at the top level', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo-logger({ redact: ['msg'] }, stream)
+  const instance = bingo({ redact: ['msg'] }, stream)
   const obj = {
     s: 's'
   }
@@ -790,7 +790,7 @@ test('redacts boolean at the top level', async ({ equal }) => {
 
 test('child can customize redact', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo-logger({ redact: ['req.method', '*.headers.cookie'] }, stream)
+  const instance = bingo({ redact: ['req.method', '*.headers.cookie'] }, stream)
   instance.child({
     req: {
       method: 'GET',
@@ -810,7 +810,7 @@ test('child can customize redact', async ({ equal }) => {
 
 test('child can remove parent redact by array', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo-logger({ redact: ['req.method', '*.headers.cookie'] }, stream)
+  const instance = bingo({ redact: ['req.method', '*.headers.cookie'] }, stream)
   instance.child({
     req: {
       method: 'GET',

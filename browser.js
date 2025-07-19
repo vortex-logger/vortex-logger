@@ -34,7 +34,7 @@ function bingo (opts) {
   opts.browser = opts.browser || {}
 
   const transmit = opts.browser.transmit
-  if (transmit && typeof transmit.send !== 'function') { throw Error('bingo-logger: transmit option must have a send function') }
+  if (transmit && typeof transmit.send !== 'function') { throw Error('bingo: transmit option must have a send function') }
 
   const proto = opts.browser.write || _console
   if (opts.browser.write) opts.browser.asObject = true
@@ -73,7 +73,7 @@ function bingo (opts) {
     levels,
     timestamp: getTimeFunction(opts)
   }
-  logger.levels = bingo-logger.levels
+  logger.levels = bingo.levels
   logger.level = level
 
   logger.setMaxListeners = logger.getMaxListeners =
@@ -203,15 +203,15 @@ function wrap (opts, logger, level) {
 
       if (opts.transmit) {
         const transmitLevel = opts.transmit.level || logger.level
-        const transmitValue = bingo-logger.levels.values[transmitLevel]
-        const methodValue = bingo-logger.levels.values[level]
+        const transmitValue = bingo.levels.values[transmitLevel]
+        const methodValue = bingo.levels.values[level]
         if (methodValue < transmitValue) return
         transmit(this, {
           ts,
           methodLevel: level,
           methodValue,
           transmitLevel,
-          transmitValue: bingo-logger.levels.values[opts.transmit.level || logger.level],
+          transmitValue: bingo.levels.values[opts.transmit.level || logger.level],
           send: opts.transmit.send,
           val: logger.levelVal
         }, args)
@@ -228,7 +228,7 @@ function asObject (logger, level, args, ts) {
   if (ts) {
     o.time = ts
   }
-  o.level = bingo-logger.levels.values[level]
+  o.level = bingo.levels.values[level]
   let lvl = (logger._childLevel | 0) + 1
   if (lvl < 1) lvl = 1
   // deliberate, catching objects, arrays
@@ -245,7 +245,7 @@ function asObject (logger, level, args, ts) {
 function applySerializers (args, serialize, serializers, stdErrSerialize) {
   for (const i in args) {
     if (stdErrSerialize && args[i] instanceof Error) {
-      args[i] = bingo-logger.stdSerializers.err(args[i])
+      args[i] = bingo.stdSerializers.err(args[i])
     } else if (typeof args[i] === 'object' && !Array.isArray(args[i])) {
       for (const k in args[i]) {
         if (serialize && serialize.indexOf(k) > -1 && k in serializers) {

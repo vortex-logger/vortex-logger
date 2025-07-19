@@ -1,13 +1,13 @@
-import bingo-logger from '../../..'
+import bingo from '../../..'
 import { join } from 'path'
 
-const transport = bingo-logger.transport({
+const transport = bingo.transport({
   target: join(__dirname, 'to-file-transport-with-transform.ts'),
   options: {
     destination: process.argv[2]
   }
 })
-const logger = bingo-logger(transport)
+const logger = bingo(transport)
 
 logger.info('Hello')
 logger.info('World')

@@ -8,7 +8,7 @@ test('file-target mocked', async function ({ equal, same, plan, pass }) {
   plan(1)
   let ret
   const fileTarget = proxyquire('../../file', {
-    './bingo-logger': {
+    './bingo': {
       destination (opts) {
         same(opts, { dest: 1, sync: false })
 

@@ -1,9 +1,9 @@
 'use strict'
 
 const { join } = require('path')
-const bingo-logger = require('../..')
-const transport = bingo-logger.transport({
+const bingo = require('../..')
+const transport = bingo.transport({
   target: join(__dirname, 'transport-worker.js')
 })
-const logger = bingo-logger(transport)
+const logger = bingo(transport)
 logger.info('Hello')
