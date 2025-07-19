@@ -1,4 +1,4 @@
-import { bingo } from '../../bingo'
+import { bingo } from '../../bingo-logger'
 import { expectType } from "tsd";
 
 // Single
@@ -23,7 +23,7 @@ const transports = bingo.transport({targets: [
     },
     {
         level: 'trace',
-        target: '#bingo-logger/file',
+        target: '#bingo/file',
         options: { destination: './test.log' }
     }
 ]})
@@ -38,7 +38,7 @@ expectType<bingo.Logger>(bingo({
             },
             {
                 level: 'trace',
-                target: '#bingo-logger/file',
+                target: '#bingo/file',
                 options: { destination: './test.log' }
             }
         ]},
@@ -52,7 +52,7 @@ const transportsWithCustomLevels = bingo.transport({targets: [
     },
     {
         level: 'foo',
-        target: '#bingo-logger/file',
+        target: '#bingo/file',
         options: { destination: './test.log' }
     }
 ], levels: { foo: 35 }})
@@ -67,9 +67,26 @@ expectType<bingo.Logger>(bingo({
             },
             {
                 level: 'trace',
-                target: '#bingo-logger/file',
+                target: '#bingo/file',
                 options: { destination: './test.log' }
             }
+        ], levels: { foo: 35 }
+    },
+}))
+
+const transportsWithoutOptions = bingo.transport({
+    targets: [
+        { target: '#bingo/pretty' },
+        { target: '#bingo/file' }
+    ], levels: { foo: 35 }
+})
+bingo(transports)
+
+expectType<bingo.Logger>(bingo({
+    transport: {
+        targets: [
+            { target: '#bingo/pretty' },
+            { target: '#bingo/file' }
         ], levels: { foo: 35 }
     },
 }))
@@ -78,7 +95,7 @@ const pipelineTransport = bingo.transport({
     pipeline: [{
         target: './my-transform.js'
     }, {
-        // Use target: 'bingo-logger/file' to write to stdout
+        // Use target: 'bingo/file' to write to stdout
         // without any change.
         target: 'bingo-pretty'
     }]
@@ -90,7 +107,7 @@ expectType<bingo.Logger>(bingo({
         pipeline: [{
             target: './my-transform.js'
         }, {
-            // Use target: 'bingo-logger/file' to write to stdout
+            // Use target: 'bingo/file' to write to stdout
             // without any change.
             target: 'bingo-pretty'
         }]
@@ -119,4 +136,10 @@ bingo.transport({
         autoEnd: true,
     },
     options: { id: 'abc' }
+})
+
+// Dedupe
+bingo.transport({
+    targets: [],
+    dedupe: true,
 })

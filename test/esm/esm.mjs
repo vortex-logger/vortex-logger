@@ -1,5 +1,5 @@
 import t from 'tap'
-import bingo from '../../bingo.js'
+import bingo from '../../bingo-logger.js'
 import helper from '../helper.js'
 
 const { sink, check, once } = helper

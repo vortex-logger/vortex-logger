@@ -1,5 +1,5 @@
 import bingo from '../../..'
-import { join } from 'path'
+import { join } from 'node:path'
 
 const transport = bingo.transport({
   target: join(__dirname, 'to-file-transport-with-transform.ts'),

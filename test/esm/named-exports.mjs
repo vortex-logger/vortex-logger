@@ -1,9 +1,8 @@
-import { tmpdir, hostname } from 'os'
+import { hostname } from 'node:os'
 import t from 'tap'
 import { sink, check, once, watchFileCreated, file } from '../helper.js'
-import { bingo, destination } from '../../bingo.js'
-import { join } from 'path'
-import { readFileSync } from 'fs'
+import { bingo, destination } from '../../bingo-logger.js'
+import { readFileSync } from 'node:fs'
 
 t.test('named exports support', async ({ equal }) => {
   const stream = sink()

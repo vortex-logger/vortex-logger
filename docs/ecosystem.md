@@ -1,8 +1,8 @@
-# bingo Ecosystem
+# Bingo Ecosystem
 
-This is a list of ecosystem modules that integrate with `bingo-logger`.
+This is a list of ecosystem modules that integrate with `bingo`.
 
-Modules listed under [Core](#core) are maintained by the bingo team. Modules
+Modules listed under [Core](#core) are maintained by the Bingo team. Modules
 listed under [Community](#community) are maintained by independent community
 members.
 
@@ -11,64 +11,74 @@ Please send a PR to add new modules!
 <a id="core"></a>
 ## Core
 
-+ [`express-bingo-logger-logger`](https://github.com/bingo-loggerjs/express-bingo-logger-logger): use
-bingo to log requests within [express](https://expressjs.com/).
-+ [`koa-bingo-logger-logger`](https://github.com/bingo-loggerjs/koa-bingo-logger-logger): use bingo to
+### Frameworks
++ [`express-bingo-logger`](https://github.com/bingo/express-bingo-logger): use
+Bingo to log requests within [express](https://expressjs.com/).
++ [`koa-bingo-logger`](https://github.com/bingo/koa-bingo-logger): use Bingo to
 log requests within [Koa](https://koajs.com/).
-+ [`bingo-logger-arborsculpture`](https://github.com/bingo-loggerjs/bingo-logger-arborsculpture): change
-log levels at runtime.
-+ [`bingo-logger-caller`](https://github.com/bingo-loggerjs/bingo-logger-caller): add callsite to the log line.
-+ [`bingo-logger-clf`](https://github.com/bingo-loggerjs/bingo-logger-clf): reformat bingo logs into
-Common Log Format.
-+ [`bingo-logger-debug`](https://github.com/bingo-loggerjs/bingo-logger-debug): use bingo to interpret
-[`debug`](https://npm.im/debug) logs.
-+ [`bingo-logger-elasticsearch`](https://github.com/bingo-loggerjs/bingo-logger-elasticsearch): send
-bingo logs to an Elasticsearch instance.
-+ [`bingo-logger-eventhub`](https://github.com/bingo-loggerjs/bingo-logger-eventhub): send bingo logs
-to an [Event Hub](https://docs.microsoft.com/en-us/azure/event-hubs/event-hubs-what-is-event-hubs).
-+ [`bingo-logger-filter`](https://github.com/bingo-loggerjs/bingo-logger-filter): filter bingo logs in
-the same fashion as the [`debug`](https://npm.im/debug) module.
-+ [`bingo-logger-gelf`](https://github.com/bingo-loggerjs/bingo-logger-gelf): reformat bingo logs into
-GELF format for Graylog.
-+ [`bingo-logger-hapi`](https://github.com/bingo-loggerjs/hapi-bingo-logger): use bingo as the logger
-for [Hapi](https://hapijs.com/).
-+ [`bingo-logger-http`](https://github.com/bingo-loggerjs/bingo-logger-http): easily use bingo to log
-requests with the core `http` module.
-+ [`bingo-logger-http-print`](https://github.com/bingo-loggerjs/bingo-logger-http-print): reformat bingo
-logs into traditional [HTTPD](https://httpd.apache.org/) style request logs.
-+ [`bingo-logger-multi-stream`](https://github.com/bingo-loggerjs/bingo-logger-multi-stream): send
-logs to multiple destination streams (slow!).
-+ [`bingo-logger-mongodb`](https://github.com/bingo-loggerjs/bingo-logger-mongodb): store bingo logs
-in a MongoDB database.
-+ [`bingo-logger-noir`](https://github.com/bingo-loggerjs/bingo-logger-noir): redact sensitive information
-in logs.
-+ [`bingo-logger-pretty`](https://github.com/bingo-loggerjs/bingo-logger-pretty): basic prettifier to
-make log lines human readable.
-+ [`bingo-logger-socket`](https://github.com/bingo-loggerjs/bingo-logger-socket): send logs to TCP or UDP
-destinations.
-+ [`bingo-std-serializers`](https://github.com/bingo-loggerjs/bingo-std-serializers): the
-core object serializers used within bingo.
-+ [`bingo-logger-syslog`](https://github.com/bingo-loggerjs/bingo-logger-syslog): reformat bingo logs
-to standard syslog format.
-+ [`bingo-logger-tee`](https://github.com/bingo-loggerjs/bingo-logger-tee): pipe bingo logs into files
-based upon log levels.
-+ [`bingo-logger-toke`](https://github.com/bingo-loggerjs/bingo-logger-toke): reformat bingo logs
-according to a given format string.
-+ [`restify-bingo-logger-logger`](https://github.com/bingo-loggerjs/restify-bingo-logger-logger): use
-bingo to log requests within [restify](http://restify.com/).
-+ [`rill-bingo-logger-logger`](https://github.com/bingo-loggerjs/rill-bingo-logger-logger): use bingo as
++ [`restify-bingo-logger`](https://github.com/bingo/restify-bingo-logger): use
+Bingo to log requests within [restify](http://restify.com/).
++ [`rill-bingo-logger`](https://github.com/bingo/rill-bingo-logger): use Bingo as
 the logger for the [Rill framework](https://rill.site/).
+
+### Utilities
++ [`bingo-arborsculpture`](https://github.com/bingo/bingo-arborsculpture): change
+log levels at runtime.
++ [`bingo-caller`](https://github.com/bingo/bingo-caller): add callsite to the log line.
++ [`bingo-clf`](https://github.com/bingo/bingo-clf): reformat Bingo logs into
+Common Log Format.
++ [`bingo-debug`](https://github.com/bingo/bingo-debug): use Bingo to interpret
+[`debug`](https://npm.im/debug) logs.
++ [`bingo-elasticsearch`](https://github.com/bingo/bingo-elasticsearch): send
+Bingo logs to an Elasticsearch instance.
++ [`bingo-eventhub`](https://github.com/bingo/bingo-eventhub): send Bingo logs
+to an [Event Hub](https://docs.microsoft.com/en-us/azure/event-hubs/event-hubs-what-is-event-hubs).
++ [`bingo-filter`](https://github.com/bingo/bingo-filter): filter Bingo logs in
+the same fashion as the [`debug`](https://npm.im/debug) module.
++ [`bingo-gelf`](https://github.com/bingo/bingo-gelf): reformat Bingo logs into
+GELF format for Graylog.
++ [`bingo-hapi`](https://github.com/bingo/hapi-bingo): use Bingo as the logger
+for [Hapi](https://hapijs.com/).
++ [`bingo-http`](https://github.com/bingo/bingo-http): easily use Bingo to log
+requests with the core `http` module.
++ [`bingo-http-print`](https://github.com/bingo/bingo-http-print): reformat Bingo
+logs into traditional [HTTPD](https://httpd.apache.org/) style request logs.
++ [`bingo-mongodb`](https://github.com/bingo/bingo-mongodb): store Bingo logs
+in a MongoDB database.
++ [`bingo-multi-stream`](https://github.com/bingo/bingo-multi-stream): send
+logs to multiple destination streams (slow!).
++ [`bingo-noir`](https://github.com/bingo/bingo-noir): redact sensitive information
+in logs.
++ [`bingo-pretty`](https://github.com/bingo/bingo-pretty): basic prettifier to
+make log lines human-readable.
++ [`bingo-socket`](https://github.com/bingo/bingo-socket): send logs to TCP or UDP
+destinations.
++ [`bingo-std-serializers`](https://github.com/bingo/bingo-std-serializers): the
+core object serializers used within Bingo.
++ [`bingo-syslog`](https://github.com/bingo/bingo-syslog): reformat Bingo logs
+to standard syslog format.
++ [`bingo-tee`](https://github.com/bingo/bingo-tee): pipe Bingo logs into files
+based upon log levels.
++ [`bingo-test`](https://github.com/bingo/bingo-test): a set of utilities for 
+verifying logs generated by the Bingo logger.
++ [`bingo-toke`](https://github.com/bingo/bingo-toke): reformat Bingo logs
+according to a given format string.
+
 
 <a id="community"></a>
 ## Community
 
-+ [`bingo-logger-colada`](https://github.com/lrlna/bingo-logger-colada): cute ndjson formatter for bingo-logger.
-+ [`bingo-logger-fluentd`](https://github.com/davidedantonio/bingo-logger-fluentd): send bingo logs to Elasticsearch,
-MongoDB and many [others](https://www.fluentd.org/dataoutputs) via Fluentd.
-+ [`bingo-logger-pretty-min`](https://github.com/unjello/bingo-logger-pretty-min): a minimal
++ [`@google-cloud/bingo-logging-gcp-config`](https://www.npmjs.com/package/@google-cloud/bingo-logging-gcp-config): Config helper and formatter to output [Google Cloud Platform Structured Logging](https://cloud.google.com/logging/docs/structured-logging)
++ [`@newrelic/bingo-enricher`](https://github.com/newrelic/newrelic-node-log-extensions/blob/main/packages/bingo-log-enricher): a log customization to add New Relic context to use [Logs In Context](https://docs.newrelic.com/docs/logs/logs-context/logs-in-context/)
++ [`cloud-pine`](https://github.com/metcoder95/cloud-pine): transport that provides abstraction and compatibility with [`@google-cloud/logging`](https://www.npmjs.com/package/@google-cloud/logging).
++ [`cls-proxify`](https://github.com/keenondrums/cls-proxify): integration of bingo and [CLS](https://github.com/jeff-lewis/cls-hooked). Useful for creating dynamically configured child loggers (e.g. with added trace ID) for each request.
++ [`crawlee-bingo`](https://github.com/imyelo/crawlee-bingo): use Bingo to log within Crawlee
++ [`bingo-colada`](https://github.com/lrlna/bingo-colada): cute ndjson formatter for bingo.
++ [`bingo-dev`](https://github.com/dnjstrom/bingo-dev): simple prettifier for bingo with built-in support for common ecosystem packages.
++ [`bingo-fluentd`](https://github.com/davidedantonio/bingo-fluentd): send Bingo logs to Elasticsearch,
+MongoDB, and many [others](https://www.fluentd.org/dataoutputs) via Fluentd.
++ [`bingo-lambda`](https://github.com/FormidableLabs/bingo-lambda): log transport for cloudwatch support inside aws-lambda 
++ [`bingo-pretty-min`](https://github.com/unjello/bingo-pretty-min): a minimal
 prettifier inspired by the [logrus](https://github.com/sirupsen/logrus) logger.
-+ [`bingo-logger-rotating-file`](https://github.com/homeaway/bingo-logger-rotating-file): a hapi-bingo-logger log transport for splitting logs into separate, automatically rotating files.
-+ [`cls-proxify`](https://github.com/keenondrums/cls-proxify): integration of bingo-logger and [CLS](https://github.com/jeff-lewis/cls-hooked). Useful for creating dynamically configured child loggers (e.g. with added trace ID) for each request.
-+ [`bingo-logger-tiny`](https://github.com/holmok/bingo-logger-tiny): a tiny (and exentsible?) little log formatter for bingo-logger.
-+ [`bingo-logger-dev`](https://github.com/dnjstrom/bingo-logger-dev): simple prettifier for bingo-logger with built-in support for common ecosystem packages.
-+ [`@newrelic/bingo-logger-enricher`](https://github.com/newrelic/newrelic-node-log-extensions/blob/main/packages/bingo-logger-log-enricher): a log customization to add New Relic context to use [Logs In Context](https://docs.newrelic.com/docs/logs/logs-context/logs-in-context/)
++ [`bingo-rotating-file`](https://github.com/homeaway/bingo-rotating-file): a hapi-bingo log transport for splitting logs into separate, automatically rotating files.
++ [`bingo-tiny`](https://github.com/holmok/bingo-tiny): a tiny (and extensible?) little log formatter for bingo.

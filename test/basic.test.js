@@ -1,6 +1,6 @@
 'use strict'
-const os = require('os')
-const { readFileSync } = require('fs')
+const os = require('node:os')
+const { readFileSync } = require('node:fs')
 const { test } = require('tap')
 const { sink, check, once, watchFileCreated, file } = require('./helper')
 const bingo = require('../')
@@ -109,6 +109,22 @@ function levelTest (name, level) {
     same(Object.keys(obj), ['hello'])
   })
 
+  test(`passing a undefined and a string at level ${name}`, async ({ equal, same }) => {
+    const stream = sink()
+    const instance = bingo(stream)
+    instance.level = name
+    instance[name](undefined, 'a string')
+    const result = await once(stream, 'data')
+    equal(new Date(result.time) <= new Date(), true, 'time is greater than Date.now()')
+    delete result.time
+    same(result, {
+      pid,
+      hostname,
+      level,
+      msg: 'a string'
+    })
+  })
+
   test(`overriding object key by string at level ${name}`, async ({ equal, same }) => {
     const stream = sink()
     const instance = bingo(stream)
@@ -211,6 +227,39 @@ test('serializers can return undefined to strip field', async ({ equal }) => {
   instance.info({ test: 'sensitive info' })
   const result = await once(stream, 'data')
   equal('test' in result, false)
+})
+
+test('streams receive a message event with PINO_CONFIG', ({ match, end }) => {
+  const stream = sink()
+  stream.once('message', (message) => {
+    match(message, {
+      code: 'PINO_CONFIG',
+      config: {
+        errorKey: 'err',
+        levels: {
+          labels: {
+            10: 'trace',
+            20: 'debug',
+            30: 'info',
+            40: 'warn',
+            50: 'error',
+            60: 'fatal'
+          },
+          values: {
+            debug: 20,
+            error: 50,
+            fatal: 60,
+            info: 30,
+            trace: 10,
+            warn: 40
+          }
+        },
+        messageKey: 'msg'
+      }
+    })
+    end()
+  })
+  bingo(stream)
 })
 
 test('does not explode with a circular ref', async ({ doesNotThrow }) => {
@@ -365,7 +414,7 @@ test('throw if creating child without bindings', async ({ equal, fail }) => {
     instance.child()
     fail('it should throw')
   } catch (err) {
-    equal(err.message, 'missing bindings for child Pino')
+    equal(err.message, 'missing bindings for child Bingo')
   }
 })
 
@@ -404,7 +453,24 @@ test('correctly escape msg strings with unclosed double quote', async ({ same })
   })
 })
 
-// https://github.com/bingojs/bingo/issues/139
+test('correctly escape quote in a key', async ({ same }) => {
+  const stream = sink()
+  const instance = bingo(stream)
+  const obj = { 'some"obj': 'world' }
+  instance.info(obj, 'a string')
+  const result = await once(stream, 'data')
+  delete result.time
+  same(result, {
+    level: 30,
+    pid,
+    hostname,
+    msg: 'a string',
+    'some"obj': 'world'
+  })
+  same(Object.keys(obj), ['some"obj'])
+})
+
+// https://github.com/bingo/bingo/issues/139
 test('object and format string', async ({ same }) => {
   const stream = sink()
   const instance = bingo(stream)
@@ -571,7 +637,7 @@ test('does not override opts with a string as second argument', async ({ same })
   })
 })
 
-// https://github.com/bingojs/bingo/issues/222
+// https://github.com/bingo/bingo/issues/222
 test('children with same names render in correct order', async ({ equal }) => {
   const stream = sink()
   const root = bingo(stream)
@@ -716,4 +782,93 @@ test('nestedKey should not be used for non-objects', async ({ strictSame }) => {
     level: 30,
     msg: message
   })
+})
+
+test('throws if prettyPrint is passed in as an option', async (t) => {
+  t.throws(() => {
+    bingo({
+      prettyPrint: true
+    })
+  }, new Error('prettyPrint option is no longer supported, see the bingo-pretty package (https://github.com/bingo/bingo-pretty)'))
+})
+
+test('Should invoke `onChild` with the newly created child', async ({ equal }) => {
+  let innerChild
+  const child = bingo({
+    onChild: (instance) => {
+      innerChild = instance
+    }
+  }).child({ foo: 'bar' })
+  equal(child, innerChild)
+})
+
+test('logger message should have the prefix message that defined in the logger creation', async ({ equal }) => {
+  const stream = sink()
+  const logger = bingo({
+    msgPrefix: 'My name is Bond '
+  }, stream)
+  logger.info('James Bond')
+  const { msg } = await once(stream, 'data')
+  equal(msg, 'My name is Bond James Bond')
+})
+
+test('child message should have the prefix message that defined in the child creation', async ({ equal }) => {
+  const stream = sink()
+  const instance = bingo(stream)
+  const child = instance.child({}, { msgPrefix: 'My name is Bond ' })
+  child.info('James Bond')
+  const { msg } = await once(stream, 'data')
+  equal(msg, 'My name is Bond James Bond')
+})
+
+test('child message should have the prefix message that defined in the child creation when logging with log meta', async ({ equal }) => {
+  const stream = sink()
+  const instance = bingo(stream)
+  const child = instance.child({}, { msgPrefix: 'My name is Bond ' })
+  child.info({ hello: 'world' }, 'James Bond')
+  const { msg, hello } = await once(stream, 'data')
+  equal(hello, 'world')
+  equal(msg, 'My name is Bond James Bond')
+})
+
+test('logged message should not have the prefix when not providing any message', async ({ equal }) => {
+  const stream = sink()
+  const instance = bingo(stream)
+  const child = instance.child({}, { msgPrefix: 'This should not be shown ' })
+  child.info({ hello: 'world' })
+  const { msg, hello } = await once(stream, 'data')
+  equal(hello, 'world')
+  equal(msg, undefined)
+})
+
+test('child message should append parent prefix to current prefix that defined in the child creation', async ({ equal }) => {
+  const stream = sink()
+  const instance = bingo({
+    msgPrefix: 'My name is Bond '
+  }, stream)
+  const child = instance.child({}, { msgPrefix: 'James ' })
+  child.info('Bond')
+  const { msg } = await once(stream, 'data')
+  equal(msg, 'My name is Bond James Bond')
+})
+
+test('child message should inherent parent prefix', async ({ equal }) => {
+  const stream = sink()
+  const instance = bingo({
+    msgPrefix: 'My name is Bond '
+  }, stream)
+  const child = instance.child({})
+  child.info('James Bond')
+  const { msg } = await once(stream, 'data')
+  equal(msg, 'My name is Bond James Bond')
+})
+
+test('grandchild message should inherent parent prefix', async ({ equal }) => {
+  const stream = sink()
+  const instance = bingo(stream)
+  const child = instance.child({}, { msgPrefix: 'My name is Bond ' })
+  const grandchild = child.child({})
+  grandchild.info('James Bond')
+  const { msg } = await once(stream, 'data')
+  equal(msg, 'My name is Bond James Bond')
 })

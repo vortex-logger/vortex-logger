@@ -104,12 +104,6 @@ dist
 .temp
 .cache
 
-# vitepress build output
-**/.vitepress/dist
-
-# vitepress cache directory
-**/.vitepress/cache
-
 # Docusaurus cache and generated files
 .docusaurus
 
@@ -134,3 +128,27 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# Vim swap files
+*.swp
+
+# macOS files
+.DS_Store
+
+# editor files
+.vscode
+.idea
+
+# lock files
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# 0x
+.__browserify_string_empty.js
+profile-*
+
+# Generated files
+test/fixtures/ts/*js
+!test/fixtures/eval/node_modules
+!test/fixtures/ts/transpile.cjs

@@ -1,6 +1,6 @@
 'use strict'
 
-const { join } = require('path')
+const { join } = require('node:path')
 const bingo = require('../..')
 const transport = bingo.transport({
   target: join(__dirname, 'transport-worker.js')

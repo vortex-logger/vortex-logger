@@ -1,7 +1,7 @@
-import P, { bingo } from "../../";
 import { IncomingMessage, ServerResponse } from "http";
 import { Socket } from "net";
-import { expectError } from 'tsd'
+import { expectError, expectType } from 'tsd';
+import P, { LoggerOptions, bingo } from "../../";
 import Logger = P.Logger;
 
 const log = bingo();
@@ -10,10 +10,63 @@ const error = log.error;
 
 info("hello world");
 error("this is at error level");
-info("the answer is %d", 42);
+
+// primative types
+info('simple string');
+info(true)
+info(42);
+info(3.14);
+info(null);
+info(undefined);
+
+// object types
+info({ a: 1, b: '2' });
+info(new Error());
+info(new Date());
+info([])
+info(new Map());
+info(new Set());
+
+// placeholder messages
+info('Hello %s', 'world');
+info('The answer is %d', 42);
+info('The object is %o', { a: 1, b: '2' });
+info('The json is %j', { a: 1, b: '2' });
+info('The object is %O', { a: 1, b: '2' });
+info('The answer is %d and the question is %s with %o', 42, 'unknown', { correct: 'order' });
+info('Missing placeholder is fine %s');
+declare const errorOrString: string | Error;
+info(errorOrString)
+
+// placeholder messages type errors
+expectError(info('Hello %s', 123));
+expectError(info('Hello %s', false));
+expectError(info('The answer is %d', 'not a number'));
+expectError(info('The object is %o', 'not an object'));
+expectError(info('The object is %j', 'not a JSON'));
+expectError(info('The object is %O', 'not an object'));
+expectError(info('The answer is %d and the question is %s with %o', 42, { incorrect: 'order' }, 'unknown'));
+expectError(info('Extra message %s', 'after placeholder', 'not allowed'));
+
+// object types with messages
 info({ obj: 42 }, "hello world");
 info({ obj: 42, b: 2 }, "hello world");
 info({ obj: { aa: "bbb" } }, "another");
+info({ a: 1, b: '2' }, 'hello world with %s', 'extra data');
+
+// Extra message after placeholder
+expectError(info({ a: 1, b: '2' }, 'hello world with %d', 2, 'extra' ));
+
+// metadata with messages type errors
+expectError(info({ a: 1, b: '2' }, 'hello world with %s', 123));
+
+// metadata after message
+expectError(info('message', { a: 1, b: '2' }));
+
+// multiple strings without placeholder
+expectError(info('string1', 'string2'));
+expectError(info('string1', 'string2', 'string3'));
+
 setImmediate(info, "after setImmediate");
 error(new Error("an error"));
 
@@ -103,13 +156,17 @@ bingo({
                 logEvent.messages;
             },
         },
+        disabled: false
     },
 });
 
+bingo({}, undefined);
+
 bingo({ base: null });
-// @ts-expect-error
 if ("bingo" in log) console.log(`bingo version: ${log.bingo}`);
 
+expectType<void>(log.flush());
+log.flush((err?: Error) => undefined);
 log.child({ a: "property" }).info("hello child!");
 log.level = "error";
 log.info("nope");
@@ -152,7 +209,7 @@ if (log.levelVal === 30) {
 const listener = (lvl: any, val: any, prevLvl: any, prevVal: any) => {
     console.log(lvl, val, prevLvl, prevVal);
 };
-log.on("level-change", (lvl, val, prevLvl, prevVal) => {
+log.on("level-change", (lvl, val, prevLvl, prevVal, logger) => {
     console.log(lvl, val, prevLvl, prevVal);
 });
 log.level = "trace";
@@ -191,32 +248,6 @@ anotherRedacted.info({
     anotherPath: "Not shown",
 });
 
-const pretty = bingo({
-    prettyPrint: {
-        colorize: true,
-        crlf: false,
-        errorLikeObjectKeys: ["err", "error"],
-        errorProps: "",
-        messageFormat: false,
-        ignore: "",
-        levelFirst: false,
-        messageKey: "msg",
-        timestampKey: "timestamp",
-        translateTime: "UTC:h:MM:ss TT Z",
-    },
-});
-
-const withMessageFormatFunc = bingo({
-    prettyPrint: {
-        ignore: "requestId",
-        messageFormat: (log, messageKey: string) => {
-            const message = log[messageKey] as string;
-            if (log.requestId) return `[${log.requestId}] ${message}`;
-            return message;
-        },
-    },
-});
-
 const withTimeFn = bingo({
     timestamp: bingo.stdTimeFunctions.isoTime,
 });
@@ -228,12 +259,17 @@ const withNestedKey = bingo({
 const withHooks = bingo({
     hooks: {
         logMethod(args, method, level) {
-            return method.apply(this, ['msg', ...args]);
+            expectType<bingo.Logger>(this);
+            return method.apply(this, args);
+        },
+        streamWrite(s) {
+            expectType<string>(s);
+            return s.replaceAll('secret-key', 'xxx');
         },
     },
 });
 
-// Properties/types imported from pino-std-serializers
+// Properties/types imported from bingo-std-serializers
 const wrappedErrSerializer = bingo.stdSerializers.wrapErrorSerializer((err: bingo.SerializedError) => {
     return { ...err, newProp: "foo" };
 });
@@ -327,15 +363,159 @@ log3.level = 'myLevel'
 log3.myLevel('')
 log3.child({}).myLevel('')
 
+log3.on('level-change', (lvl, val, prevLvl, prevVal, instance) => {
+    instance.myLevel('foo');
+});
+
 const clog3 = log3.child({}, { customLevels: { childLevel: 120 } })
-// child inherit parant
+// child inherit parent
 clog3.myLevel('')
 // child itself
 clog3.childLevel('')
 const cclog3 = clog3.child({}, { customLevels: { childLevel2: 130 } })
 // child inherit root
 cclog3.myLevel('')
-// child inherit parant
+// child inherit parent
 cclog3.childLevel('')
 // child itself
 cclog3.childLevel2('')
+
+const ccclog3 = clog3.child({})
+expectError(ccclog3.nonLevel(''))
+
+const withChildCallback = bingo({
+    onChild: (child: Logger) => {}
+})
+withChildCallback.onChild = (child: Logger) => {}
+
+bingo({
+    crlf: true,
+});
+
+const customLevels = { foo: 99, bar: 42 }
+
+const customLevelLogger = bingo({ customLevels });
+
+type CustomLevelLogger = typeof customLevelLogger
+type CustomLevelLoggerLevels = bingo.Level | keyof typeof customLevels
+
+const fn = (logger: Pick<CustomLevelLogger, CustomLevelLoggerLevels>) => {}
+
+const customLevelChildLogger = customLevelLogger.child({ name: "child" })
+
+fn(customLevelChildLogger); // missing foo typing
+
+// unknown option
+expectError(
+  bingo({
+    hello: 'world'
+  })
+);
+
+// unknown option
+expectError(
+  bingo({
+    hello: 'world',
+    customLevels: {
+      'log': 30
+    }
+  })
+);
+
+function dangerous () {
+  throw Error('foo')
+}
+
+try {
+  dangerous()
+} catch (err) {
+  log.error(err)
+}
+
+try {
+  dangerous()
+} catch (err) {
+  log.error({ err })
+}
+
+const bLogger = bingo({
+  customLevels: {
+    log: 5,
+  },
+  level: 'log',
+  transport: {
+    target: 'bingo-pretty',
+    options: {
+      colorize: true,
+    },
+  },
+});
+
+expectType<Logger<'log'>>(bingo({
+  customLevels: {
+    log: 5,
+  },
+  level: 'log',
+  transport: {
+    target: 'bingo-pretty',
+    options: {
+      colorize: true,
+    },
+  },
+}))
+
+const parentLogger1 = bingo({
+  customLevels: { myLevel: 90 },
+  onChild: (child) => { const a = child.myLevel; }
+}, process.stdout)
+parentLogger1.onChild = (child) => { child.myLevel(''); }
+
+const childLogger1 = parentLogger1.child({});
+childLogger1.myLevel('');
+expectError(childLogger1.doesntExist(''));
+
+const parentLogger2 = bingo({}, process.stdin);
+expectError(parentLogger2.onChild = (child) => { const b = child.doesntExist; });
+
+const childLogger2 = parentLogger2.child({});
+expectError(childLogger2.doesntExist);
+
+expectError(bingo({
+  onChild: (child) => { const a = child.doesntExist; }
+}, process.stdout));
+
+const pinoWithoutLevelsSorting = bingo({});
+const pinoWithDescSortingLevels = bingo({ levelComparison: 'DESC' });
+const pinoWithAscSortingLevels = bingo({ levelComparison: 'ASC' });
+const pinoWithCustomSortingLevels = bingo({ levelComparison: () => false });
+// with wrong level comparison direction
+expectError(bingo({ levelComparison: 'SOME'}), process.stdout);
+// with wrong level comparison type
+expectError(bingo({ levelComparison: 123}), process.stdout);
+// with wrong custom level comparison return type
+expectError(bingo({ levelComparison: () => null }), process.stdout);
+expectError(bingo({ levelComparison: () => 1 }), process.stdout);
+expectError(bingo({ levelComparison: () => 'string' }), process.stdout);
+
+const customLevelsOnlyOpts = {
+    useOnlyCustomLevels: true,
+    customLevels: {
+        customDebug: 10,
+        info: 20, // to make sure the default names are also available for override
+        customNetwork: 30,
+        customError: 40,
+    },
+    level: 'customDebug',
+} satisfies LoggerOptions;
+
+const loggerWithCustomLevelOnly = bingo(customLevelsOnlyOpts);
+loggerWithCustomLevelOnly.customDebug('test3')
+loggerWithCustomLevelOnly.info('test4')
+loggerWithCustomLevelOnly.customError('test5')
+loggerWithCustomLevelOnly.customNetwork('test6')
+
+expectError(loggerWithCustomLevelOnly.fatal('test'));
+expectError(loggerWithCustomLevelOnly.error('test'));
+expectError(loggerWithCustomLevelOnly.warn('test'));
+expectError(loggerWithCustomLevelOnly.debug('test'));
+expectError(loggerWithCustomLevelOnly.trace('test'));

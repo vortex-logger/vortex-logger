@@ -1,31 +1,65 @@
 # Browser API
 
-Pino is compatible with [`browserify`](https://npm.im/browserify) for browser side usage:
+Bingo is compatible with [`browserify`](https://npm.im/browserify) for browser-side usage:
 
 This can be useful with isomorphic/universal JavaScript code.
 
 By default, in the browser,
-`bingo-logger` uses corresponding [Log4j](https://en.wikipedia.org/wiki/Log4j) `console` methods (`console.error`, `console.warn`, `console.info`, `console.debug`, `console.trace`) and uses `console.error` for any `fatal` level logs.
+`bingo` uses corresponding [Log4j](https://en.wikipedia.org/wiki/Log4j) `console` methods (`console.error`, `console.warn`, `console.info`, `console.debug`, `console.trace`) and uses `console.error` for any `fatal` level logs.
 
 ## Options
 
-Pino can be passed a `browser` object in the options object,
+Bingo can be passed a `browser` object in the options object,
 which can have the following properties:
 
 ### `asObject` (Boolean)
 
 ```js
-const bingo-logger = require('bingo-logger')({browser: {asObject: true}})
+const bingo = require('bingo')({browser: {asObject: true}})
 ```
 
-The `asObject` option will create a bingo-logger-like log object instead of
+The `asObject` option will create a bingo-like log object instead of
 passing all arguments to a console method, for instance:
 
 ```js
-bingo-logger.info('hi') // creates and logs {msg: 'hi', level: 30, time: <ts>}
+bingo.info('hi') // creates and logs {msg: 'hi', level: 30, time: <ts>}
 ```
 
 When `write` is set, `asObject` will always be `true`.
+
+### `asObjectBindingsOnly` (Boolean)
+
+```js
+const bingo = require('bingo')({browser: {asObjectBindingsOnly: true}})
+```
+
+The `asObjectBindingsOnly` is similar to `asObject` but will keep the message
+and arguments unformatted, this allows to defer formatting the message to the
+actual call to `console` methods, where browsers then have richer formatting in
+their devtools then when bingo will format the message to a string first.
+
+```js
+bingo.info('hello %s', 'world') // creates and logs {level: 30, time: <ts>}, 'hello %s', 'world'
+```
+
+### `formatters` (Object)
+
+An object containing functions for formatting the shape of the log lines. When provided, it enables the logger to produce a bingo-like log object with customized formatting. Currently, it supports formatting for the `level` object only.
+
+##### `level`
+
+Changes the shape of the log level. The default shape is `{ level: number }`.
+The function takes two arguments, the label of the level (e.g. `'info'`)
+and the numeric value (e.g. `30`).
+
+```js
+const formatters = {
+  level (label, number) {
+    return { level: number }
+  }
+}
+```
+
 
 ### `write` (Function | Object)
 
@@ -36,7 +70,7 @@ If `write` is set to a single function, all logging objects are passed
 to this function.
 
 ```js
-const bingo-logger = require('bingo-logger')({
+const bingo = require('bingo')({
   browser: {
     write: (o) => {
       // do something with o
@@ -52,7 +86,7 @@ to using the `console`.
 
 
 ```js
-const bingo-logger = require('bingo-logger')({
+const bingo = require('bingo')({
   browser: {
     write: {
       info: function (o) {
@@ -68,15 +102,15 @@ const bingo-logger = require('bingo-logger')({
 
 ### `serialize`: (Boolean | Array)
 
-The serializers provided to `bingo-logger` are ignored by default in the browser, including
-the standard serializers provided with Pino. Since the default destination for log
+The serializers provided to `bingo` are ignored by default in the browser, including
+the standard serializers provided with Bingo. Since the default destination for log
 messages is the console, values such as `Error` objects are enhanced for inspection,
 which they otherwise wouldn't be if the Error serializer was enabled.
 
 We can turn all serializers on,
 
 ```js
-const bingo-logger = require('bingo-logger')({
+const bingo = require('bingo')({
   browser: {
     serialize: true
   }
@@ -86,7 +120,7 @@ const bingo-logger = require('bingo-logger')({
 Or we can selectively enable them via an array:
 
 ```js
-const bingo-logger = require('bingo-logger')({
+const bingo = require('bingo')({
   serializers: {
     custom: myCustomSerializer,
     another: anotherSerializer
@@ -97,17 +131,17 @@ const bingo-logger = require('bingo-logger')({
 })
 // following will apply myCustomSerializer to the custom property,
 // but will not apply anotherSerializer to another key
-bingo-logger.info({custom: 'a', another: 'b'})
+bingo.info({custom: 'a', another: 'b'})
 ```
 
-When `serialize` is `true` the standard error serializer is also enabled (see https://github.com/bingo-loggerjs/bingo-logger/blob/master/docs/api.md#stdSerializers).
-This is a global serializer which will apply to any `Error` objects passed to the logger methods.
+When `serialize` is `true` the standard error serializer is also enabled (see https://github.com/bingo/bingo/blob/master/docs/api.md#stdSerializers).
+This is a global serializer, which will apply to any `Error` objects passed to the logger methods.
 
 If `serialize` is an array the standard error serializer is also automatically enabled, it can
 be explicitly disabled by including a string in the serialize array: `!stdSerializers.err`, like so:
 
 ```js
-const bingo-logger = require('bingo-logger')({
+const bingo = require('bingo')({
   serializers: {
     custom: myCustomSerializer,
     another: anotherSerializer
@@ -118,14 +152,14 @@ const bingo-logger = require('bingo-logger')({
 })
 ```
 
-The `serialize` array also applies to any child logger serializers (see https://github.com/bingo-loggerjs/bingo-logger/blob/master/docs/api.md#discussion-2
+The `serialize` array also applies to any child logger serializers (see https://github.com/bingo/bingo/blob/master/docs/api.md#discussion-2
 for how to set child-bound serializers).
 
-Unlike server bingo-logger the serializers apply to every object passed to the logger method,
+Unlike server bingo the serializers apply to every object passed to the logger method,
 if the `asObject` option is `true`, this results in the serializers applying to the
-first object (as in server bingo-logger).
+first object (as in server bingo).
 
-For more info on serializers see https://github.com/bingo-loggerjs/bingo-logger/blob/master/docs/api.md#parameters.
+For more info on serializers see https://github.com/bingo/bingo/blob/master/docs/api.md#mergingobject.
 
 ### `transmit` (Object)
 
@@ -141,7 +175,7 @@ message and a `logEvent` object.
 
 The `logEvent` object is a data structure representing a log message, it represents
 the arguments passed to a logger statement, the level
-at which they were logged and the hierarchy of child bindings.
+at which they were logged, and the hierarchy of child bindings.
 
 The `logEvent` format is structured like so:
 
@@ -154,37 +188,37 @@ The `logEvent` format is structured like so:
 }
 ```
 
-The `ts` property is a unix epoch timestamp in milliseconds, the time is taken from the moment the
+The `ts` property is a Unix epoch timestamp in milliseconds, the time is taken from the moment the
 logger method is called.
 
 The `messages` array is all arguments passed to logger method, (for instance `logger.info('a', 'b', 'c')`
 would result in `messages` array `['a', 'b', 'c']`).
 
 The `bindings` array represents each child logger (if any), and the relevant bindings.
-For instance given `logger.child({a: 1}).child({b: 2}).info({c: 3})`, the bindings array
+For instance, given `logger.child({a: 1}).child({b: 2}).info({c: 3})`, the bindings array
 would hold `[{a: 1}, {b: 2}]` and the `messages` array would be `[{c: 3}]`. The `bindings`
 are ordered according to their position in the child logger hierarchy, with the lowest index
 being the top of the hierarchy.
 
-By default serializers are not applied to log output in the browser, but they will *always* be
+By default, serializers are not applied to log output in the browser, but they will *always* be
 applied to `messages` and `bindings` in the `logEvent` object. This allows us to ensure a consistent
 format for all values between server and client.
 
 The `level` holds the label (for instance `info`), and the corresponding numerical value
-(for instance `30`). This could be important in cases where client side level values and
-labels differ from server side.
+(for instance `30`). This could be important in cases where client-side level values and
+labels differ from server-side.
 
 The point of the `send` function is to remotely record log messages:
 
 ```js
-const bingo-logger = require('bingo-logger')({
+const bingo = require('bingo')({
   browser: {
     transmit: {
       level: 'warn',
       send: function (level, logEvent) {
         if (level === 'warn') {
           // maybe send the logEvent to a separate endpoint
-          // or maybe analyse the messages further before sending
+          // or maybe analyze the messages further before sending
         }
         // we could also use the `logEvent.level.value` property to determine
         // numerical value
@@ -197,3 +231,12 @@ const bingo-logger = require('bingo-logger')({
   }
 })
 ```
+
+### `disabled` (Boolean)
+
+```js
+const bingo = require('bingo')({browser: {disabled: true}})
+```
+
+The `disabled` option will disable logging in browser if set
+to `true`, by default it is set to `false`.

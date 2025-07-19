@@ -1,9 +1,9 @@
 # API
 
-* [bingo-logger() => logger](#export)
+* [bingo() => logger](#export)
   * [options](#options)
   * [destination](#destination)
-  * [destination\[Symbol.for('bingo-logger.metadata')\]](#metadata)
+  * [destination\[Symbol.for('bingo.metadata')\]](#metadata)
 * [Logger Instance](#logger)
   * [logger.trace()](#trace)
   * [logger.debug()](#debug)
@@ -13,23 +13,23 @@
   * [logger.fatal()](#fatal)
   * [logger.silent()](#silent)
   * [logger.child()](#child)
-  * [logger.bindings()](#bindings)
+  * [logger.bindings()](#logger-bindings)
+  * [logger.setBindings()](#logger-set-bindings)
   * [logger.flush()](#flush)
   * [logger.level](#logger-level)
   * [logger.isLevelEnabled()](#islevelenabled)
   * [logger.levels](#levels)
-  * [logger\[Symbol.for('bingo-logger.serializers')\]](#serializers)
+  * [logger\[Symbol.for('bingo.serializers')\]](#serializers)
   * [Event: 'level-change'](#level-change)
   * [logger.version](#version)
 * [Statics](#statics)
-  * [bingo-logger.destination()](#bingo-logger-destination)
-  * [bingo-logger.transport()](#bingo-logger-transport)
-  * [bingo-logger.final()](#bingo-logger-final)
-  * [bingo-logger.multistream()](#bingo-logger-multistream)
-  * [bingo-logger.stdSerializers](#bingo-logger-stdserializers)
-  * [bingo-logger.stdTimeFunctions](#bingo-logger-stdtimefunctions)
-  * [bingo-logger.symbols](#bingo-logger-symbols)
-  * [bingo-logger.version](#bingo-logger-version)
+  * [bingo.destination()](#bingo-destination)
+  * [bingo.transport()](#bingo-transport)
+  * [bingo.multistream()](#bingo-multistream)
+  * [bingo.stdSerializers](#bingo-stdserializers)
+  * [bingo.stdTimeFunctions](#bingo-stdtimefunctions)
+  * [bingo.symbols](#bingo-symbols)
+  * [bingo.version](#bingo-version)
 * [Interfaces](#interfaces)
   * [MultiStreamRes](#multistreamres)
   * [StreamEntry](#streamentry)
@@ -38,10 +38,10 @@
   * [Level](#level-1)
 
 <a id="export"></a>
-## `bingo-logger([options], [destination]) => logger`
+## `bingo([options], [destination]) => logger`
 
-The exported `bingo-logger` function takes two optional arguments,
-[`options`](#options) and [`destination`](#destination) and
+The exported `bingo` function takes two optional arguments,
+[`options`](#options) and [`destination`](#destination), and
 returns a [logger instance](#logger).
 
 <a id=options></a>
@@ -57,23 +57,51 @@ The name of the logger. When set adds a `name` field to every JSON line logged.
 
 Default: `'info'`
 
-One of `'fatal'`, `'error'`, `'warn'`, `'info`', `'debug'`, `'trace'` or `'silent'`.
+The minimum level to log: Bingo will not log messages with a lower level. Setting this option reduces the load, as typically, debug and trace logs are only valid for development, and not needed in production.
+
+One of `'fatal'`, `'error'`, `'warn'`, `'info'`, `'debug'`, `'trace'` or `'silent'`.
 
 Additional levels can be added to the instance via the `customLevels` option.
 
 * See [`customLevels` option](#opt-customlevels)
 
 <a id=opt-customlevels></a>
+
+#### `levelComparison` ("ASC", "DESC", Function)
+
+Default: `ASC`
+
+Use this option to customize levels order.
+In order to be able to define custom levels ordering pass a function which will accept `current` and `expected` values and return `boolean` which shows should `current` level to be shown or not.
+
+```js
+const logger = bingo({
+  levelComparison: 'DESC',
+  customLevels: {
+    foo: 20, // `foo` is more valuable than `bar`
+    bar: 10
+  },
+})
+
+// OR
+
+const logger = bingo({
+  levelComparison: function(current, expected) {
+    return current >= expected;
+  }
+})
+```
+
 #### `customLevels` (Object)
 
 Default: `undefined`
 
 Use this option to define additional logging levels.
-The keys of the object correspond the namespace of the log level,
+The keys of the object correspond to the namespace of the log level,
 and the values should be the numerical value of the level.
 
 ```js
-const logger = bingo-logger({
+const logger = bingo({
   customLevels: {
     foo: 35
   }
@@ -86,12 +114,12 @@ logger.foo('hi')
 
 Default: `false`
 
-Use this option to only use defined `customLevels` and omit Pino's levels.
-Logger's default `level` must be changed to a value in `customLevels` in order to use `useOnlyCustomLevels`
+Use this option to only use defined `customLevels` and omit Bingo's levels.
+Logger's default `level` must be changed to a value in `customLevels` to use `useOnlyCustomLevels`
 Warning: this option may not be supported by downstream transports.
 
 ```js
-const logger = bingo-logger({
+const logger = bingo({
   customLevels: {
     foo: 35
   },
@@ -99,13 +127,13 @@ const logger = bingo-logger({
   level: 'foo'
 })
 logger.foo('hi')
-logger.info('hello') // Will throw an error saying info in not found in logger object
+logger.info('hello') // Will throw an error saying info is not found in logger object
 ```
 #### `depthLimit` (Number)
 
 Default: `5`
 
-Option to limit stringification at a specific nesting depth when logging circular object.
+Option to limit stringification at a specific nesting depth when logging circular objects.
 
 #### `edgeLimit` (Number)
 
@@ -120,12 +148,14 @@ Default: `undefined`
 
 If provided, the `mixin` function is called each time one of the active
 logging methods is called. The first parameter is the value `mergeObject` or an empty object. The second parameter is the log level number.
+The third parameter is the logger or child logger itself, which can be used to
+retrieve logger-specific context from within the `mixin` function.
 The function must synchronously return an object. The properties of the returned object will be added to the
 logged JSON.
 
 ```js
 let n = 0
-const logger = bingo-logger({
+const logger = bingo({
   mixin () {
     return { line: ++n }
   }
@@ -136,7 +166,7 @@ logger.info('world')
 // {"level":30,"time":1573664685469,"pid":78742,"hostname":"x","line":2,"msg":"world"}
 ```
 
-The result of `mixin()` is supposed to be a _new_ object. For performance reason, the object returned by `mixin()` will be mutated by bingo-logger.
+The result of `mixin()` is supposed to be a _new_ object. For performance reason, the object returned by `mixin()` will be mutated by bingo.
 In the following example, passing `mergingObject` argument to the first `info` call will mutate the global `mixin` object by default:
 (* See [`mixinMergeStrategy` option](#opt-mixin-merge-strategy)):
 ```js
@@ -144,7 +174,7 @@ const mixin = {
     appName: 'My app'
 }
 
-const logger = bingo-logger({
+const logger = bingo({
     mixin() {
         return mixin;
     }
@@ -161,7 +191,7 @@ logger.info('Message 2')
 
 The `mixin` method can be used to add the level label to each log message such as in the following example:
 ```js
-const logger = bingo-logger({
+const logger = bingo({
   mixin(_context, level) {
     return { 'level-label': logger.levels.labels[level] }
   }
@@ -170,13 +200,64 @@ const logger = bingo-logger({
 logger.info({
     description: 'Ok'
 }, 'Message 1')
-// {"level":30,"time":1591195061437,"pid":16012,"hostname":"x","appName":"My app","description":"Ok","level-label":"info","msg":"Message 1"}
+// {"level":30,"time":1591195061437,"pid":16012,"hostname":"x","description":"Ok","level-label":"info","msg":"Message 1"}
 logger.error('Message 2')
-// {"level":30,"time":1591195061437,"pid":16012,"hostname":"x","appName":"My app","description":"Ok","level-label":"error","msg":"Message 2"}
+// {"level":30,"time":1591195061437,"pid":16012,"hostname":"x","level-label":"error","msg":"Message 2"}
 ```
 
 If the `mixin` feature is being used merely to add static metadata to each log message,
-then a [child logger ⇗](/docs/child-loggers.md) should be used instead.
+then a [child logger ⇗](/docs/child-loggers.md) should be used instead. Unless your application
+needs to concatenate values for a specific key multiple times, in which case `mixin` can be
+used to avoid the [duplicate keys caveat](/docs/child-loggers.md#duplicate-keys-caveat):
+
+```js
+const logger = bingo({
+  mixin (obj, num, logger) {
+    return {
+      tags: logger.tags
+    }
+  }
+})
+logger.tags = {}
+
+logger.addTag = function (key, value) {
+  logger.tags[key] = value
+}
+
+function createChild (parent, ...context) {
+  const newChild = logger.child(...context)
+  newChild.tags = { ...logger.tags }
+  newChild.addTag = function (key, value) {
+    newChild.tags[key] = value
+  }
+  return newChild
+}
+
+logger.addTag('foo', 1)
+const child = createChild(logger, {})
+child.addTag('bar', 2)
+logger.info('this will only have `foo: 1`')
+child.info('this will have both `foo: 1` and `bar: 2`')
+logger.info('this will still only have `foo: 1`')
+```
+
+As of bingo 7.x, when the `mixin` is used with the [`nestedKey` option](#opt-nestedkey),
+the object returned from the `mixin` method will also be nested. Prior versions would mix
+this object into the root.
+
+```js
+const logger = bingo({
+    nestedKey: 'payload',
+    mixin() {
+        return { requestId: requestId.currentId() }
+    }
+})
+
+logger.info({
+    description: 'Ok'
+}, 'Message 1')
+// {"level":30,"time":1591195061437,"pid":16012,"hostname":"x","payload":{"requestId":"dfe9a9014b","description":"Ok"},"msg":"Message 1"}
+```
 
 <a id="opt-mixin-merge-strategy"></a>
 #### `mixinMergeStrategy` (Function):
@@ -190,7 +271,7 @@ The function must synchronously return an object.
 
 ```js
 // Default strategy, `mergeObject` has priority
-const logger = bingo-logger({
+const logger = bingo({
     mixin() {
         return { tag: 'docker' }
     },
@@ -207,7 +288,7 @@ logger.info({
 
 ```js
 // Custom mutable strategy, `mixin` has priority
-const logger = bingo-logger({
+const logger = bingo({
     mixin() {
         return { tag: 'k8s' }
     },
@@ -224,7 +305,7 @@ logger.info({
 
 ```js
 // Custom immutable strategy, `mixin` has priority
-const logger = bingo-logger({
+const logger = bingo({
     mixin() {
         return { tag: 'k8s' }
     },
@@ -247,11 +328,11 @@ Default: `undefined`
 As an array, the `redact` option specifies paths that should
 have their values redacted from any log output.
 
-Each path must be a string using a syntax which corresponds to JavaScript dot and bracket notation.
+Each path must be a string using a syntax that corresponds to JavaScript dot and bracket notation.
 
 If an object is supplied, three options can be specified:
   * `paths` (array): Required. An array of paths. See [redaction - Path Syntax ⇗](/docs/redaction.md#paths) for specifics.
-  * `censor` (String|Function|Undefined): Optional. When supplied as a String the `censor` option will overwrite keys which are to be redacted. When set to `undefined` the key will be removed entirely from the object.
+  * `censor` (String|Function|Undefined): Optional. When supplied as a String the `censor` option will overwrite keys that are to be redacted. When set to `undefined` the key will be removed entirely from the object.
     The `censor` option may also be a mapping function. The (synchronous) mapping function has the signature `(value, path) => redactedValue` and is called with the unredacted `value` and `path` to the key being redacted, as an array. For example given a redaction path of `a.b.c` the `path` argument would be `['a', 'b', 'c']`. The value returned from the mapping function becomes the applied censor value. Default: `'[Redacted]'`
     value synchronously.
     Default: `'[Redacted]'`
@@ -277,7 +358,7 @@ of the arguments that were passed to the log method and `method` is the log
 method itself, `level` is the log level itself. This hook ***must*** invoke the
 `method` function by using apply, like so: `method.apply(this, newArgumentsArray)`.
 
-For example, Pino expects a binding object to be the first parameter with an
+For example, Bingo expects a binding object to be the first parameter with an
 optional string message as the second parameter. Using this hook the parameters
 can be flipped:
 
@@ -290,6 +371,23 @@ const hooks = {
       return method.apply(this, [arg2, arg1, ...inputArgs])
     }
     return method.apply(this, inputArgs)
+  }
+}
+```
+
+
+<a id="streamWrite"></a>
+##### `streamWrite`
+
+Allows for manipulating the _stringified_ JSON log data just before writing to various transports.
+
+The method receives the stringified JSON and must return valid stringified JSON.
+
+For example:
+```js
+const hooks = {
+  streamWrite (s) {
+    return s.replaceAll('sensitive-api-key', 'XXX')
   }
 }
 ```
@@ -322,8 +420,8 @@ const formatters = {
 ##### `bindings`
 
 Changes the shape of the bindings. The default shape is `{ pid, hostname }`.
-The function takes a single argument, the bindings object. It will
-be called every time a child logger is created.
+The function takes a single argument, the bindings object, which can be configured
+using the [`base` option](#opt-base). Called once when creating logger.
 
 ```js
 const formatters = {
@@ -337,7 +435,7 @@ const formatters = {
 
 Changes the shape of the log object. This function will be called every time
 one of the log methods (such as `.info`) is called. All arguments passed to the
-log method, except the message, will be pass to this function. By default it does
+log method, except the message, will be passed to this function. By default, it does
 not change the shape of the log object.
 
 ```js
@@ -351,7 +449,7 @@ const formatters = {
 <a id=opt-serializers></a>
 #### `serializers` (Object)
 
-Default: `{err: bingo-logger.stdSerializers.err}`
+Default: `{err: bingo.stdSerializers.err}`
 
 An object containing functions for custom serialization of objects.
 These functions should return an JSONifiable object and they
@@ -361,12 +459,32 @@ matching the exact key of a serializer will be serialized using the defined seri
 The serializers are applied when a property in the logged object matches a property
 in the serializers. The only exception is the `err` serializer as it is also applied in case
 the object is an instance of `Error`, e.g. `logger.info(new Error('kaboom'))`.
+See `errorKey` option to change `err` namespace.
 
-* See [bingo-logger.stdSerializers](#bingo-logger-stdserializers)
+* See [bingo.stdSerializers](#bingo-stdserializers)
 
+#### `msgPrefix` (String)
+
+Default: `undefined`
+
+The `msgPrefix` property allows you to specify a prefix for every message of the logger and its children.
+
+```js
+const logger = bingo({
+  msgPrefix: '[HTTP] '
+})
+logger.info('got new request!')
+// >  [HTTP] got new request!
+
+const child = logger.child({})
+child.info('User authenticated!')
+// >  [HTTP] User authenticated!
+```
+
+<a id=opt-base></a>
 #### `base` (Object)
 
-Default: `{pid: process.pid, hostname: os.hostname}`
+Default: `{pid: process.pid, hostname: os.hostname()}`
 
 Key-value object added as child logger to each log line.
 
@@ -395,7 +513,7 @@ representation of the time, e.g. `,"time":1493426328206` (which is the default).
 
 If set to `false`, no timestamp will be included in the output.
 
-See [stdTimeFunctions](#bingo-logger-stdtimefunctions) for a set of available functions
+See [stdTimeFunctions](#bingo-stdtimefunctions) for a set of available functions
 for passing in as a value for this option.
 
 Example:
@@ -414,52 +532,38 @@ Default: `'msg'`
 
 The string key for the 'message' in the JSON object.
 
+<a id=opt-messagekey></a>
+#### `errorKey` (String)
+
+Default: `'err'`
+
+The string key for the 'error' in the JSON object.
+
 <a id=opt-nestedkey></a>
 #### `nestedKey` (String)
 
 Default: `null`
 
-If there's a chance that objects being logged have properties that conflict with those from bingo-logger itself (`level`, `timestamp`, `pid`, etc)
-and duplicate keys in your log records are undesirable, bingo-logger can be configured with a `nestedKey` option that causes any `object`s that are logged
+If there's a chance that objects being logged have properties that conflict with those from bingo itself (`level`, `timestamp`, `pid`, etc)
+and duplicate keys in your log records are undesirable, bingo can be configured with a `nestedKey` option that causes any `object`s that are logged
 to be placed under a key whose name is the value of `nestedKey`.
 
 This way, when searching something like Kibana for values, one can consistently search under the configured `nestedKey` value instead of the root log record keys.
 
 For example,
 ```js
-const logger = require('bingo-logger')({
+const logger = require('bingo')({
   nestedKey: 'payload'
 })
 
-const thing = { level: 'hi', time: 'never', foo: 'bar'} // has bingo-logger-conflicting properties!
+const thing = { level: 'hi', time: 'never', foo: 'bar'} // has bingo-conflicting properties!
 logger.info(thing)
 
 // logs the following:
 // {"level":30,"time":1578357790020,"pid":91736,"hostname":"x","payload":{"level":"hi","time":"never","foo":"bar"}}
 ```
-In this way, logged objects' properties don't conflict with bingo-logger's standard logging properties,
+In this way, logged objects' properties don't conflict with bingo's standard logging properties,
 and searching for logged objects can start from a consistent path.
-
-<a id=prettyPrint></a>
-#### `prettyPrint` (Boolean | Object)
-
-Default: `false`
-
-__DEPRECATED: look at [bingo-logger-pretty documentation](https://github.com/bingo-loggerjs/bingo-logger-pretty)
-for alternatives__. Using a [`transport`](#transport) is also an option.__
-
-Enables pretty printing log logs. This is intended for non-production
-configurations. This may be set to a configuration object as outlined in the
-[`bingo-logger-pretty` documentation](https://github.com/bingo-loggerjs/bingo-logger-pretty).
-
-The options object may additionally contain a `prettifier` property to define
-which prettifier module to use. When not present, `prettifier` defaults to
-`'bingo-logger-pretty'`. Regardless of the value, the specified prettifier module
-must be installed as a separate dependency:
-
-```sh
-npm install bingo-logger-pretty
-```
 
 #### `browser` (Object)
 
@@ -470,17 +574,17 @@ documented in the [Browser API ⇗](/docs/browser.md) documentation.
 
 #### `transport` (Object)
 
-The `transport` option is a shorthand for the [bingo-logger.transport()](#bingo-logger-transport) function.
+The `transport` option is a shorthand for the [bingo.transport()](#bingo-transport) function.
 It supports the same input options:
 ```js
-require('bingo-logger')({
+require('bingo')({
   transport: {
     target: '/absolute/path/to/my-transport.mjs'
   }
 })
 
 // or multiple transports
-require('bingo-logger')({
+require('bingo')({
   transport: {
     targets: [
       { target: '/absolute/path/to/my-transport.mjs', level: 'error' },
@@ -490,47 +594,62 @@ require('bingo-logger')({
 })
 ```
 
-If the transport option is supplied to `bingo-logger`, a [`destination`](#destination) parameter may not also be passed as a separate argument to `bingo-logger`:
+If the transport option is supplied to `bingo`, a [`destination`](#destination) parameter may not also be passed as a separate argument to `bingo`:
 
 ```js
-bingo-logger({ transport: {}}, '/path/to/somewhere') // THIS WILL NOT WORK, DO NOT DO THIS
-bingo-logger({ transport: {}}, process.stderr) // THIS WILL NOT WORK, DO NOT DO THIS
+bingo({ transport: {}}, '/path/to/somewhere') // THIS WILL NOT WORK, DO NOT DO THIS
+bingo({ transport: {}}, process.stderr) // THIS WILL NOT WORK, DO NOT DO THIS
 ```
 
-when using the `transport` option. In this case an `Error` will be thrown.
+when using the `transport` option. In this case, an `Error` will be thrown.
 
-* See [bingo-logger.transport()](#bingo-logger-transport)
+* See [bingo.transport()](#bingo-transport)
+
+#### `onChild` (Function)
+
+The `onChild` function is a synchronous callback that will be called on each creation of a new child, passing the child instance as its first argument.
+Any error thrown inside the callback will be uncaught and should be handled inside the callback.
+```js
+const parent = require('bingo')({ onChild: (instance) => {
+  // Execute call back code for each newly created child.
+}})
+// `onChild` will now be executed with the new child.
+parent.child(bindings)
+```
+
 
 <a id="destination"></a>
-### `destination` (SonicBoom | WritableStream | String | Object)
+### `destination` (Number | String | Object | DestinationStream | SonicBoomOpts | WritableStream)
 
-Default: `bingo-logger.destination(1)` (STDOUT)
+Default: `bingo.destination(1)` (STDOUT)
 
-The `destination` parameter, at a minimum must be an object with a `write` method.
-An ordinary Node.js `stream` can be passed as the destination (such as the result
-of `fs.createWriteStream`) but for peak log writing performance it is strongly
-recommended to use `bingo-logger.destination` to create the destination stream.
-Note that the `destination` parameter can be the result of `bingo-logger.transport()`.
+The `destination` parameter can be a file descriptor, a file path, or an
+object with `dest` property pointing to a fd or path.
+An ordinary Node.js `stream` file descriptor can be passed as the
+destination (such as the result
+of `fs.createWriteStream`) but for peak log writing performance, it is strongly
+recommended to use `bingo.destination` to create the destination stream.
+Note that the `destination` parameter can be the result of `bingo.transport()`.
 
 ```js
-// bingo-logger.destination(1) by default
-const stdoutLogger = require('bingo-logger')()
+// bingo.destination(1) by default
+const stdoutLogger = require('bingo')()
 
 // destination param may be in first position when no options:
-const fileLogger = require('bingo-logger')( bingo-logger.destination('/log/path'))
+const fileLogger = require('bingo')( bingo.destination('/log/path'))
 
 // use the stderr file handle to log to stderr:
 const opts = {name: 'my-logger'}
-const stderrLogger = require('bingo-logger')(opts, bingo-logger.destination(2))
+const stderrLogger = require('bingo')(opts, bingo.destination(2))
 
-// automatic wrapping in bingo-logger.destination
-const fileLogger = require('bingo-logger')('/log/path')
+// automatic wrapping in bingo.destination
+const fileLogger = require('bingo')('/log/path')
 
 // Asynchronous logging
-const fileLogger = bingo-logger(bingo-logger.destination({ dest: '/log/path', sync: false }))
+const fileLogger = bingo(bingo.destination({ dest: '/log/path', sync: false }))
 ```
 
-However, there are some special instances where `bingo-logger.destination` is not used as the default:
+However, there are some special instances where `bingo.destination` is not used as the default:
 
 + When something, e.g a process manager, has monkey-patched `process.stdout.write`.
 
@@ -540,15 +659,15 @@ Note: If the parameter is a string integer, e.g. `'1'`, it will be coerced to
 a number and used as a file descriptor. If this is not desired, provide a full
 path, e.g. `/tmp/1`.
 
-* See [`bingo-logger.destination`](#bingo-logger-destination)
+* See [`bingo.destination`](#bingo-destination)
 
 <a id="metadata"></a>
-#### `destination[Symbol.for('bingo-logger.metadata')]`
+#### `destination[Symbol.for('bingo.metadata')]`
 
 Default: `false`
 
-Using the global symbol `Symbol.for('bingo-logger.metadata')` as a key on the `destination` parameter and
-setting the key it to `true`, indicates that the following properties should be
+Using the global symbol `Symbol.for('bingo.metadata')` as a key on the `destination` parameter and
+setting the key to `true`, indicates that the following properties should be
 set on the `destination` object after each log line is written:
 
 * the last logging level as `destination.lastLevel`
@@ -562,9 +681,9 @@ set on the `destination` object after each log line is written:
 The following is a succinct usage example:
 
 ```js
-const dest = bingo-logger.destination('/dev/null')
-dest[Symbol.for('bingo-logger.metadata')] = true
-const logger = bingo-logger(dest)
+const dest = bingo.destination('/dev/null')
+dest[Symbol.for('bingo.metadata')] = true
+const logger = bingo(dest)
 logger.info({a: 1}, 'hi')
 const { lastMsg, lastLevel, lastObj, lastTime} = dest
 console.log(
@@ -577,7 +696,7 @@ console.log(
 ## Logger Instance
 
 The logger instance is the object returned by the main exported
-[`bingo-logger`](#export) function.
+[`bingo`](#export) function.
 
 The primary purpose of the logger instance is to provide logging methods.
 
@@ -594,7 +713,7 @@ The parameters are explained below using the `logger.info` method but the same a
 #### `mergingObject` (Object)
 
 An object can optionally be supplied as the first parameter. Each enumerable key and value
-of the `mergingObject` is copied in to the JSON log line.
+of the `mergingObject` is copied into the JSON log line.
 
 ```js
 logger.info({MIX: {IN: true}})
@@ -603,6 +722,9 @@ logger.info({MIX: {IN: true}})
 
 If the object is of type Error, it is wrapped in an object containing a property err (`{ err: mergingObject }`).
 This allows for a unified error handling flow.
+
+Options `serializers` and `errorKey` could be used at instantiation time to change the namespace
+from `err` to another string as preferred.
 
 <a id="message"></a>
 #### `message` (String)
@@ -626,7 +748,7 @@ See [Avoid Message Conflict](/docs/help.md#avoid-message-conflict) for informati
 on how to overcome this limitation.
 
 If no `message` parameter is provided, and the `mergingObject` is of type `Error` or it has a property named `err`, the
-`message` parameter is set to the `message` value of the error.
+`message` parameter is set to the `message` value of the error. See option `errorKey` if you want to change the namespace.
 
 The `messageKey` option can be used at instantiation time to change the namespace
 from `msg` to another string as preferred.
@@ -636,12 +758,12 @@ the following placeholders:
 
 * `%s` – string placeholder
 * `%d` – digit placeholder
-* `%O`, `%o` and `%j` – object placeholder
+* `%O`, `%o`, and `%j` – object placeholder
 
 Values supplied as additional arguments to the logger method will
 then be interpolated accordingly.
 
-* See [`messageKey` bingo-logger option](#opt-messagekey)
+* See [`messageKey` bingo option](#opt-messagekey)
 * See [`...interpolationValues` log method parameter](#interpolationvalues)
 
 <a id="interpolationvalues"></a>
@@ -656,7 +778,7 @@ logger.info('%o hello %s', {worldly: 1}, 'world')
 // {"level":30,"time":1531257826880,"msg":"{\"worldly\":1} hello world","pid":55956,"hostname":"x"}
 ```
 
-Since bingo-logger v6, we do not automatically concatenate and cast to string
+Since bingo v6, we do not automatically concatenate and cast to string
 consecutive parameters:
 
 ```js
@@ -668,7 +790,7 @@ logger.info('hello', 'world')
 However, it's possible to inject a hook to modify this behavior:
 
 ```js
-const bingo-loggerOptions = {
+const pinoOptions = {
   hooks: { logMethod }
 }
 
@@ -679,7 +801,7 @@ function logMethod (args, method) {
   method.apply(this, args)
 }
 
-const logger = bingo-logger(bingo-loggerOptions)
+const logger = bingo(pinoOptions)
 ```
 
 * See [`message` log method parameter](#message)
@@ -689,6 +811,9 @@ const logger = bingo-logger(bingo-loggerOptions)
 #### Errors
 
 Errors can be supplied as either the first parameter or if already using `mergingObject` then as the `err` property on the `mergingObject`.
+
+Options `serializers` and `errorKey` could be used at instantiation time to change the namespace
+from `err` to another string as preferred.
 
 > ## Note
 > This section describes the default configuration. The error serializer can be
@@ -751,7 +876,7 @@ Write a `'error'` level log, if the configured `level` allows for it.
 
 Write a `'fatal'` level log, if the configured `level` allows for it.
 
-Since `'fatal'` level messages are intended to be logged just prior to the process exiting the `fatal`
+Since `'fatal'` level messages are intended to be logged just before the process exiting the `fatal`
 method will always sync flush the destination.
 Therefore it's important not to misuse `fatal` since
 it will cause performance overhead if used for any
@@ -781,6 +906,7 @@ The log level of a child is mutable. It can be set independently
 of the parent either by setting the [`level`](#level) accessor after creating
 the child logger or using the [`options.level`](#optionslevel-string) key.
 
+<a id="logger-child-bindings"></a>
 #### `bindings` (Object)
 
 An object of key-value pairs to include in every log line output
@@ -807,14 +933,34 @@ Options for child logger. These options will override the parent logger options.
 ##### `options.level` (String)
 
 The `level` property overrides the log level of the child logger.
-By default the parent log level is inherited.
+By default, the parent log level is inherited.
 After the creation of the child logger, it is also accessible using the [`logger.level`](#logger-level) key.
 
 ```js
-const logger = bingo-logger()
+const logger = bingo()
 logger.debug('nope') // will not log, since default level is info
 const child = logger.child({foo: 'bar'}, {level: 'debug'})
 child.debug('debug!') // will log as the `level` property set the level to debug
+```
+
+##### `options.msgPrefix` (String)
+
+Default: `undefined`
+
+The `msgPrefix` property allows you to specify a prefix for every message of the child logger.
+By default, the parent prefix is inherited.
+If the parent already has a prefix, the prefix of the parent and then the child will be displayed.
+
+```js
+const logger = bingo({
+  msgPrefix: '[HTTP] '
+})
+logger.info('got new request!')
+// >  [HTTP] got new request!
+
+const child = logger.child({avengers: 'assemble'}, {msgPrefix: '[Proxy] '})
+child.info('message proxied!')
+// >  [HTTP] [Proxy] message proxied!
 ```
 
 ##### `options.redact` (Array | Object)
@@ -822,7 +968,7 @@ child.debug('debug!') // will log as the `level` property set the level to debug
 Setting `options.redact` to an array or object will override the parent `redact` options. To remove `redact` options inherited from the parent logger set this value as an empty array (`[]`).
 
 ```js
-const logger = require('bingo-logger')({ redact: ['hello'] })
+const logger = require('bingo')({ redact: ['hello'] })
 logger.info({ hello: 'world' })
 // {"level":30,"time":1625794363403,"pid":67930,"hostname":"x","hello":"[Redacted]"}
 const child = logger.child({ foo: 'bar' }, { redact: ['foo'] })
@@ -840,7 +986,7 @@ Setting the `serializers` key of the `options` object will override
 any configured parent serializers.
 
 ```js
-const logger = require('bingo-logger')()
+const logger = require('bingo')()
 logger.info({test: 'will appear'})
 // {"level":30,"time":1531259759482,"pid":67930,"hostname":"x","test":"will appear"}
 const child = logger.child({}, {serializers: {test: () => `child-only serializer`}})
@@ -849,9 +995,9 @@ child.info({test: 'will be overwritten'})
 ```
 
 * See [`serializers` option](#opt-serializers)
-* See [bingo-logger.stdSerializers](#bingo-logger-stdSerializers)
+* See [bingo.stdSerializers](#bingo-stdSerializers)
 
-<a id="bindings"></a>
+<a id="logger-bindings"></a>
 ### `logger.bindings()`
 
 Returns an object containing all the current bindings, cloned from the ones passed in via `logger.child()`.
@@ -864,13 +1010,23 @@ console.log(anotherChild.bindings())
 // { foo: 'bar', MIX: { IN: 'always' } }
 ```
 
-<a id="flush"></a>
-### `logger.flush()`
+<a id="logger-set-bindings"></a>
+### `logger.setBindings(bindings)`
 
-Flushes the content of the buffer when using `bingo-logger.destination({
+Adds to the bindings of this logger instance.
+
+**Note:** Does not overwrite bindings. Can potentially result in duplicate keys in
+log lines.
+
+* See [`bindings` parameter in `logger.child`](#logger-child-bindings)
+
+<a id="flush"></a>
+### `logger.flush([cb])`
+
+Flushes the content of the buffer when using `bingo.destination({
 sync: false })`.
 
-This is an asynchronous, fire and forget, operation.
+This is an asynchronous, best used as fire and forget, operation.
 
 The use case is primarily for asynchronous logging, which may buffer
 log lines while others are being written. The `logger.flush` method can be
@@ -878,6 +1034,8 @@ used to flush the logs
 on a long interval, say ten seconds. Such a strategy can provide an
 optimum balance between extremely efficient logging at high demand periods
 and safer logging at low demand periods.
+
+If there is a need to wait for the logs to be flushed, a callback should be used.
 
 * See [`destination` parameter](#destination)
 * See [Asynchronous Logging ⇗](/docs/asynchronous.md)
@@ -896,9 +1054,9 @@ The core levels and their values are as follows:
 
 The logging level is a *minimum* level based on the associated value of that level.
 
-For instance if `logger.level` is `info` *(30)* then `info` *(30)*, `warn` *(40)*, `error` *(50)* and `fatal` *(60)* log methods will be enabled but the `trace` *(10)* and `debug` *(20)* methods, being less than 30, will not.
+For instance if `logger.level` is `info` *(30)* then `info` *(30)*, `warn` *(40)*, `error` *(50)*, and `fatal` *(60)* log methods will be enabled but the `trace` *(10)* and `debug` *(20)* methods, being less than 30, will not.
 
-The `silent` logging level is a specialized level which will disable all logging,
+The `silent` logging level is a specialized level that will disable all logging,
 the `silent` log method is a noop function.
 
 <a id="islevelenabled"></a>
@@ -948,7 +1106,7 @@ The `logger.levels` property holds the mappings between levels and values,
 and vice versa.
 
 ```sh
-$ node -p "require('bingo-logger')().levels"
+$ node -p "require('bingo')().levels"
 ```
 
 ```js
@@ -966,10 +1124,10 @@ $ node -p "require('bingo-logger')().levels"
 * See [`logger.level`](#level)
 
 <a id="serializers"></a>
-### logger\[Symbol.for('bingo-logger.serializers')\]
+### logger\[Symbol.for('bingo.serializers')\]
 
 Returns the serializers as applied to the current logger instance. If a child logger did not
-register it's own serializer upon instantiation the serializers of the parent will be returned.
+register its own serializer upon instantiation the serializers of the parent will be returned.
 
 <a id="level-change"></a>
 ### Event: 'level-change'
@@ -978,28 +1136,29 @@ The logger instance is also an [`EventEmitter ⇗`](https://nodejs.org/dist/late
 
 A listener function can be attached to a logger via the `level-change` event
 
-The listener is passed four arguments:
+The listener is passed five arguments:
 
 * `levelLabel` – the new level string, e.g `trace`
 * `levelValue` – the new level number, e.g `10`
 * `previousLevelLabel` – the prior level string, e.g `info`
-* `previousLevelValue` – the prior level numbebr, e.g `30`
+* `previousLevelValue` – the prior level number, e.g `30`
+* `logger` – the logger instance from which the event originated
 
 ```js
-const logger = require('bingo-logger')()
+const logger = require('bingo')()
 logger.on('level-change', (lvl, val, prevLvl, prevVal) => {
   console.log('%s (%d) was changed to %s (%d)', prevLvl, prevVal, lvl, val)
 })
 logger.level = 'trace' // trigger event
 ```
 
-Please note that due to a [known bug](https://github.com/bingo-loggerjs/bingo-logger/issues/1006), every `logger.child()` call will
+Please note that due to a [known bug](https://github.com/bingo/bingo/issues/1006), every `logger.child()` call will
 fire a `level-change` event. These events can be ignored by writing an event handler like:
 
 ```js
-const logger = require('bingo-logger')()
-logger.on('level-change', function (lvl, val, prevLvl, prevVal) {
-  if (logger !== this) {
+const logger = require('bingo')()
+logger.on('level-change', function (lvl, val, prevLvl, prevVal, instance) {
+  if (logger !== instance) {
     return
   }
   console.log('%s (%d) was changed to %s (%d)', prevLvl, prevVal, lvl, val)
@@ -1011,35 +1170,39 @@ logger.level = 'trace' // trigger event using actual value change, notice consol
 <a id="version"></a>
 ### `logger.version` (String)
 
-Exposes the Pino package version. Also available on the exported `bingo-logger` function.
+Exposes the Bingo package version. Also available on the exported `bingo` function.
 
-* See [`bingo-logger.version`](#bingo-logger-version)
+* See [`bingo.version`](#bingo-version)
 
 ## Statics
 
-<a id="bingo-logger-destination"></a>
-### `bingo-logger.destination([opts]) => SonicBoom`
+<a id="bingo-destination"></a>
+### `bingo.destination([opts]) => SonicBoom`
 
-Create a Pino Destination instance: a stream-like object with
-significantly more throughput (over 30%) than a standard Node.js stream.
+Create a Bingo Destination instance: a stream-like object with
+significantly more throughput than a standard Node.js stream.
 
 ```js
-const bingo-logger = require('bingo-logger')
-const logger = bingo-logger(bingo-logger.destination('./my-file'))
-const logger2 = bingo-logger(bingo-logger.destination())
-const logger3 = bingo-logger(bingo-logger.destination({
+const bingo = require('bingo')
+const logger = bingo(bingo.destination('./my-file'))
+const logger2 = bingo(bingo.destination())
+const logger3 = bingo(bingo.destination({
   dest: './my-file',
   minLength: 4096, // Buffer before writing
-  sync: false // Asynchronous logging
+  sync: false // Asynchronous logging, the default
+}))
+const logger4 = bingo(bingo.destination({
+  dest: './my-file2',
+  sync: true // Synchronous logging
 }))
 ```
 
-The `bingo-logger.destination` method may be passed a file path or a numerical file descriptor.
-By default, `bingo-logger.destination` will use `process.stdout.fd` (1) as the file descriptor.
+The `bingo.destination` method may be passed a file path or a numerical file descriptor.
+By default, `bingo.destination` will use `process.stdout.fd` (1) as the file descriptor.
 
-`bingo-logger.destination` is implemented on [`sonic-boom` ⇗](https://github.com/mcollina/sonic-boom).
+`bingo.destination` is implemented on [`sonic-boom` ⇗](https://github.com/mcollina/sonic-boom).
 
-A `bingo-logger.destination` instance can also be used to reopen closed files
+A `bingo.destination` instance can also be used to reopen closed files
 (for example, for some log rotation scenarios), see [Reopening log files](/docs/help.md#reopening).
 
 * See [`destination` parameter](#destination)
@@ -1047,53 +1210,77 @@ A `bingo-logger.destination` instance can also be used to reopen closed files
 * See [Reopening log files](/docs/help.md#reopening)
 * See [Asynchronous Logging ⇗](/docs/asynchronous.md)
 
-<a id="bingo-logger-transport"></a>
-### `bingo-logger.transport(options) => ThreadStream`
+<a id="bingo-transport"></a>
+### `bingo.transport(options) => ThreadStream`
 
-Create a a stream that routes logs to a worker thread that
-wraps around a [Pino Transport](/docs/transports.md).
+Create a stream that routes logs to a worker thread that
+wraps around a [Bingo Transport](/docs/transports.md).
 
 ```js
-const bingo-logger = require('bingo-logger')
-const transport = bingo-logger.transport({
+const bingo = require('bingo')
+const transport = bingo.transport({
   target: 'some-transport',
   options: { some: 'options for', the: 'transport' }
 })
-bingo-logger(transport)
+bingo(transport)
 ```
 
 Multiple transports may also be defined, and specific levels can be logged to each transport:
 
 ```js
-const bingo-logger = require('bingo-logger')
-const transport = bingo-logger.transport({
+const bingo = require('bingo')
+const transport = bingo.transport({
   targets: [{
     level: 'info',
-    target: 'bingo-logger-pretty' // must be installed separately
+    target: 'bingo-pretty' // must be installed separately
   }, {
     level: 'trace',
-    target: 'bingo-logger/file',
+    target: 'bingo/file',
     options: { destination: '/path/to/store/logs' }
   }]
 })
-bingo-logger(transport)
+bingo(transport)
 ```
 
 A pipeline could also be created to transform log lines _before_ sending them:
 
 ```js
-const bingo-logger = require('bingo-logger')
-const transport = bingo-logger.transport({
+const bingo = require('bingo')
+const transport = bingo.transport({
   pipeline: [{
-    target: 'bingo-logger-syslog' // must be installed separately
+    target: 'bingo-syslog' // must be installed separately
   }, {
-    target: 'bingo-logger-socket' // must be installed separately
+    target: 'bingo-socket' // must be installed separately
   }]
 })
-bingo-logger(transport)
+bingo(transport)
 ```
 
-If `WeakRef`, `WeakMap` and `FinalizationRegistry` are available in the current runtime (v14.5.0+), then the thread
+Multiple transports can now be defined to include pipelines:
+
+```js
+const bingo = require('bingo')
+const transport = bingo.transport({
+  targets: [{
+    level: 'info',
+    target: 'bingo-pretty' // must be installed separately
+  }, {
+    level: 'trace',
+    target: 'bingo/file',
+    options: { destination: '/path/to/store/logs' }
+  }, {
+    pipeline: [{
+      target: 'bingo-syslog' // must be installed separately
+    }, {
+      target: 'bingo-socket' // must be installed separately
+    }]
+  }
+  ]
+})
+bingo(transport)
+```
+
+If `WeakRef`, `WeakMap`, and `FinalizationRegistry` are available in the current runtime (v14.5.0+), then the thread
 will be automatically terminated in case the stream or logger goes out of scope.
 The `transport()` function adds a listener to `process.on('beforeExit')` and `process.on('exit')` to ensure the worker
 is flushed and all data synced before the process exits.
@@ -1101,15 +1288,15 @@ is flushed and all data synced before the process exits.
 Note that calling `process.exit()` on the main thread will stop the event loop on the main thread from turning. As a result,
 using `console.log` and `process.stdout` after the main thread called `process.exit()` will not produce any output.
 
-If you are embedding/integrating bingo-logger within your framework, you will need to make bingo-logger aware of the script that is calling it,
+If you are embedding/integrating bingo within your framework, you will need to make bingo aware of the script that is calling it,
 like so:
 
 ```js
-const bingo-logger = require('bingo-logger')
+const bingo = require('bingo')
 const getCaller = require('get-caller-file')
 
 module.exports = function build () {
-  const logger = bingo-logger({
+  const logger = bingo({
     transport: {
       caller: getCaller(),
       target: 'transport',
@@ -1120,6 +1307,9 @@ module.exports = function build () {
 }
 ```
 
+Note that _any `'error'`_ event emitted by the transport must be considered a fatal error and the process must be terminated.
+Error events are not recoverable.
+
 For more on transports, how they work, and how to create them see the [`Transports documentation`](/docs/transports.md).
 
 * See [`Transports`](/docs/transports.md)
@@ -1128,75 +1318,23 @@ For more on transports, how they work, and how to create them see the [`Transpor
 #### Options
 
 * `target`:  The transport to pass logs through. This may be an installed module name or an absolute path.
-* `options`:  An options object which is serialized (see [Structured Clone Algorithm][https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm]), passed to the worker thread, parsed and then passed to the exported transport function.
+* `options`:  An options object which is serialized (see [Structured Clone Algorithm](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm)), passed to the worker thread, parsed and then passed to the exported transport function.
 * `worker`: [Worker thread](https://nodejs.org/api/worker_threads.html#worker_threads_new_worker_filename_options) configuration options. Additionally, the `worker` option supports `worker.autoEnd`. If this is set to `false` logs will not be flushed on process exit. It is then up to the developer to call `transport.end()` to flush logs.
-* `targets`: May be specified instead of `target`. Must be an array of transport configurations. Transport configurations include the aforementioned `options` and `target` options plus a `level` option which will send only logs above a specified level to a transport.
+* `targets`: May be specified instead of `target`. Must be an array of transport configurations and/or pipelines. Transport configurations include the aforementioned `options` and `target` options plus a `level` option which will send only logs above a specified level to a transport.
 * `pipeline`: May be specified instead of `target`. Must be an array of transport configurations. Transport configurations include the aforementioned `options` and `target` options. All intermediate steps in the pipeline _must_ be `Transform` streams and not `Writable`.
+* `dedupe`: See [bingo.multistream options](#bingo-multistream)
 
-<a id="bingo-logger-final"></a>
+<a id="bingo-multistream"></a>
 
-### `bingo-logger.final(logger, [handler]) => Function | FinalLogger`
-
-__The use of `bingo-logger.final` is discouraged in Node.js v14+ and not required.
-It will be removed in the next major version.__
-
-The `bingo-logger.final` method can be used to acquire a final logger instance
-or create an exit listener function. This is _not_ needed in Node.js v14+
-as bingo-logger automatically can handle those.
-
-The `finalLogger` is a specialist logger that synchronously flushes
-on every write. This is important to guarantee final log writes,
-when using `bingo-logger.destination({ sync: false })` target.
-
-Since final log writes cannot be guaranteed with normal Node.js streams,
-if the `destination` parameter of the `logger` supplied to `bingo-logger.final`
-is a Node.js stream `bingo-logger.final` will throw.
-
-The use of `bingo-logger.final` with `bingo-logger.destination` is not needed, as
-`bingo-logger.destination` writes things synchronously.
-
-#### `bingo-logger.final(logger, handler) => Function`
-
-In this case the `bingo-logger.final` method supplies an exit listener function that can be
-supplied to process exit events such as `exit`, `uncaughtException`,
-`SIGHUP` and so on.
-
-The exit listener function will call the supplied `handler` function
-with an error object (or else `null`), a `finalLogger` instance followed
-by any additional arguments the `handler` may be called with.
-
-```js
-process.on('uncaughtException', bingo-logger.final(logger, (err, finalLogger) => {
-  finalLogger.error(err, 'uncaughtException')
-  process.exit(1)
-}))
-```
-
-#### `bingo-logger.final(logger) => FinalLogger`
-
-In this case the `bingo-logger.final` method returns a finalLogger instance.
-
-```js
-var finalLogger = bingo-logger.final(logger)
-finalLogger.info('exiting...')
-```
-
-* See [`destination` parameter](#destination)
-* See [Exit logging help](/docs/help.md#exit-logging)
-* See [Asynchronous logging ⇗](/docs/asynchronous.md)
-* See [Log loss prevention ⇗](/docs/asynchronous.md#log-loss-prevention)
-
-<a id="bingo-logger-multistream"></a>
-
-### `bingo-logger.multistream(streamsArray, opts) => MultiStreamRes`
+### `bingo.multistream(streamsArray, opts) => MultiStreamRes`
 
 Create a stream composed by multiple destination streams and returns an
 object implementing the [MultiStreamRes](#multistreamres) interface.
 
 ```js
-var fs = require('fs')
-var bingo-logger = require('bingo-logger')
-var pretty = require('bingo-logger-pretty')
+var fs = require('node:fs')
+var bingo = require('bingo')
+var pretty = require('bingo-pretty')
 var streams = [
   {stream: fs.createWriteStream('/tmp/info.stream.out')},
   {stream: pretty() },
@@ -1204,17 +1342,17 @@ var streams = [
   {level: 'fatal', stream: fs.createWriteStream('/tmp/fatal.stream.out')}
 ]
 
-var log = bingo-logger({
+var log = bingo({
   level: 'debug' // this MUST be set at the lowest level of the
                  // destinations
-}, bingo-logger.multistream(streams))
+}, bingo.multistream(streams))
 
 log.debug('this will be written to /tmp/debug.stream.out')
 log.info('this will be written to /tmp/debug.stream.out and /tmp/info.stream.out')
 log.fatal('this will be written to /tmp/debug.stream.out, /tmp/info.stream.out and /tmp/fatal.stream.out')
 ```
 
-In order for `multistream` to work, the log level __must__ be set to the lowest level used in the streams array.
+In order for `multistream` to work, the log level __must__ be set to the lowest level used in the streams array. Default is `info`.
 
 #### Options
 
@@ -1222,13 +1360,13 @@ In order for `multistream` to work, the log level __must__ be set to the lowest 
 
 + `dedupe`: Set this to `true` to send logs only to the stream with the higher level. Default: `false`
 
-    `dedupe` flag can be useful for example when using `bingo-logger.multistream` to redirect `error` logs to `process.stderr` and others to `process.stdout`:
+    `dedupe` flag can be useful for example when using `bingo.multistream` to redirect `error` logs to `process.stderr` and others to `process.stdout`:
 
     ```js
-    var bingo-logger = require('bingo-logger')
-    var multistream = bingo-logger.multistream
+    var bingo = require('bingo')
+    var multistream = bingo.multistream
     var streams = [
-      {stream: process.stdout},
+      {level: 'debug', stream: process.stdout},
       {level: 'error', stream: process.stderr},
     ]
 
@@ -1245,7 +1383,7 @@ In order for `multistream` to work, the log level __must__ be set to the lowest 
         dedupe: true,
     }
 
-    var log = bingo-logger({
+    var log = bingo({
       level: 'debug' // this MUST be set at the lowest level of the
                     // destinations
     }, multistream(streams, opts))
@@ -1256,50 +1394,50 @@ In order for `multistream` to work, the log level __must__ be set to the lowest 
     log.fatal('this will be written ONLY to process.stderr')
     ```
 
-<a id="bingo-logger-stdserializers"></a>
-### `bingo-logger.stdSerializers` (Object)
+<a id="bingo-stdserializers"></a>
+### `bingo.stdSerializers` (Object)
 
-The `bingo-logger.stdSerializers` object provides functions for serializing objects common to many projects. The standard serializers are directly imported from [pino-std-serializers](https://github.com/bingo-loggerjs/pino-std-serializers).
+The `bingo.stdSerializers` object provides functions for serializing objects common to many projects. The standard serializers are directly imported from [bingo-std-serializers](https://github.com/bingo/bingo-std-serializers).
 
-* See [pino-std-serializers ⇗](https://github.com/bingo-loggerjs/pino-std-serializers)
+* See [bingo-std-serializers ⇗](https://github.com/bingo/bingo-std-serializers)
 
-<a id="bingo-logger-stdtimefunctions"></a>
-### `bingo-logger.stdTimeFunctions` (Object)
+<a id="bingo-stdtimefunctions"></a>
+### `bingo.stdTimeFunctions` (Object)
 
-The [`timestamp`](#opt-timestamp) option can accept a function which determines the
+The [`timestamp`](#opt-timestamp) option can accept a function that determines the
 `timestamp` value in a log line.
 
-The `bingo-logger.stdTimeFunctions` object provides a very small set of common functions for generating the
+The `bingo.stdTimeFunctions` object provides a very small set of common functions for generating the
 `timestamp` property. These consist of the following
 
-* `bingo-logger.stdTimeFunctions.epochTime`: Milliseconds since Unix epoch (Default)
-* `bingo-logger.stdTimeFunctions.unixTime`: Seconds since Unix epoch
-* `bingo-logger.stdTimeFunctions.nullTime`: Clears timestamp property (Used when `timestamp: false`)
-* `bingo-logger.stdTimeFunctions.isoTime`: ISO 8601-formatted time in UTC
+* `bingo.stdTimeFunctions.epochTime`: Milliseconds since Unix epoch (Default)
+* `bingo.stdTimeFunctions.unixTime`: Seconds since Unix epoch
+* `bingo.stdTimeFunctions.nullTime`: Clears timestamp property (Used when `timestamp: false`)
+* `bingo.stdTimeFunctions.isoTime`: ISO 8601-formatted time in UTC
 
 * See [`timestamp` option](#opt-timestamp)
 
-<a id="bingo-logger-symbols"></a>
-### `bingo-logger.symbols` (Object)
+<a id="bingo-symbols"></a>
+### `bingo.symbols` (Object)
 
-For integration purposes with ecosystem and third party libraries `bingo-logger.symbols`
+For integration purposes with ecosystem and third-party libraries `bingo.symbols`
 exposes the symbols used to hold non-public state and methods on the logger instance.
 
 Access to the symbols allows logger state to be adjusted, and methods to be overridden or
 proxied for performant integration where necessary.
 
-The `bingo-logger.symbols` object is intended for library implementers and shouldn't be utilized
+The `bingo.symbols` object is intended for library implementers and shouldn't be utilized
 for general use.
 
-<a id="bingo-logger-version"></a>
-### `bingo-logger.version` (String)
+<a id="bingo-version"></a>
+### `bingo.version` (String)
 
-Exposes the Pino package version. Also available on the logger instance.
+Exposes the Bingo package version. Also available on the logger instance.
 
 * See [`logger.version`](#version)
 
 ## Interfaces
-<a id="bingo-logger-multistreamres"></a>
+<a id="bingo-multistreamres"></a>
 
 ### `MultiStreamRes`
   Properties:
@@ -1330,7 +1468,7 @@ Exposes the Pino package version. Also available on the logger instance.
     - `level` [Level](#level-1)
     - Returns: [MultiStreamRes](#multistreamres)
 
- Returns a cloned object of the current instance but with the the provided `level`.
+ Returns a cloned object of the current instance but with the provided `level`.
 
 ### `StreamEntry`
   Properties:

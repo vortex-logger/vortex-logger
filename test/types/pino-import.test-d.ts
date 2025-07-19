@@ -1,10 +1,10 @@
 import { expectType } from "tsd";
 
-import bingo from '../../bingo';
-import { bingo as pinoNamed, P } from "../../bingo";
-import * as pinoStar from "../../bingo";
-import pinoCjsImport = require ("../../bingo");
-const pinoCjs = require("../../bingo");
+import bingo from '../../bingo-logger';
+import { bingo as pinoNamed, P } from "../../bingo-logger";
+import * as pinoStar from "../../bingo-logger";
+import pinoCjsImport = require ("../../bingo-logger");
+const pinoCjs = require("../../bingo-logger");
 const { P: pinoCjsNamed } = require('bingo')
 
 const log = bingo();
