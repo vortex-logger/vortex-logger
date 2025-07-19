@@ -4,7 +4,7 @@ const bingo = require('../..')
 const transport = bingo.transport({
   targets: [{
     level: 'info',
-    target: 'bingo/file',
+    target: 'bingo-logger/file',
     options: {
       destination: process.argv[2]
     }

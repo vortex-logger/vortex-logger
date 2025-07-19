@@ -205,7 +205,7 @@ test('bingo.transport with an array including a bingo-pretty destination', async
   const transport = bingo.transport({
     targets: [{
       level: 'info',
-      target: 'bingo/file',
+      target: 'bingo-logger/file',
       options: {
         destination: dest1
       }
@@ -294,10 +294,10 @@ test('bingo.transport with target and targets', async ({ fail, equal }) => {
   }
 })
 
-test('bingo.transport with target bingo/file', async ({ same, teardown }) => {
+test('bingo.transport with target bingo-logger/file', async ({ same, teardown }) => {
   const destination = file()
   const transport = bingo.transport({
-    target: 'bingo/file',
+    target: 'bingo-logger/file',
     options: { destination }
   })
   teardown(transport.end.bind(transport))
@@ -314,7 +314,7 @@ test('bingo.transport with target bingo/file', async ({ same, teardown }) => {
   })
 })
 
-test('bingo.transport with target bingo/file and mkdir option', async ({ same, teardown }) => {
+test('bingo.transport with target bingo-logger/file and mkdir option', async ({ same, teardown }) => {
   const folder = join(tmpdir(), `bingo-${process.pid}-mkdir-transport-file`)
   const destination = join(folder, 'log.txt')
   teardown(() => {
@@ -325,7 +325,7 @@ test('bingo.transport with target bingo/file and mkdir option', async ({ same, t
     }
   })
   const transport = bingo.transport({
-    target: 'bingo/file',
+    target: 'bingo-logger/file',
     options: { destination, mkdir: true }
   })
   teardown(transport.end.bind(transport))
@@ -342,11 +342,11 @@ test('bingo.transport with target bingo/file and mkdir option', async ({ same, t
   })
 })
 
-test('bingo.transport with target bingo/file and append option', async ({ same, teardown }) => {
+test('bingo.transport with target bingo-logger/file and append option', async ({ same, teardown }) => {
   const destination = file()
   await writeFile(destination, JSON.stringify({ pid, hostname, time: Date.now(), level: 30, msg: 'hello' }))
   const transport = bingo.transport({
-    target: 'bingo/file',
+    target: 'bingo-logger/file',
     options: { destination, append: false }
   })
   teardown(transport.end.bind(transport))
@@ -452,7 +452,7 @@ test('bingo transport options with target', async ({ teardown, same }) => {
   const destination = file()
   const instance = bingo({
     transport: {
-      target: 'bingo/file',
+      target: 'bingo-logger/file',
       options: { destination }
     }
   })
@@ -476,8 +476,8 @@ test('bingo transport options with targets', async ({ teardown, same }) => {
   const instance = bingo({
     transport: {
       targets: [
-        { target: 'bingo/file', options: { destination: dest1 } },
-        { target: 'bingo/file', options: { destination: dest2 } }
+        { target: 'bingo-logger/file', options: { destination: dest1 } },
+        { target: 'bingo-logger/file', options: { destination: dest2 } }
       ]
     }
   })
@@ -534,7 +534,7 @@ test('transport options with target and stream', async ({ fail, equal }) => {
 test('transport options with stream', async ({ fail, equal, teardown }) => {
   try {
     const dest1 = file()
-    const transportStream = bingo.transport({ target: 'bingo/file', options: { destination: dest1 } })
+    const transportStream = bingo.transport({ target: 'bingo-logger/file', options: { destination: dest1 } })
     teardown(transportStream.end.bind(transportStream))
     bingo({
       transport: transportStream

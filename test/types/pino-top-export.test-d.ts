@@ -15,8 +15,8 @@ import {
     symbols,
     transport,
     version,
-} from "../../bingo";
-import bingo from "../../bingo";
+} from "../../bingo-logger";
+import bingo from "../../bingo-logger";
 
 expectType<SonicBoom>(destination(""));
 expectType<LevelMapping>(levels);

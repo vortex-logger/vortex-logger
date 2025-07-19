@@ -34,7 +34,7 @@ const transports = bingo.transport({targets: [
     },
     {
         level: 'trace',
-        target: 'bingo/file',
+        target: 'bingo-logger/file',
         options: { destination }
     }
 ]})

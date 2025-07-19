@@ -23,7 +23,7 @@ const transports = bingo.transport({targets: [
     },
     {
         level: 'trace',
-        target: '#bingo/file',
+        target: '#bingo-logger/file',
         options: { destination: './test.log' }
     }
 ]})
@@ -38,7 +38,7 @@ expectType<bingo.Logger>(bingo({
             },
             {
                 level: 'trace',
-                target: '#bingo/file',
+                target: '#bingo-logger/file',
                 options: { destination: './test.log' }
             }
         ]},
@@ -52,7 +52,7 @@ const transportsWithCustomLevels = bingo.transport({targets: [
     },
     {
         level: 'foo',
-        target: '#bingo/file',
+        target: '#bingo-logger/file',
         options: { destination: './test.log' }
     }
 ], levels: { foo: 35 }})
@@ -67,7 +67,7 @@ expectType<bingo.Logger>(bingo({
             },
             {
                 level: 'trace',
-                target: '#bingo/file',
+                target: '#bingo-logger/file',
                 options: { destination: './test.log' }
             }
         ], levels: { foo: 35 }
@@ -78,7 +78,7 @@ const pipelineTransport = bingo.transport({
     pipeline: [{
         target: './my-transform.js'
     }, {
-        // Use target: 'bingo/file' to write to stdout
+        // Use target: 'bingo-logger/file' to write to stdout
         // without any change.
         target: 'bingo-pretty'
     }]
@@ -90,7 +90,7 @@ expectType<bingo.Logger>(bingo({
         pipeline: [{
             target: './my-transform.js'
         }, {
-            // Use target: 'bingo/file' to write to stdout
+            // Use target: 'bingo-logger/file' to write to stdout
             // without any change.
             target: 'bingo-pretty'
         }]
