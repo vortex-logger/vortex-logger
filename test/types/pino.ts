@@ -1,7 +1,7 @@
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import pinoPretty from 'pino-pretty'
-import { LoggerOptions, StreamEntry, bingo } from '../../bingo-logger-logger'
+import { LoggerOptions, StreamEntry, bingo } from '../../bingo-logger'
 
 const destination = join(
     tmpdir(),
