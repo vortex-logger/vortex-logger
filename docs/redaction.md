@@ -1,6 +1,6 @@
 # Redaction
 
-> Redaction is not supported in the browser [#670](https://github.com/bingo/bingo/issues/670)
+> Redaction is not supported in the browser [#670](https://github.com/bingojs/bingo/issues/670)
 
 To redact sensitive information, supply paths to keys that hold sensitive data
 using the `redact` option. Note that paths that contain hyphens need to use

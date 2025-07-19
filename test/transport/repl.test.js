@@ -10,5 +10,5 @@ test('bingo.transport resolves targets in REPL', async ({ same }) => {
   })
 
   // Act / Assert
-  doesNotThrow(() => transport({ target: 'bingo-pretty' }))
+  doesNotThrow(() => transport({ target: 'pino-pretty' }))
 })

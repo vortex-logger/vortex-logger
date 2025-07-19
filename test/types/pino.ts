@@ -10,7 +10,7 @@ const destination = join(
 
 // Single
 const transport = bingo.transport({
-    target: 'bingo-pretty',
+    target: 'pino-pretty',
     options: { some: 'options for', the: 'transport' }
 })
 const logger = bingo(transport)
@@ -19,7 +19,7 @@ logger.info('test2')
 logger.flush()
 
 const transport2 = bingo.transport({
-    target: 'bingo-pretty',
+    target: 'pino-pretty',
 })
 const logger2 = bingo(transport2)
 logger2.info('test2')
@@ -30,7 +30,7 @@ logger2.info('test2')
 const transports = bingo.transport({targets: [
     {
         level: 'info',
-        target: 'bingo-pretty',
+        target: 'pino-pretty',
         options: { some: 'options for', the: 'transport' }
     },
     {

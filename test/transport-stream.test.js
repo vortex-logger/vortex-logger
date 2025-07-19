@@ -8,7 +8,7 @@ test('should import', async (t) => {
     return {
       default: {
         default: () => {
-          t.equal(target, 'bingo-pretty')
+          t.equal(target, 'pino-pretty')
           return Promise.resolve()
         }
       }
@@ -19,7 +19,7 @@ test('should import', async (t) => {
   /** @type {typeof import('../lib/transport-stream.js')} */
   const loadTransportStreamBuilder = t.mock('../lib/transport-stream.js', { 'real-require': { realRequire: mockRealRequire, realImport: mockRealImport } })
 
-  const fn = await loadTransportStreamBuilder('bingo-pretty')
+  const fn = await loadTransportStreamBuilder('pino-pretty')
 
   t.resolves(fn())
   t.end()

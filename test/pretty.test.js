@@ -66,16 +66,16 @@ test('does not throw error when enabled with stream specified', async ({ doesNot
   doesNotThrow(() => bingo({ prettyPrint: true }, process.stdout))
 })
 
-test('throws when prettyPrint is true but bingo-pretty module is not installed', async ({ throws }) => {
+test('throws when prettyPrint is true but pino-pretty module is not installed', async ({ throws }) => {
   // bingo pretty *is* installed, and probably also cached, so rather than
   // messing with the filesystem the simplest way to generate a not found
   // error is to simulate it:
-  const prettyFactory = require('bingo-pretty').prettyFactory
-  require('bingo-pretty').prettyFactory = () => {
-    throw Error('Cannot find module \'bingo-pretty\'')
+  const prettyFactory = require('pino-pretty').prettyFactory
+  require('pino-pretty').prettyFactory = () => {
+    throw Error('Cannot find module \'pino-pretty\'')
   }
-  throws(() => bingo({ prettyPrint: true }), 'Missing `bingo-pretty` module: `bingo-pretty` must be installed separately')
-  require('bingo-pretty').prettyFactory = prettyFactory
+  throws(() => bingo({ prettyPrint: true }), 'Missing `pino-pretty` module: `pino-pretty` must be installed separately')
+  require('pino-pretty').prettyFactory = prettyFactory
 })
 
 test('throws when prettyPrint has invalid options', async ({ throws }) => {
@@ -91,7 +91,7 @@ test('can send pretty print to custom stream', async ({ equal }) => {
   })
 
   const log = bingo({
-    prettifier: require('bingo-pretty').prettyFactory,
+    prettifier: require('pino-pretty').prettyFactory,
     prettyPrint: {
       levelFirst: true,
       colorize: false

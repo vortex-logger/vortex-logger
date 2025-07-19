@@ -7,7 +7,7 @@ In particular, a bundler must ensure that the following files are also bundled s
 * `lib/worker.js` from the `thread-stream` dependency
 * `file.js`
 * `lib/worker.js`
-* Any transport used by the user (like `bingo-pretty`)
+* Any transport used by the user (like `pino-pretty`)
 
 Once the files above have been generated, the bundler must also add information about the files above by injecting a code that sets `__bundlerPathsOverrides` in the `globalThis` object.
 
@@ -21,7 +21,7 @@ globalThis.__bundlerPathsOverrides = {
   'thread-stream-worker': pinoWebpackAbsolutePath('./thread-stream-worker.js')
   'bingo/file': pinoWebpackAbsolutePath('./bingo-file.js'),
   'bingo-worker': pinoWebpackAbsolutePath('./bingo-worker.js'),
-  'bingo-pretty': pinoWebpackAbsolutePath('./bingo-pretty.js'),
+  'pino-pretty': pinoWebpackAbsolutePath('./pino-pretty.js'),
 };
 ```
 
@@ -29,7 +29,7 @@ Note that `bingo/file`, `bingo-worker` and `thread-stream-worker` are required i
 
 ## Webpack Plugin
 
-If you are a Webpack user, you can achieve this with [bingo-webpack-plugin](https://github.com/bingo/bingo-webpack-plugin) without manual configuration of `__bundlerPathsOverrides`; however, you still need to configure it manually if you are using other bundlers.
+If you are a Webpack user, you can achieve this with [bingo-webpack-plugin](https://github.com/bingojs/bingo-webpack-plugin) without manual configuration of `__bundlerPathsOverrides`; however, you still need to configure it manually if you are using other bundlers.
 
 ## Esbuild Plugin
 

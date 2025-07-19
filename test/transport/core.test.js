@@ -262,7 +262,7 @@ test('bingo.transport with two files and dedupe', async ({ same, teardown }) => 
   })
 })
 
-test('bingo.transport with an array including a bingo-pretty destination', async ({ same, match, teardown }) => {
+test('bingo.transport with an array including a pino-pretty destination', async ({ same, match, teardown }) => {
   const dest1 = file()
   const dest2 = file()
   const transport = bingo.transport({
@@ -274,7 +274,7 @@ test('bingo.transport with an array including a bingo-pretty destination', async
       }
     }, {
       level: 'info',
-      target: 'bingo-pretty',
+      target: 'pino-pretty',
       options: {
         destination: dest2
       }
@@ -438,10 +438,10 @@ test('bingo.transport should error with unknown target', async ({ fail, equal })
   }
 })
 
-test('bingo.transport with target bingo-pretty', async ({ match, teardown }) => {
+test('bingo.transport with target pino-pretty', async ({ match, teardown }) => {
   const destination = file()
   const transport = bingo.transport({
-    target: 'bingo-pretty',
+    target: 'pino-pretty',
     options: { destination }
   })
   teardown(transport.end.bind(transport))

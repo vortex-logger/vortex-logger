@@ -23,7 +23,7 @@ const transport = bingo.transport({
     */
   }, {
     level: 'info',
-    target: 'bingo-pretty'
+    target: 'pino-pretty'
   }]
 })
 

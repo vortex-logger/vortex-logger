@@ -1152,7 +1152,7 @@ logger.on('level-change', (lvl, val, prevLvl, prevVal) => {
 logger.level = 'trace' // trigger event
 ```
 
-Please note that due to a [known bug](https://github.com/bingo/bingo/issues/1006), every `logger.child()` call will
+Please note that due to a [known bug](https://github.com/bingojs/bingo/issues/1006), every `logger.child()` call will
 fire a `level-change` event. These events can be ignored by writing an event handler like:
 
 ```js
@@ -1232,7 +1232,7 @@ const bingo = require('bingo')
 const transport = bingo.transport({
   targets: [{
     level: 'info',
-    target: 'bingo-pretty' // must be installed separately
+    target: 'pino-pretty' // must be installed separately
   }, {
     level: 'trace',
     target: 'bingo/file',
@@ -1263,7 +1263,7 @@ const bingo = require('bingo')
 const transport = bingo.transport({
   targets: [{
     level: 'info',
-    target: 'bingo-pretty' // must be installed separately
+    target: 'pino-pretty' // must be installed separately
   }, {
     level: 'trace',
     target: 'bingo/file',
@@ -1334,7 +1334,7 @@ object implementing the [MultiStreamRes](#multistreamres) interface.
 ```js
 var fs = require('node:fs')
 var bingo = require('bingo')
-var pretty = require('bingo-pretty')
+var pretty = require('pino-pretty')
 var streams = [
   {stream: fs.createWriteStream('/tmp/info.stream.out')},
   {stream: pretty() },
@@ -1397,9 +1397,9 @@ In order for `multistream` to work, the log level __must__ be set to the lowest 
 <a id="bingo-stdserializers"></a>
 ### `bingo.stdSerializers` (Object)
 
-The `bingo.stdSerializers` object provides functions for serializing objects common to many projects. The standard serializers are directly imported from [bingo-std-serializers](https://github.com/bingo/bingo-std-serializers).
+The `bingo.stdSerializers` object provides functions for serializing objects common to many projects. The standard serializers are directly imported from [bingo-std-serializers](https://github.com/bingojs/bingo-std-serializers).
 
-* See [bingo-std-serializers ⇗](https://github.com/bingo/bingo-std-serializers)
+* See [bingo-std-serializers ⇗](https://github.com/bingojs/bingo-std-serializers)
 
 <a id="bingo-stdtimefunctions"></a>
 ### `bingo.stdTimeFunctions` (Object)

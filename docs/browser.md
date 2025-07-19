@@ -134,7 +134,7 @@ const bingo = require('bingo')({
 bingo.info({custom: 'a', another: 'b'})
 ```
 
-When `serialize` is `true` the standard error serializer is also enabled (see https://github.com/bingo/bingo/blob/master/docs/api.md#stdSerializers).
+When `serialize` is `true` the standard error serializer is also enabled (see https://github.com/bingojs/bingo/blob/master/docs/api.md#stdSerializers).
 This is a global serializer, which will apply to any `Error` objects passed to the logger methods.
 
 If `serialize` is an array the standard error serializer is also automatically enabled, it can
@@ -152,14 +152,14 @@ const bingo = require('bingo')({
 })
 ```
 
-The `serialize` array also applies to any child logger serializers (see https://github.com/bingo/bingo/blob/master/docs/api.md#discussion-2
+The `serialize` array also applies to any child logger serializers (see https://github.com/bingojs/bingo/blob/master/docs/api.md#discussion-2
 for how to set child-bound serializers).
 
 Unlike server bingo the serializers apply to every object passed to the logger method,
 if the `asObject` option is `true`, this results in the serializers applying to the
 first object (as in server bingo).
 
-For more info on serializers see https://github.com/bingo/bingo/blob/master/docs/api.md#mergingobject.
+For more info on serializers see https://github.com/bingojs/bingo/blob/master/docs/api.md#mergingobject.
 
 ### `transmit` (Object)
 

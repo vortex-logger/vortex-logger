@@ -182,7 +182,7 @@ Although it works, we recommend using one of these options instead if you are ab
 
 1. If the only change desired is the name then a transport can be used. One such
 transport is [`bingo-text-level-transport`](https://npm.im/bingo-text-level-transport).
-1. Use a prettifier like [`bingo-pretty`](https://npm.im/bingo-pretty) to make
+1. Use a prettifier like [`pino-pretty`](https://npm.im/pino-pretty) to make
 the logs human friendly.
 
 <a id="debug"></a>
@@ -190,13 +190,13 @@ the logs human friendly.
 
 The popular [`debug`](https://npm.im/debug) is used in many modules across the ecosystem.
 
-The [`bingo-debug`](https://github.com/bingo/bingo-debug) module
+The [`bingo-debug`](https://github.com/bingojs/bingo-debug) module
 can capture calls to `debug` loggers and run them
 through `bingo` instead. This results in a 10x (20x in asynchronous mode)
 performance improvement - even though `bingo-debug` is logging additional
 data and wrapping it in JSON.
 
-To quickly enable this install [`bingo-debug`](https://github.com/bingo/bingo-debug)
+To quickly enable this install [`bingo-debug`](https://github.com/bingojs/bingo-debug)
 and preload it with the `-r` flag, enabling any `debug` logs with the
 `DEBUG` environment variable:
 
@@ -205,8 +205,8 @@ $ npm i bingo-debug
 $ DEBUG=* node -r bingo-debug app.js
 ```
 
-[`bingo-debug`](https://github.com/bingo/bingo-debug) also offers fine-grain control to map specific `debug`
-namespaces to `bingo` log levels. See [`bingo-debug`](https://github.com/bingo/bingo-debug)
+[`bingo-debug`](https://github.com/bingojs/bingo-debug) also offers fine-grain control to map specific `debug`
+namespaces to `bingo` log levels. See [`bingo-debug`](https://github.com/bingojs/bingo-debug)
 for more.
 
 <a id="windows"></a>
@@ -342,4 +342,4 @@ if you have broader logging requirements.
 <a id="testing"></a>
 ## Testing
 
-See [`bingo-test`](https://github.com/bingo/bingo-test).
+See [`bingo-test`](https://github.com/bingojs/bingo-test).

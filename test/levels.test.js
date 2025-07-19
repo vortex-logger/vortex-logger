@@ -698,7 +698,7 @@ test('changing level respects level comparison DESC', async ({ equal }) => {
   check(equal, result, expected.level, expected.msg)
 })
 
-// testing for potential loss of Bingo constructor scope from serializers - an edge case with circular refs see:  https://github.com/bingo/bingo/issues/833
+// testing for potential loss of Bingo constructor scope from serializers - an edge case with circular refs see:  https://github.com/bingojs/bingo/issues/833
 test('trying to get levels when `this` is no longer a Bingo instance returns an empty string', async ({ equal }) => {
   const notPinoInstance = { some: 'object', getLevel: levelsLib.getLevel }
   const blankedLevelValue = notPinoInstance.getLevel()

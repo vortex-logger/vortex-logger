@@ -168,7 +168,7 @@ app.use((ctx) => {
 app.listen(3000)
 ```
 
-See the [koa-bingo-logger README](https://github.com/bingo/koa-bingo-logger) for more info.
+See the [koa-bingo-logger README](https://github.com/bingojs/koa-bingo-logger) for more info.
 
 <a id="http"></a>
 ## Bingo with Node core `http`

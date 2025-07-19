@@ -6,7 +6,7 @@ const execa = require('execa')
 const writer = require('flush-write-stream')
 const { once } = require('./helper')
 
-// https://github.com/bingo/bingo/issues/542
+// https://github.com/bingojs/bingo/issues/542
 test('bingo.destination log everything when calling process.exit(0)', async ({ not }) => {
   let actual = ''
   const child = execa(process.argv[0], [join(__dirname, 'fixtures', 'destination-exit.js')])

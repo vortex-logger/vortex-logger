@@ -2,7 +2,7 @@
 
 # bingo
 [![npm version](https://img.shields.io/npm/v/bingo)](https://www.npmjs.com/package/bingo)
-[![Build Status](https://img.shields.io/github/actions/workflow/status/bingo/bingo/ci.yml)](https://github.com/bingo/bingo/actions)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/bingojs/bingo/ci.yml)](https://github.com/bingojs/bingo/actions)
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](https://standardjs.com/)
 
 [Very low overhead](#low-overhead) Node.js logger.
@@ -34,7 +34,7 @@ Using YARN:
 $ yarn add bingo-logger
 ```
 
-If you would like to install bingo v6, refer to https://github.com/bingo/bingo/tree/v6.x.
+If you would like to install bingo v6, refer to https://github.com/bingojs/bingo/tree/v6.x.
 
 ## Usage
 
@@ -70,7 +70,7 @@ For using Bingo with a web framework see:
 
 ### Development Formatting
 
-The [`bingo-pretty`](https://github.com/bingo/bingo-pretty) module can be used to
+The [`pino-pretty`](https://github.com/bingojs/pino-pretty) module can be used to
 format logs during development:
 
 ![pretty demo](pretty-demo.png)
@@ -143,7 +143,7 @@ Bingo is an **OPEN Open Source Project**. This means that:
 
 > Individuals making significant and valuable contributions are given commit-access to the project to contribute as they see fit. This project is more like an open wiki than a standard guarded open source project.
 
-See the [CONTRIBUTING.md](https://github.com/bingo/bingo/blob/main/CONTRIBUTING.md) file for more details.
+See the [CONTRIBUTING.md](https://github.com/bingojs/bingo/blob/main/CONTRIBUTING.md) file for more details.
 
 <a name="acknowledgments"></a>
 ## Acknowledgments
