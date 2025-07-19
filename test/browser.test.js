@@ -1,7 +1,7 @@
 'use strict'
 const test = require('tape')
 const fresh = require('import-fresh')
-const pinoStdSerializers = require('bingo-std-serializers')
+const pinoStdSerializers = require('pino-std-serializers')
 const bingo = require('../browser')
 
 levelTest('fatal')
@@ -96,7 +96,7 @@ test('exposes levels object', ({ end, same }) => {
 
 test('exposes faux stdSerializers', ({ end, ok, same }) => {
   ok(bingo.stdSerializers)
-  // make sure faux stdSerializers match bingo-std-serializers
+  // make sure faux stdSerializers match pino-std-serializers
   for (const serializer in pinoStdSerializers) {
     ok(bingo.stdSerializers[serializer], `bingo.stdSerializers.${serializer}`)
   }

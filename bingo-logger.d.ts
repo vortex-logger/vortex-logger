@@ -16,7 +16,7 @@
 // TypeScript Version: 4.4
 
 import type { EventEmitter } from "events";
-import * as pinoStdSerializers from "bingo-std-serializers";
+import * as pinoStdSerializers from "pino-std-serializers";
 import type { SonicBoom, SonicBoomOpts } from "sonic-boom";
 import type { WorkerOptions } from "worker_threads";
 
@@ -319,27 +319,12 @@ declare namespace bingo {
         labels: { [level: number]: string };
     }
 
-    type PlaceholderSpecifier = 'd' | 's' | 'j' | 'o' | 'O';
-    type PlaceholderTypeMapping<T extends PlaceholderSpecifier> = T extends 'd'
-        ? number
-        : T extends 's'
-            ? string
-            : T extends 'j' | 'o' | 'O'
-            ? object
-            : never;
-
-    type ParseLogFnArgs<
-        T,
-        Acc extends unknown[] = [],
-    > = T extends `${infer _}%${infer Placeholder}${infer Rest}`
-        ? Placeholder extends PlaceholderSpecifier
-            ? ParseLogFnArgs<Rest, [...Acc, PlaceholderTypeMapping<Placeholder>]>
-            : ParseLogFnArgs<Rest, Acc>
-        : Acc;
-
     interface LogFn {
-        <T, TMsg extends string = string>(obj: T, msg?: T extends string ? never: TMsg, ...args: ParseLogFnArgs<TMsg> | []): void;
-        <_, TMsg extends string = string>(msg: TMsg, ...args: ParseLogFnArgs<TMsg> | []): void;
+        // TODO: why is this different from `obj: object` or `obj: any`?
+        /* tslint:disable:no-unnecessary-generics */
+        <T extends object>(obj: T, msg?: string, ...args: any[]): void;
+        (obj: unknown, msg?: string, ...args: any[]): void;
+        (msg: string, ...args: any[]): void;
     }
 
     interface LoggerOptions<CustomLevels extends string = never, UseOnlyCustomLevels extends boolean = boolean> {
@@ -509,7 +494,7 @@ declare namespace bingo {
              * serializer was enabled. We can turn all serializers on or we can selectively enable them via an array.
              *
              * When `serialize` is `true` the standard error serializer is also enabled (see
-             * {@link https://github.com/bingo/bingo/blob/master/docs/api.md#bingo-stdserializers}). This is a global
+             * {@link https://github.com/bingojs/bingo/blob/master/docs/api.md#bingo-stdserializers}). This is a global
              * serializer which will apply to any `Error` objects passed to the logger methods.
              *
              * If `serialize` is an array the standard error serializer is also automatically enabled, it can be

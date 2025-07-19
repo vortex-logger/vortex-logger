@@ -1,6 +1,6 @@
 import { expectAssignable, expectType, expectNotAssignable } from "tsd";
 
-import bingo from "../../";
+import bingo from "../../bingo-logger";
 import type {LevelWithSilent, Logger, LogFn, P, DestinationStreamWithMetadata,  Level, LevelOrString, LevelWithSilentOrString, LoggerExtras, LoggerOptions } from "../../bingo-logger";
 
 // NB: can also use `import * as bingo`, but that form is callable as `bingo()`

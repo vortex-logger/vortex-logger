@@ -1,7 +1,7 @@
 'use strict'
 const { test } = require('tap')
 const { sink, once } = require('./helper')
-const stdSerializers = require('bingo-std-serializers')
+const stdSerializers = require('pino-std-serializers')
 const bingo = require('../')
 
 const parentSerializers = {

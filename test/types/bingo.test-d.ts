@@ -1,7 +1,7 @@
 import { IncomingMessage, ServerResponse } from "http";
 import { Socket } from "net";
 import { expectError, expectType } from 'tsd';
-import P, { LoggerOptions, bingo } from "../../";
+import P, { LoggerOptions, bingo } from "../../bingo-logger";
 import Logger = P.Logger;
 
 const log = bingo();
@@ -216,7 +216,7 @@ const withHooks = bingo({
     },
 });
 
-// Properties/types imported from bingo-std-serializers
+// Properties/types imported from pino-std-serializers
 const wrappedErrSerializer = bingo.stdSerializers.wrapErrorSerializer((err: bingo.SerializedError) => {
     return { ...err, newProp: "foo" };
 });

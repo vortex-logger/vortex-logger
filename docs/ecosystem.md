@@ -53,7 +53,7 @@ in logs.
 make log lines human-readable.
 + [`bingo-socket`](https://github.com/bingojs/bingo-socket): send logs to TCP or UDP
 destinations.
-+ [`bingo-std-serializers`](https://github.com/bingojs/bingo-std-serializers): the
++ [`pino-std-serializers`](https://github.com/bingojs/pino-std-serializers): the
 core object serializers used within Bingo.
 + [`bingo-syslog`](https://github.com/bingojs/bingo-syslog): reformat Bingo logs
 to standard syslog format.

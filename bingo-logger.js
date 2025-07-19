@@ -1,7 +1,7 @@
 'use strict'
 
 const os = require('node:os')
-const stdSerializers = require('bingo-std-serializers')
+const stdSerializers = require('pino-std-serializers')
 const caller = require('./lib/caller')
 const redaction = require('./lib/redaction')
 const time = require('./lib/time')
