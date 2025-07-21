@@ -470,7 +470,7 @@ test('correctly escape quote in a key', async ({ same }) => {
   same(Object.keys(obj), ['some"obj'])
 })
 
-// https://github.com/bingo/bingo/issues/139
+// https://github.com/bingojs/bingo/issues/139
 test('object and format string', async ({ same }) => {
   const stream = sink()
   const instance = bingo(stream)
@@ -637,7 +637,7 @@ test('does not override opts with a string as second argument', async ({ same })
   })
 })
 
-// https://github.com/bingo/bingo/issues/222
+// https://github.com/bingojs/bingo/issues/222
 test('children with same names render in correct order', async ({ equal }) => {
   const stream = sink()
   const root = bingo(stream)
@@ -789,7 +789,7 @@ test('throws if prettyPrint is passed in as an option', async (t) => {
     bingo({
       prettyPrint: true
     })
-  }, new Error('prettyPrint option is no longer supported, see the bingo-pretty package (https://github.com/bingo/bingo-pretty)'))
+  }, new Error('prettyPrint option is no longer supported, see the bingo-pretty package (https://github.com/bingojs/bingo-pretty)'))
 })
 
 test('Should invoke `onChild` with the newly created child', async ({ equal }) => {
