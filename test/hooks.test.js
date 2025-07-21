@@ -2,14 +2,14 @@
 
 const tap = require('tap')
 const { sink, once } = require('./helper')
-const bingo-logger = require('../')
+const bingo = require('../')
 
 tap.test('log method hook', t => {
   t.test('gets invoked', async t => {
     t.plan(8)
 
     const stream = sink()
-    const logger = bingo-logger({
+    const logger = bingo({
       hooks: {
         logMethod (args, method, level) {
           t.type(args, Array)
@@ -35,7 +35,7 @@ tap.test('log method hook', t => {
     t.plan(2)
 
     const stream = sink()
-    const logger = bingo-logger({
+    const logger = bingo({
       hooks: {
         logMethod (args, method) {
           t.pass()
@@ -53,7 +53,7 @@ tap.test('log method hook', t => {
     t.plan(4)
 
     const stream = sink()
-    const root = bingo-logger({
+    const root = bingo({
       hooks: {
         logMethod (args, method) {
           t.pass()
@@ -77,7 +77,7 @@ tap.test('log method hook', t => {
     t.plan(3)
 
     const stream = sink()
-    const logger = bingo-logger({
+    const logger = bingo({
       hooks: {
         logMethod (args, method, level) {
           t.type(level, 'number')
@@ -91,6 +91,27 @@ tap.test('log method hook', t => {
     const o = once(stream, 'data')
     logger.error('a')
     t.match(await o, { msg: 'a' })
+  })
+
+  t.end()
+})
+
+tap.test('streamWrite hook', t => {
+  t.test('gets invoked', async t => {
+    t.plan(1)
+
+    const stream = sink()
+    const logger = bingo({
+      hooks: {
+        streamWrite (s) {
+          return s.replaceAll('redact-me', 'XXX')
+        }
+      }
+    }, stream)
+
+    const o = once(stream, 'data')
+    logger.info('hide redact-me in this string')
+    t.match(await o, { msg: 'hide XXX in this string' })
   })
 
   t.end()

@@ -1,13 +1,14 @@
 'use strict'
 
 const writeStream = require('flush-write-stream')
-const { readFileSync } = require('fs')
+const { readFileSync } = require('node:fs')
+const { join } = require('node:path')
 const test = require('tap').test
-const bingo-logger = require('../')
-const multistream = bingo-logger.multistream
+const bingo = require('../')
+const multistream = bingo.multistream
 const proxyquire = require('proxyquire')
 const strip = require('strip-ansi')
-const { file } = require('./helper')
+const { file, sink } = require('./helper')
 
 test('sends to multiple streams using string levels', function (t) {
   let messageCount = 0
@@ -16,13 +17,13 @@ test('sends to multiple streams using string levels', function (t) {
     cb()
   })
   const streams = [
-    { stream: stream },
-    { level: 'debug', stream: stream },
-    { level: 'trace', stream: stream },
-    { level: 'fatal', stream: stream },
-    { level: 'silent', stream: stream }
+    { stream },
+    { level: 'debug', stream },
+    { level: 'trace', stream },
+    { level: 'fatal', stream },
+    { level: 'silent', stream }
   ]
-  const log = bingo-logger({
+  const log = bingo({
     level: 'trace'
   }, multistream(streams))
   log.info('info stream')
@@ -39,13 +40,13 @@ test('sends to multiple streams using custom levels', function (t) {
     cb()
   })
   const streams = [
-    { stream: stream },
-    { level: 'debug', stream: stream },
-    { level: 'trace', stream: stream },
-    { level: 'fatal', stream: stream },
-    { level: 'silent', stream: stream }
+    { stream },
+    { level: 'debug', stream },
+    { level: 'trace', stream },
+    { level: 'fatal', stream },
+    { level: 'silent', stream }
   ]
-  const log = bingo-logger({
+  const log = bingo({
     level: 'trace'
   }, multistream(streams))
   log.info('info stream')
@@ -73,17 +74,17 @@ test('sends to multiple streams using optionally predefined levels', function (t
     }
   }
   const streams = [
-    { stream: stream },
-    { level: 'trace', stream: stream },
-    { level: 'debug', stream: stream },
-    { level: 'info', stream: stream },
-    { level: 'warn', stream: stream },
-    { level: 'error', stream: stream },
-    { level: 'fatal', stream: stream },
-    { level: 'silent', stream: stream }
+    { stream },
+    { level: 'trace', stream },
+    { level: 'debug', stream },
+    { level: 'info', stream },
+    { level: 'warn', stream },
+    { level: 'error', stream },
+    { level: 'fatal', stream },
+    { level: 'silent', stream }
   ]
   const mstream = multistream(streams, opts)
-  const log = bingo-logger({
+  const log = bingo({
     level: 'trace'
   }, mstream)
   log.trace('trace stream')
@@ -104,11 +105,11 @@ test('sends to multiple streams using number levels', function (t) {
     cb()
   })
   const streams = [
-    { stream: stream },
-    { level: 20, stream: stream },
-    { level: 60, stream: stream }
+    { stream },
+    { level: 20, stream },
+    { level: 60, stream }
   ]
-  const log = bingo-logger({
+  const log = bingo({
     level: 'debug'
   }, multistream(streams))
   log.info('info stream')
@@ -124,7 +125,7 @@ test('level include higher levels', function (t) {
     messageCount += 1
     cb()
   })
-  const log = bingo-logger({}, multistream([{ level: 'info', stream: stream }]))
+  const log = bingo({}, multistream([{ level: 'info', stream }]))
   log.fatal('message')
   t.equal(messageCount, 1)
   t.end()
@@ -145,7 +146,7 @@ test('supports multiple arguments', function (t) {
     }
     cb()
   })
-  const log = bingo-logger({}, multistream({ stream }))
+  const log = bingo({}, multistream({ stream }))
   log.info('%s %s %s %s', 'foo', 'bar', 'baz', 'foobar') // apply not invoked
   log.info('%s %s %s %s %s %s', 'foo', 'bar', 'baz', 'foobar', 'barfoo', 'foofoo') // apply invoked
 })
@@ -159,9 +160,9 @@ test('supports children', function (t) {
     cb()
   })
   const streams = [
-    { stream: stream }
+    { stream }
   ]
-  const log = bingo-logger({}, multistream(streams)).child({ child: 'one' })
+  const log = bingo({}, multistream(streams)).child({ child: 'one' })
   log.info('child stream')
 })
 
@@ -190,10 +191,10 @@ test('supports grandchildren', function (t) {
     cb()
   })
   const streams = [
-    { stream: stream },
-    { level: 'debug', stream: stream }
+    { stream },
+    { level: 'debug', stream }
   ]
-  const log = bingo-logger({
+  const log = bingo({
     level: 'debug'
   }, multistream(streams)).child({ child: 'one' }).child({ grandchild: 'two' })
   log.info('grandchild stream')
@@ -205,11 +206,11 @@ test('supports custom levels', function (t) {
     t.equal(JSON.parse(data).msg, 'bar')
     t.end()
   })
-  const log = bingo-logger({
+  const log = bingo({
     customLevels: {
       foo: 35
     }
-  }, multistream([{ level: 35, stream: stream }]))
+  }, multistream([{ level: 35, stream }]))
   log.foo('bar')
 })
 
@@ -220,7 +221,7 @@ test('supports pretty print', function (t) {
     cb()
   })
 
-  const nested = proxyquire('pino-pretty/lib/utils', {
+  const safeBoom = proxyquire('bingo-pretty/lib/utils/build-safe-sonic-boom.js', {
     'sonic-boom': function () {
       t.pass('sonic created')
       stream.flushSync = () => {}
@@ -228,11 +229,14 @@ test('supports pretty print', function (t) {
       return stream
     }
   })
-  const pretty = proxyquire('pino-pretty', {
-    './lib/utils': nested
+  const nested = proxyquire('bingo-pretty/lib/utils/index.js', {
+    './build-safe-sonic-boom.js': safeBoom
+  })
+  const pretty = proxyquire('bingo-pretty', {
+    './lib/utils/index.js': nested
   })
 
-  const log = bingo-logger({
+  const log = bingo({
     level: 'debug',
     name: 'helloName'
   }, multistream([
@@ -242,32 +246,45 @@ test('supports pretty print', function (t) {
   log.info('pretty print')
 })
 
+test('emit propagates events to each stream', function (t) {
+  t.plan(3)
+  const handler = function (data) {
+    t.equal(data.msg, 'world')
+  }
+  const streams = [sink(), sink(), sink()]
+  streams.forEach(function (s) {
+    s.once('hello', handler)
+  })
+  const stream = multistream(streams)
+  stream.emit('hello', { msg: 'world' })
+})
+
 test('children support custom levels', function (t) {
   const stream = writeStream(function (data, enc, cb) {
     t.equal(JSON.parse(data).msg, 'bar')
     t.end()
   })
-  const parent = bingo-logger({
+  const parent = bingo({
     customLevels: {
       foo: 35
     }
-  }, multistream([{ level: 35, stream: stream }]))
+  }, multistream([{ level: 35, stream }]))
   const child = parent.child({ child: 'yes' })
   child.foo('bar')
 })
 
-test('levelVal ovverides level', function (t) {
+test('levelVal overrides level', function (t) {
   let messageCount = 0
   const stream = writeStream(function (data, enc, cb) {
     messageCount += 1
     cb()
   })
   const streams = [
-    { stream: stream },
-    { level: 'blabla', levelVal: 15, stream: stream },
-    { level: 60, stream: stream }
+    { stream },
+    { level: 'blabla', levelVal: 15, stream },
+    { level: 60, stream }
   ]
-  const log = bingo-logger({
+  const log = bingo({
     level: 'debug'
   }, multistream(streams))
   log.info('info stream')
@@ -282,7 +299,7 @@ test('forwards metadata', function (t) {
   const streams = [
     {
       stream: {
-        [Symbol.for('bingo-logger.metadata')]: true,
+        [Symbol.for('bingo.metadata')]: true,
         write (chunk) {
           t.equal(log, this.lastLogger)
           t.equal(30, this.lastLevel)
@@ -293,7 +310,7 @@ test('forwards metadata', function (t) {
     }
   ]
 
-  const log = bingo-logger({
+  const log = bingo({
     level: 'debug'
   }, multistream(streams))
 
@@ -306,7 +323,7 @@ test('forward name', function (t) {
   const streams = [
     {
       stream: {
-        [Symbol.for('bingo-logger.metadata')]: true,
+        [Symbol.for('bingo.metadata')]: true,
         write (chunk) {
           const line = JSON.parse(chunk)
           t.equal(line.name, 'helloName')
@@ -316,7 +333,7 @@ test('forward name', function (t) {
     }
   ]
 
-  const log = bingo-logger({
+  const log = bingo({
     level: 'debug',
     name: 'helloName'
   }, multistream(streams))
@@ -340,7 +357,7 @@ test('forward name with child', function (t) {
     }
   ]
 
-  const log = bingo-logger({
+  const log = bingo({
     level: 'debug',
     name: 'helloName'
   }, multistream(streams)).child({ component: 'aComponent' })
@@ -356,10 +373,10 @@ test('clone generates a new multistream with all stream at the same level', func
     cb()
   })
   const streams = [
-    { stream: stream },
-    { level: 'debug', stream: stream },
-    { level: 'trace', stream: stream },
-    { level: 'fatal', stream: stream }
+    { stream },
+    { level: 'debug', stream },
+    { level: 'trace', stream },
+    { level: 'fatal', stream }
   ]
   const ms = multistream(streams)
   const clone = ms.clone(30)
@@ -372,7 +389,7 @@ test('clone generates a new multistream with all stream at the same level', func
     t.equal(s.level, 30)
   })
 
-  const log = bingo-logger({
+  const log = bingo({
     level: 'trace'
   }, clone)
 
@@ -390,7 +407,7 @@ test('one stream', function (t) {
     messageCount += 1
     cb()
   })
-  const log = bingo-logger({
+  const log = bingo({
     level: 'trace'
   }, multistream({ stream, level: 'fatal' }))
   log.info('info stream')
@@ -423,13 +440,48 @@ test('dedupe', function (t) {
     }
   ]
 
-  const log = bingo-logger({
+  const log = bingo({
     level: 'trace'
   }, multistream(streams, { dedupe: true }))
   log.info('info stream')
   log.fatal('fatal stream')
   log.fatal('fatal stream')
   t.equal(messageCount, 1)
+  t.end()
+})
+
+test('dedupe when logs have different levels', function (t) {
+  let messageCount = 0
+  const stream1 = writeStream(function (data, enc, cb) {
+    messageCount += 1
+    cb()
+  })
+
+  const stream2 = writeStream(function (data, enc, cb) {
+    messageCount += 2
+    cb()
+  })
+
+  const streams = [
+    {
+      stream: stream1,
+      level: 'info'
+    },
+    {
+      stream: stream2,
+      level: 'error'
+    }
+  ]
+
+  const log = bingo({
+    level: 'trace'
+  }, multistream(streams, { dedupe: true }))
+
+  log.info('info stream')
+  log.warn('warn stream')
+  log.error('error streams')
+  log.fatal('fatal streams')
+  t.equal(messageCount, 6)
   t.end()
 })
 
@@ -465,7 +517,7 @@ test('dedupe when some streams has the same level', function (t) {
     }
   ]
 
-  const log = bingo-logger({
+  const log = bingo({
     level: 'trace'
   }, multistream(streams, { dedupe: true }))
   log.info('info stream')
@@ -476,7 +528,7 @@ test('dedupe when some streams has the same level', function (t) {
 })
 
 test('no stream', function (t) {
-  const log = bingo-logger({
+  const log = bingo({
     level: 'trace'
   }, multistream())
   log.info('info stream')
@@ -491,7 +543,7 @@ test('one stream', function (t) {
     messageCount += 1
     cb()
   })
-  const log = bingo-logger({
+  const log = bingo({
     level: 'trace'
   }, multistream(stream))
   log.info('info stream')
@@ -508,7 +560,7 @@ test('add a stream', function (t) {
     cb()
   })
 
-  const log = bingo-logger({
+  const log = bingo({
     level: 'trace'
   }, multistream().add(stream))
   log.info('info stream')
@@ -520,7 +572,7 @@ test('add a stream', function (t) {
 
 test('multistream.add throws if not a stream', function (t) {
   try {
-    bingo-logger({
+    bingo({
       level: 'trace'
     }, multistream().add({}))
   } catch (_) {
@@ -530,7 +582,7 @@ test('multistream.add throws if not a stream', function (t) {
 
 test('multistream throws if not a stream', function (t) {
   try {
-    bingo-logger({
+    bingo({
       level: 'trace'
     }, multistream({}))
   } catch (_) {
@@ -538,24 +590,56 @@ test('multistream throws if not a stream', function (t) {
   }
 })
 
+test('multistream.write should not throw if one stream fails', function (t) {
+  let messageCount = 0
+  const stream = writeStream(function (data, enc, cb) {
+    messageCount += 1
+    cb()
+  })
+  const noopStream = bingo.transport({
+    target: join(__dirname, 'fixtures', 'noop-transport.js')
+  })
+  // eslint-disable-next-line
+  noopStream.on('error', function (err) {
+    // something went wrong while writing to noop stream, ignoring!
+  })
+  const log = bingo({
+    level: 'trace'
+  },
+  multistream([
+    {
+      level: 'trace',
+      stream
+    },
+    {
+      level: 'debug',
+      stream: noopStream
+    }
+  ])
+  )
+  log.debug('0')
+  noopStream.end()
+  // noop stream is ending, should emit an error but not throw
+  log.debug('1')
+  log.debug('2')
+  t.equal(messageCount, 3)
+  t.end()
+})
+
 test('flushSync', function (t) {
   const tmp = file()
-  const destination = bingo-logger.destination({ dest: tmp, sync: false, minLength: 4096 })
-  const log = bingo-logger({ level: 'info' }, multistream([{ level: 'info', stream: destination }]))
+  const destination = bingo.destination({ dest: tmp, sync: false, minLength: 4096 })
+  const stream = multistream([{ level: 'info', stream: destination }])
+  const log = bingo({ level: 'info' }, stream)
   destination.on('ready', () => {
     log.info('foo')
     log.info('bar')
-    t.equal(readFileSync(tmp, { encoding: 'utf-8' }).split('\n').length - 1, 0)
-    bingo-logger.final(log, (err, finalLogger) => {
-      if (err) {
-        t.fail()
-        return t.end()
-      }
-      t.equal(readFileSync(tmp, { encoding: 'utf-8' }).split('\n').length - 1, 2)
-      finalLogger.info('biz')
-      t.equal(readFileSync(tmp, { encoding: 'utf-8' }).split('\n').length - 1, 3)
-      t.end()
-    })()
+    stream.flushSync()
+    t.equal(readFileSync(tmp, { encoding: 'utf-8' }).split('\n').length - 1, 2)
+    log.info('biz')
+    stream.flushSync()
+    t.equal(readFileSync(tmp, { encoding: 'utf-8' }).split('\n').length - 1, 3)
+    t.end()
   })
 })
 
@@ -574,14 +658,14 @@ test('ends all streams', function (t) {
     cb()
   })
   const streams = [
-    { stream: stream },
-    { level: 'debug', stream: stream },
+    { stream },
+    { level: 'debug', stream },
     { level: 'trace', stream: stream2 },
-    { level: 'fatal', stream: stream },
-    { level: 'silent', stream: stream }
+    { level: 'fatal', stream },
+    { level: 'silent', stream }
   ]
   const multi = multistream(streams)
-  const log = bingo-logger({
+  const log = bingo({
     level: 'trace'
   }, multi)
   log.info('info stream')

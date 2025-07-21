@@ -1,16 +1,16 @@
 'use strict'
 /* eslint no-prototype-builtins: 0 */
 
-const { hostname } = require('os')
-const { join } = require('path')
-const { readFile } = require('fs').promises
+const { hostname } = require('node:os')
+const { join } = require('node:path')
+const { readFile } = require('node:fs').promises
 const { test } = require('tap')
 const { sink, once, watchFileCreated, file } = require('./helper')
-const bingo-logger = require('../')
+const bingo = require('../')
 
 test('level formatter', async ({ match }) => {
   const stream = sink()
-  const logger = bingo-logger({
+  const logger = bingo({
     formatters: {
       level (label, number) {
         return {
@@ -33,7 +33,7 @@ test('level formatter', async ({ match }) => {
 
 test('bindings formatter', async ({ match }) => {
   const stream = sink()
-  const logger = bingo-logger({
+  const logger = bingo({
     formatters: {
       bindings (bindings) {
         return {
@@ -62,7 +62,7 @@ test('bindings formatter', async ({ match }) => {
 
 test('no bindings formatter', async ({ match, notOk }) => {
   const stream = sink()
-  const logger = bingo-logger({
+  const logger = bingo({
     formatters: {
       bindings (bindings) {
         return null
@@ -80,7 +80,7 @@ test('no bindings formatter', async ({ match, notOk }) => {
 
 test('log formatter', async ({ match, equal }) => {
   const stream = sink()
-  const logger = bingo-logger({
+  const logger = bingo({
     formatters: {
       log (obj) {
         equal(obj.hasOwnProperty('msg'), false)
@@ -100,7 +100,7 @@ test('log formatter', async ({ match, equal }) => {
 
 test('Formatters combined', async ({ match }) => {
   const stream = sink()
-  const logger = bingo-logger({
+  const logger = bingo({
     formatters: {
       level (label, number) {
         return {
@@ -145,7 +145,7 @@ test('Formatters combined', async ({ match }) => {
 
 test('Formatters in child logger', async ({ match }) => {
   const stream = sink()
-  const logger = bingo-logger({
+  const logger = bingo({
     formatters: {
       level (label, number) {
         return {
@@ -202,7 +202,7 @@ test('Formatters in child logger', async ({ match }) => {
 
 test('Formatters without bindings in child logger', async ({ match }) => {
   const stream = sink()
-  const logger = bingo-logger({
+  const logger = bingo({
     formatters: {
       level (label, number) {
         return {
@@ -264,7 +264,7 @@ test('elastic common schema format', async ({ match, type }) => {
         return {
           log: {
             level: label,
-            logger: 'bingo-logger'
+            logger: 'bingo'
           }
         }
       },
@@ -286,14 +286,14 @@ test('elastic common schema format', async ({ match, type }) => {
     timestamp: () => `,"@timestamp":"${new Date(Date.now()).toISOString()}"`
   }
 
-  const logger = bingo-logger({ ...ecs }, stream)
+  const logger = bingo({ ...ecs }, stream)
 
   const o = once(stream, 'data')
   logger.info({ foo: 'bar' }, 'hello world')
   const log = await o
   type(log['@timestamp'], 'string')
   match(log, {
-    log: { level: 'info', logger: 'bingo-logger' },
+    log: { level: 'info', logger: 'bingo' },
     process: { pid: process.pid },
     host: { name: hostname() },
     ecs: { version: '1.4.0' },
@@ -304,7 +304,7 @@ test('elastic common schema format', async ({ match, type }) => {
 
 test('formatter with transport', async ({ match, equal }) => {
   const destination = file()
-  const logger = bingo-logger({
+  const logger = bingo({
     formatters: {
       log (obj) {
         equal(obj.hasOwnProperty('msg'), false)
@@ -334,7 +334,7 @@ test('formatter with transport', async ({ match, equal }) => {
 
 test('throws when custom level formatter is used with transport.targets', async ({ throws }) => {
   throws(() => {
-    bingo-logger({
+    bingo({
       formatters: {
         level (label) {
           return label

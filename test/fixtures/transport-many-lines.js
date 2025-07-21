@@ -1,7 +1,7 @@
 'use strict'
 
-const bingo-logger = require('../..')
-const transport = bingo-logger.transport({
+const bingo = require('../..')
+const transport = bingo.transport({
   targets: [{
     level: 'info',
     target: 'bingo-logger/file',
@@ -10,7 +10,7 @@ const transport = bingo-logger.transport({
     }
   }]
 })
-const logger = bingo-logger(transport)
+const logger = bingo(transport)
 
 const toWrite = 1000000
 transport.on('ready', run)

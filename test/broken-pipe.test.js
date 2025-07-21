@@ -1,10 +1,25 @@
 'use strict'
 
 const t = require('tap')
-const { join } = require('path')
-const { fork } = require('child_process')
+const { join } = require('node:path')
+const { fork } = require('node:child_process')
 const { once } = require('./helper')
-const bingo-logger = require('..')
+const bingo = require('..')
+
+if (process.platform === 'win32') {
+  t.skip('skipping on windows')
+  process.exit(0)
+}
+
+if (process.env.CITGM) {
+  // This looks like a some form of limitations of the CITGM test runner
+  // or the HW/SW we run it on. This file can hang on Node.js v18.x.
+  // The failure does not reproduce locally or on our CI.
+  // Skipping it is the only way to keep bingo in CITGM.
+  // https://github.com/nodejs/citgm/pull/1002#issuecomment-1751942988
+  t.skip('Skipping on Node.js core CITGM because it hangs on v18.x')
+  process.exit(0)
+}
 
 function test (file) {
   file = join('fixtures', 'broken-pipe', file)
@@ -27,11 +42,11 @@ test('syncfalse.js')
 
 t.test('let error pass through', ({ equal, plan }) => {
   plan(3)
-  const stream = bingo-logger.destination()
+  const stream = bingo.destination({ sync: true })
 
-  // side effect of the bingo-logger constructor is that it will set an
+  // side effect of the bingo constructor is that it will set an
   // event handler for error
-  bingo-logger(stream)
+  bingo(stream)
 
   process.nextTick(() => stream.emit('error', new Error('kaboom')))
   process.nextTick(() => stream.emit('error', new Error('kaboom')))

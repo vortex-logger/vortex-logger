@@ -1,14 +1,14 @@
 'use strict'
 
 const build = require('bingo-abstract-transport')
-const { pipeline, Transform } = require('stream')
+const { pipeline, Transform } = require('node:stream')
 module.exports = (options) => {
   return build(function (source) {
     const myTransportStream = new Transform({
       autoDestroy: true,
       objectMode: true,
       transform (chunk, enc, cb) {
-        chunk.service = 'bingo-logger'
+        chunk.service = 'bingo'
         this.push(JSON.stringify(chunk))
         cb()
       }

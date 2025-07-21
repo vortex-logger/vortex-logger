@@ -8,11 +8,13 @@
 * [Log to different streams](#multi-stream)
 * [Duplicate keys](#dupe-keys)
 * [Log levels as labels instead of numbers](#level-string)
-* [Pino with `debug`](#debug)
+* [Bingo with `debug`](#debug)
 * [Unicode and Windows terminal](#windows)
-* [Mapping Pino Log Levels to Google Cloud Logging (Stackdriver) Serverity Levels](#stackdriver)
+* [Mapping Bingo Log Levels to Google Cloud Logging (Stackdriver) Severity Levels](#stackdriver)
+* [Using Grafana Loki to evaluate bingo logs in a kubernetes cluster](#grafana-loki)
 * [Avoid Message Conflict](#avoid-message-conflict)
-* [Exit logging](#exit-logging)
+* [Best performance for logging to `stdout`](#best-performance-for-stdout)
+* [Testing](#testing)
 
 <a id="rotate"></a>
 ## Log rotation
@@ -48,9 +50,9 @@ help.
 <a id="reopening"></a>
 ## Reopening log files
 
-In cases where a log rotation tool doesn't offer a copy-truncate capabilities,
-or where using them is deemed inappropriate, `bingo-logger.destination`
-is able to reopen file paths after a file has been moved away.
+In cases where a log rotation tool doesn't offer copy-truncate capabilities,
+or where using them is deemed inappropriate, `bingo.destination`
+can reopen file paths after a file has been moved away.
 
 One way to use this is to set up a `SIGUSR2` or `SIGHUP` signal handler that
 reopens the log file destination, making sure to write the process PID out
@@ -58,11 +60,11 @@ somewhere so the log rotation tool knows where to send the signal.
 
 ```js
 // write the process pid to a well known location for later
-const fs = require('fs')
+const fs = require('node:fs')
 fs.writeFileSync('/var/run/myapp.pid', process.pid)
 
-const dest = bingo-logger.destination('/log/file')
-const logger = require('bingo-logger')(dest)
+const dest = bingo.destination('/log/file')
+const logger = require('bingo')(dest)
 process.on('SIGHUP', () => dest.reopen())
 ```
 
@@ -90,11 +92,11 @@ Given a similar scenario as in the [Log rotation](#rotate) section a basic
 <a id="multiple"></a>
 ## Saving to multiple files
 
-See [`bingo-logger.multistream`](/docs/api.md#bingo-logger-multistream).
+See [`bingo.multistream`](/docs/api.md#bingo-multistream).
 
 <a id="filter-logs"></a>
 ## Log Filtering
-The Pino philosophy advocates common, pre-existing, system utilities.
+The Bingo philosophy advocates common, preexisting, system utilities.
 
 Some recommendations in line with this philosophy are:
 
@@ -115,35 +117,35 @@ Some recommendations in line with this philosophy are:
 this challenge is to use a subshell:
 
 ```
-ExecStart=/bin/sh -c '/path/to/node app.js | bingo-logger-transport'
+ExecStart=/bin/sh -c '/path/to/node app.js | bingo-transport'
 ```
 
 <a id="multi-stream"></a>
 ## Log to different streams
 
-Pino's default log destination is the singular destination of `stdout`. While
+Bingo's default log destination is the singular destination of `stdout`. While
 not recommended for performance reasons, multiple destinations can be targeted
-by using [`bingo-logger.multistream`](/doc/api.md#bingo-logger-multistream).
+by using [`bingo.multistream`](/docs/api.md#bingo-multistream).
 
-In this example we use `stderr` for `error` level logs and `stdout` as default
+In this example, we use `stderr` for `error` level logs and `stdout` as default
 for all other levels (e.g. `debug`, `info`, and `warn`).
 
 ```js
-const bingo-logger = require('bingo-logger')
+const bingo = require('bingo')
 var streams = [
   {level: 'debug', stream: process.stdout},
   {level: 'error', stream: process.stderr},
   {level: 'fatal', stream: process.stderr}
 ]
 
-const logger = bingo-logger({
+const logger = bingo({
   name: 'my-app',
   level: 'debug', // must be the lowest level of all streams
-}, bingo-logger.multistream(streams))
+}, bingo.multistream(streams))
 ```
 
 <a id="dupe-keys"></a>
-## How Pino handles duplicate keys
+## How Bingo handles duplicate keys
 
 Duplicate keys are possibly when a child logger logs an object with a key that
 collides with a key in the child loggers bindings.
@@ -153,47 +155,67 @@ for information on this is handled.
 
 <a id="level-string"></a>
 ## Log levels as labels instead of numbers
-Pino log lines are meant to be parseable. Thus, Pino's default mode of operation
-is to print the level value instead of the string name. However, while it is
-possible to set the `useLevelLabels` option, we recommend using one of these
-options instead if you are able:
+Bingo log lines are meant to be parsable. Thus, Bingo's default mode of operation
+is to print the level value instead of the string name. 
+However, you can use the [`formatters`](/docs/api.md#formatters-object) option 
+with a [`level`](/docs/api.md#level) function to print the string name instead of the level value :
+
+```js
+const bingo = require('bingo')
+
+const log = bingo({
+  formatters: {
+    level: (label) => {
+      return {
+        level: label
+      }
+    }
+  }
+})
+
+log.info('message')
+
+// {"level":"info","time":1661632832200,"pid":18188,"hostname":"foo","msg":"message"}
+```
+
+Although it works, we recommend using one of these options instead if you are able:
 
 1. If the only change desired is the name then a transport can be used. One such
-transport is [`bingo-logger-text-level-transport`](https://npm.im/bingo-logger-text-level-transport).
-1. Use a prettifier like [`bingo-logger-pretty`](https://npm.im/bingo-logger-pretty) to make
+transport is [`bingo-text-level-transport`](https://npm.im/bingo-text-level-transport).
+1. Use a prettifier like [`bingo-pretty`](https://npm.im/bingo-pretty) to make
 the logs human friendly.
 
 <a id="debug"></a>
-## Pino with `debug`
+## Bingo with `debug`
 
 The popular [`debug`](https://npm.im/debug) is used in many modules across the ecosystem.
 
-The [`bingo-logger-debug`](https://github.com/bingo-loggerjs/bingo-logger-debug) module
+The [`bingo-debug`](https://github.com/bingojs/bingo-debug) module
 can capture calls to `debug` loggers and run them
-through `bingo-logger` instead. This results in a 10x (20x in asynchronous mode)
-performance improvement - even though `bingo-logger-debug` is logging additional
+through `bingo` instead. This results in a 10x (20x in asynchronous mode)
+performance improvement - even though `bingo-debug` is logging additional
 data and wrapping it in JSON.
 
-To quickly enable this install [`bingo-logger-debug`](https://github.com/bingo-loggerjs/bingo-logger-debug)
+To quickly enable this install [`bingo-debug`](https://github.com/bingojs/bingo-debug)
 and preload it with the `-r` flag, enabling any `debug` logs with the
 `DEBUG` environment variable:
 
 ```sh
-$ npm i bingo-logger-debug
-$ DEBUG=* node -r bingo-logger-debug app.js
+$ npm i bingo-debug
+$ DEBUG=* node -r bingo-debug app.js
 ```
 
-[`bingo-logger-debug`](https://github.com/bingo-loggerjs/bingo-logger-debug) also offers fine grain control to map specific `debug`
-namespaces to `bingo-logger` log levels. See [`bingo-logger-debug`](https://github.com/bingo-loggerjs/bingo-logger-debug)
+[`bingo-debug`](https://github.com/bingojs/bingo-debug) also offers fine-grain control to map specific `debug`
+namespaces to `bingo` log levels. See [`bingo-debug`](https://github.com/bingojs/bingo-debug)
 for more.
 
 <a id="windows"></a>
 ## Unicode and Windows terminal
 
-Pino uses [sonic-boom](https://github.com/mcollina/sonic-boom) to speed
+Bingo uses [sonic-boom](https://github.com/mcollina/sonic-boom) to speed
 up logging. Internally, it uses [`fs.write`](https://nodejs.org/dist/latest-v10.x/docs/api/fs.html#fs_fs_write_fd_string_position_encoding_callback) to write log lines directly to a file
-descriptor. On Windows, unicode output is not handled properly in the
-terminal (both `cmd.exe` and powershell), and as such the output could
+descriptor. On Windows, Unicode output is not handled properly in the
+terminal (both `cmd.exe` and PowerShell), and as such the output could
 be visualized incorrectly if the log lines include utf8 characters. It
 is possible to configure the terminal to visualize those characters
 correctly with the use of [`chcp`](https://ss64.com/nt/chcp.html) by
@@ -201,18 +223,18 @@ executing in the terminal `chcp 65001`. This is a known limitation of
 Node.js.
 
 <a id="stackdriver"></a>
-## Mapping Pino Log Levels to Google Cloud Logging (Stackdriver) Serverity Levels
+## Mapping Bingo Log Levels to Google Cloud Logging (Stackdriver) Severity Levels
 
-Google Cloud Logging uses `severity` levels instead log levels. As a result, all logs may show as INFO
-level logs while completely ignoring the level set in the bingo-logger log. Google Cloud Logging also prefers that
-log data is present inside a `message` key instead of the default `msg` key that Pino uses. Use a technique
-similar to the one below to retain log levels in Google Clould Logging
+Google Cloud Logging uses `severity` levels instead of log levels. As a result, all logs may show as INFO
+level logs while completely ignoring the level set in the bingo log. Google Cloud Logging also prefers that
+log data is present inside a `message` key instead of the default `msg` key that Bingo uses. Use a technique
+similar to the one below to retain log levels in Google Cloud Logging
 
 ```js
-const bingo-logger = require('bingo-logger')
+const bingo = require('bingo')
 
 // https://cloud.google.com/logging/docs/reference/v2/rest/v2/LogEntry#logseverity
-const PinoLevelToSeverityLookup = {
+const BingoLevelToSeverityLookup = {
   trace: 'DEBUG',
   debug: 'DEBUG',
   info: 'INFO',
@@ -221,25 +243,57 @@ const PinoLevelToSeverityLookup = {
   fatal: 'CRITICAL',
 };
 
-const defaultPinoConf = {
+const defaultBingoConf = {
   messageKey: 'message',
   formatters: {
     level(label, number) {
       return {
-        severity: PinoLevelToSeverityLookup[label] || PinoLevelToSeverityLookup['info'],
+        severity: BingoLevelToSeverityLookup[label] || BingoLevelToSeverityLookup['info'],
         level: number,
       }
-    },
-    log(message) {
-      return { message }
     }
   },
 }
 
 module.exports = function createLogger(options) {
-  return bingo-logger(Object.assign({}, options, defaultPinoConf))
+  return bingo(Object.assign({}, options, defaultBingoConf))
 }
 ```
+
+A library that configures Bingo for
+[Google Cloud Structured Logging](https://cloud.google.com/logging/docs/structured-logging)
+is available at:
+[@google-cloud/bingo-logging-gcp-config](https://www.npmjs.com/package/@google-cloud/bingo-logging-gcp-config)
+
+This library has the following features:
+
++ Converts Bingo log levels to Google Cloud Logging log levels, as above
++ Uses `message` instead of `msg` for the message key, as above
++ Adds a millisecond-granularity timestamp in the 
+  [structure](https://cloud.google.com/logging/docs/agent/logging/configuration#timestamp-processing)
+  recognised by Google Cloud Logging eg: \
+  `"timestamp":{"seconds":1445470140,"nanos":123000000}`
++ Adds a sequential
+  [`insertId`](https://cloud.google.com/logging/docs/reference/v2/rest/v2/LogEntry#FIELDS.insert_id)
+  to ensure log messages with identical timestamps are ordered correctly.
++ Logs including an `Error` object have the
+  [`stack_trace`](https://cloud.google.com/error-reporting/docs/formatting-error-messages#log-error)
+  property set so that the error is forwarded to Google Cloud Error Reporting.
++ Includes a
+  [`ServiceContext`](https://cloud.google.com/error-reporting/reference/rest/v1beta1/ServiceContext)
+  object in the logs for Google Cloud Error Reporting, auto detected from the
+  environment if not specified
++ Maps the OpenTelemetry properties `span_id`, `trace_id`, and `trace_flags`
+  to the equivalent Google Cloud Logging fields.
+
+<a id="grafana-loki"></a>
+## Using Grafana Loki to evaluate bingo logs in a kubernetes cluster
+
+To get bingo logs into Grafana Loki there are two options:
+
+1. **Push:** Use [bingo-loki](https://github.com/Julien-R44/bingo-loki) to send logs directly to Loki.
+1. **Pull:** Configure Grafana Promtail to read and properly parse the logs before sending them to Loki.  
+   Similar to Google Cloud logging, this involves remapping the log levels. See this [article](https://medium.com/@janpaepke/structured-logging-in-the-grafana-monitoring-stack-8aff0a5af2f5) for details.
 
 <a id="avoid-message-conflict"></a>
 ## Avoid Message Conflict
@@ -253,7 +307,7 @@ can be used:
 ```js
 'use strict'
 
-const log = require('bingo-logger')({
+const log = require('bingo')({
   level: 'debug',
   hooks: {
     logMethod (inputArgs, method) {
@@ -272,34 +326,20 @@ log.info({ msg: 'mapped to originalMsg' }, 'a message')
 // {"level":30,"time":1596313323107,"pid":63739,"hostname":"foo","msg":"a message","originalMsg":"mapped to originalMsg"}
 ```
 
-<a id="exit-logging"></a>
-## Exit logging (deprecated for Node v14+)
+<a id="best-performance-for-stdout"></a>
+## Best performance for logging to `stdout`
 
-__In bingo-logger v7, The following piece of documentation is not needed in Node v14+ and it will
-emit a deprecation notice.__
-
-When a Node process crashes from uncaught exception, exits due to a signal,
-or exits of it's own accord we may want to write some final logs – particularly
-in cases of error.
-
-Writing to a Node.js stream on exit is not necessarily guaranteed, and naively writing
-to an asynchronous logger on exit will definitely lead to lost logs.
-
-To write logs in an exit handler, create the handler with [`bingo-logger.final`](/docs/api.md#bingo-logger-final):
+The best performance for logging directly to stdout is _usually_ achieved by using the
+default configuration:
 
 ```js
-process.on('uncaughtException', bingo-logger.final(logger, (err, finalLogger) => {
-  finalLogger.error(err, 'uncaughtException')
-  process.exit(1)
-}))
-
-process.on('unhandledRejection', bingo-logger.final(logger, (err, finalLogger) => {
-  finalLogger.error(err, 'unhandledRejection')
-  process.exit(1)
-}))
+const log = require('bingo')();
 ```
 
-The `finalLogger` is a special logger instance that will synchronously and reliably
-flush every log line. This is important in exit handlers, since no more asynchronous
-activity may be scheduled.
+You should only have to configure custom transports or other settings
+if you have broader logging requirements.
 
+<a id="testing"></a>
+## Testing
+
+See [`bingo-test`](https://github.com/bingojs/bingo-test).

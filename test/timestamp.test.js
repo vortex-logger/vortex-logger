@@ -4,34 +4,34 @@
 
 const { test } = require('tap')
 const { sink, once } = require('./helper')
-const bingo-logger = require('../')
+const bingo = require('../')
 
-test('bingo-logger exposes standard time functions', async ({ ok }) => {
-  ok(bingo-logger.stdTimeFunctions)
-  ok(bingo-logger.stdTimeFunctions.epochTime)
-  ok(bingo-logger.stdTimeFunctions.unixTime)
-  ok(bingo-logger.stdTimeFunctions.nullTime)
-  ok(bingo-logger.stdTimeFunctions.isoTime)
+test('bingo exposes standard time functions', async ({ ok }) => {
+  ok(bingo.stdTimeFunctions)
+  ok(bingo.stdTimeFunctions.epochTime)
+  ok(bingo.stdTimeFunctions.unixTime)
+  ok(bingo.stdTimeFunctions.nullTime)
+  ok(bingo.stdTimeFunctions.isoTime)
 })
 
-test('bingo-logger accepts external time functions', async ({ equal }) => {
+test('bingo accepts external time functions', async ({ equal }) => {
   const opts = {
     timestamp: () => ',"time":"none"'
   }
   const stream = sink()
-  const instance = bingo-logger(opts, stream)
+  const instance = bingo(opts, stream)
   instance.info('foobar')
   const result = await once(stream, 'data')
   equal(result.hasOwnProperty('time'), true)
   equal(result.time, 'none')
 })
 
-test('bingo-logger accepts external time functions with custom label', async ({ equal }) => {
+test('bingo accepts external time functions with custom label', async ({ equal }) => {
   const opts = {
     timestamp: () => ',"custom-time-label":"none"'
   }
   const stream = sink()
-  const instance = bingo-logger(opts, stream)
+  const instance = bingo(opts, stream)
   instance.info('foobar')
   const result = await once(stream, 'data')
   equal(result.hasOwnProperty('custom-time-label'), true)
@@ -40,7 +40,7 @@ test('bingo-logger accepts external time functions with custom label', async ({ 
 
 test('inserts timestamp by default', async ({ ok, equal }) => {
   const stream = sink()
-  const instance = bingo-logger(stream)
+  const instance = bingo(stream)
   instance.info('foobar')
   const result = await once(stream, 'data')
   equal(result.hasOwnProperty('time'), true)
@@ -50,7 +50,7 @@ test('inserts timestamp by default', async ({ ok, equal }) => {
 
 test('omits timestamp when timestamp option is false', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo-logger({ timestamp: false }, stream)
+  const instance = bingo({ timestamp: false }, stream)
   instance.info('foobar')
   const result = await once(stream, 'data')
   equal(result.hasOwnProperty('time'), false)
@@ -59,7 +59,7 @@ test('omits timestamp when timestamp option is false', async ({ equal }) => {
 
 test('inserts timestamp when timestamp option is true', async ({ ok, equal }) => {
   const stream = sink()
-  const instance = bingo-logger({ timestamp: true }, stream)
+  const instance = bingo({ timestamp: true }, stream)
   instance.info('foobar')
   const result = await once(stream, 'data')
   equal(result.hasOwnProperty('time'), true)
@@ -69,7 +69,7 @@ test('inserts timestamp when timestamp option is true', async ({ ok, equal }) =>
 
 test('child inserts timestamp by default', async ({ ok, equal }) => {
   const stream = sink()
-  const logger = bingo-logger(stream)
+  const logger = bingo(stream)
   const instance = logger.child({ component: 'child' })
   instance.info('foobar')
   const result = await once(stream, 'data')
@@ -80,7 +80,7 @@ test('child inserts timestamp by default', async ({ ok, equal }) => {
 
 test('child omits timestamp with option', async ({ equal }) => {
   const stream = sink()
-  const logger = bingo-logger({ timestamp: false }, stream)
+  const logger = bingo({ timestamp: false }, stream)
   const instance = logger.child({ component: 'child' })
   instance.info('foobar')
   const result = await once(stream, 'data')
@@ -88,12 +88,12 @@ test('child omits timestamp with option', async ({ equal }) => {
   equal(result.msg, 'foobar')
 })
 
-test('bingo-logger.stdTimeFunctions.unixTime returns seconds based timestamps', async ({ equal }) => {
+test('bingo.stdTimeFunctions.unixTime returns seconds based timestamps', async ({ equal }) => {
   const opts = {
-    timestamp: bingo-logger.stdTimeFunctions.unixTime
+    timestamp: bingo.stdTimeFunctions.unixTime
   }
   const stream = sink()
-  const instance = bingo-logger(opts, stream)
+  const instance = bingo(opts, stream)
   const now = Date.now
   Date.now = () => 1531069919686
   instance.info('foobar')
@@ -103,12 +103,12 @@ test('bingo-logger.stdTimeFunctions.unixTime returns seconds based timestamps', 
   Date.now = now
 })
 
-test('bingo-logger.stdTimeFunctions.isoTime returns ISO 8601 timestamps', async ({ equal }) => {
+test('bingo.stdTimeFunctions.isoTime returns ISO 8601 timestamps', async ({ equal }) => {
   const opts = {
-    timestamp: bingo-logger.stdTimeFunctions.isoTime
+    timestamp: bingo.stdTimeFunctions.isoTime
   }
   const stream = sink()
-  const instance = bingo-logger(opts, stream)
+  const instance = bingo(opts, stream)
   const ms = 1531069919686
   const now = Date.now
   Date.now = () => ms

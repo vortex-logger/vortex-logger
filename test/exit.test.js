@@ -1,13 +1,13 @@
 'use strict'
 
 const { test } = require('tap')
-const { join } = require('path')
+const { join } = require('node:path')
 const execa = require('execa')
 const writer = require('flush-write-stream')
 const { once } = require('./helper')
 
-// https://github.com/bingo-loggerjs/bingo-logger/issues/542
-test('bingo-logger.destination log everything when calling process.exit(0)', async ({ not }) => {
+// https://github.com/bingojs/bingo/issues/542
+test('bingo.destination log everything when calling process.exit(0)', async ({ not }) => {
   let actual = ''
   const child = execa(process.argv[0], [join(__dirname, 'fixtures', 'destination-exit.js')])
 
@@ -22,7 +22,7 @@ test('bingo-logger.destination log everything when calling process.exit(0)', asy
   not(actual.match(/world/), null)
 })
 
-test('bingo-logger with no args log everything when calling process.exit(0)', async ({ not }) => {
+test('bingo with no args log everything when calling process.exit(0)', async ({ not }) => {
   let actual = ''
   const child = execa(process.argv[0], [join(__dirname, 'fixtures', 'default-exit.js')])
 
@@ -37,24 +37,7 @@ test('bingo-logger with no args log everything when calling process.exit(0)', as
   not(actual.match(/world/), null)
 })
 
-const hasWeak = !!global.WeakRef
-
-test('sync false does not log everything when calling process.exit(0)', { skip: hasWeak }, async ({ equal }) => {
-  let actual = ''
-  const child = execa(process.argv[0], [join(__dirname, 'fixtures', 'syncfalse-exit.js')])
-
-  child.stdout.pipe(writer((s, enc, cb) => {
-    actual += s
-    cb()
-  }))
-
-  await once(child, 'close')
-
-  equal(actual.match(/hello/), null)
-  equal(actual.match(/world/), null)
-})
-
-test('sync false logs everything when calling process.exit(0)', { skip: !hasWeak }, async ({ not }) => {
+test('sync false logs everything when calling process.exit(0)', async ({ not }) => {
   let actual = ''
   const child = execa(process.argv[0], [join(__dirname, 'fixtures', 'syncfalse-exit.js')])
 
@@ -82,4 +65,13 @@ test('sync false logs everything when calling flushSync', async ({ not }) => {
 
   not(actual.match(/hello/), null)
   not(actual.match(/world/), null)
+})
+
+test('transports exits gracefully when logging in exit', async ({ equal }) => {
+  const child = execa(process.argv[0], [join(__dirname, 'fixtures', 'transport-with-on-exit.js')])
+  child.stdout.resume()
+
+  const code = await once(child, 'close')
+
+  equal(code, 0)
 })

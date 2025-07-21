@@ -1,58 +1,55 @@
+
 # Benchmarks
 
-The following values show the time spent to call each function 100000 times.
-
-`bingo-logger.info('hello world')`:
+`bingo.info('hello world')`:
 
 ```
+
 BASIC benchmark averages
-Bunyan average: 662.904ms
-Winston average: 564.752ms
-Bole average: 301.894ms
-Debug average: 361.052ms
-LogLevel average: 330.394ms
-Pino average: 246.336ms
-PinoAsync average: 129.507ms
-PinoNodeStream average: 276.479ms
-```
-
-`bingo-logger.info({'hello': 'world'})`:
+Bunyan average: 377.434ms
+Winston average: 270.249ms
+Bole average: 172.690ms
+Debug average: 220.527ms
+LogLevel average: 222.802ms
+Bingo average: 114.801ms
+BingoMinLength average: 70.968ms
+BingoNodeStream average: 159.192ms
 
 ```
+
+`bingo.info({'hello': 'world'})`:
+
+```
+
 OBJECT benchmark averages
-BunyanObj average: 678.477ms
-WinstonObj average: 563.154ms
-BoleObj average: 364.748ms
-LogLevelObject average: 627.196ms
-PinoObj average: 237.543ms
-PinoAsyncObj average: 125.532ms
-PinoNodeStreamObj average: 310.614ms
-```
-
-`bingo-logger.info(aBigDeeplyNestedObject)`:
+BunyanObj average: 410.379ms
+WinstonObj average: 273.120ms
+BoleObj average: 185.069ms
+LogLevelObject average: 433.425ms
+BingoObj average: 119.315ms
+BingoMinLengthObj average: 76.968ms
+BingoNodeStreamObj average: 164.268ms
 
 ```
-DEEPOBJECT benchmark averages
-BunyanDeepObj average: 1838.970ms
-WinstonDeepObj average: 3173.947ms
-BoleDeepObj average: 2888.894ms
-LogLevelDeepObj average: 7426.592ms
-PinoDeepObj average: 3074.177ms
-PinoAsyncDeepObj average: 2987.925ms
-PinoNodeStreamDeepObj average: 3459.883ms
-```
 
-`bingo-logger.info('hello %s %j %d', 'world', {obj: true}, 4, {another: 'obj'})`:
+`bingo.info(aBigDeeplyNestedObject)`:
 
 ```
-BunyanInterpolateExtra average: 971.019ms
-WinstonInterpolateExtra average: 535.009ms
-BoleInterpolateExtra average: 575.668ms
-PinoInterpolateExtra average: 332.099ms
-PinoAsyncInterpolateExtra average: 209.552ms
-PinoNodeStreamInterpolateExtra average: 413.195ms
+
+DEEP-OBJECT benchmark averages
+BunyanDeepObj average: 1.839ms
+WinstonDeepObj average: 5.604ms
+BoleDeepObj average: 3.422ms
+LogLevelDeepObj average: 11.716ms
+BingoDeepObj average: 2.256ms
+BingoMinLengthDeepObj average: 2.240ms
+BingoNodeStreamDeepObj average: 2.595ms
+
 ```
 
-For a fair comparison, [LogLevel](https://npm.im/loglevel) was extended
-to include a timestamp and [bole](https://npm.im/bole) had
+`bingo.info('hello %s %j %d', 'world', {obj: true}, 4, {another: 'obj'})`:
+
+For a fair comparison, [LogLevel](http://npm.im/loglevel) was extended
+to include a timestamp and [bole](http://npm.im/bole) had
 `fastTime` mode switched on.
+

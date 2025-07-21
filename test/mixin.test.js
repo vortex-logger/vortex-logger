@@ -1,9 +1,9 @@
 'use strict'
 
-const os = require('os')
+const os = require('node:os')
 const { test } = require('tap')
 const { sink, once } = require('./helper')
-const bingo-logger = require('../')
+const bingo = require('../')
 
 const { pid } = process
 const hostname = os.hostname()
@@ -13,7 +13,7 @@ const name = 'error'
 test('mixin object is included', async ({ ok, same }) => {
   let n = 0
   const stream = sink()
-  const instance = bingo-logger({
+  const instance = bingo({
     mixin () {
       return { hello: ++n }
     }
@@ -37,7 +37,7 @@ test('mixin object is new every time', async ({ plan, ok, same }) => {
 
   let n = 0
   const stream = sink()
-  const instance = bingo-logger({
+  const instance = bingo({
     mixin () {
       return { hello: n }
     }
@@ -64,7 +64,7 @@ test('mixin object is new every time', async ({ plan, ok, same }) => {
 
 test('mixin object is not called if below log level', async ({ ok }) => {
   const stream = sink()
-  const instance = bingo-logger({
+  const instance = bingo({
     mixin () {
       ok(false, 'should not call mixin function')
     }
@@ -75,7 +75,7 @@ test('mixin object is not called if below log level', async ({ ok }) => {
 
 test('mixin object + logged object', async ({ ok, same }) => {
   const stream = sink()
-  const instance = bingo-logger({
+  const instance = bingo({
     mixin () {
       return { foo: 1, bar: 2 }
     }
@@ -98,13 +98,13 @@ test('mixin object + logged object', async ({ ok, same }) => {
 test('mixin not a function', async ({ throws }) => {
   const stream = sink()
   throws(function () {
-    bingo-logger({ mixin: 'not a function' }, stream)
+    bingo({ mixin: 'not a function' }, stream)
   })
 })
 
 test('mixin can use context', async ({ ok, same }) => {
   const stream = sink()
-  const instance = bingo-logger({
+  const instance = bingo({
     mixin (context) {
       ok(context !== null, 'context should be defined')
       ok(context !== undefined, 'context should be defined')
@@ -127,7 +127,7 @@ test('mixin can use context', async ({ ok, same }) => {
 
 test('mixin works without context', async ({ ok, same }) => {
   const stream = sink()
-  const instance = bingo-logger({
+  const instance = bingo({
     mixin (context) {
       ok(context !== null, 'context is still defined w/o passing mergeObject')
       ok(context !== undefined, 'context is still defined w/o passing mergeObject')
@@ -143,7 +143,7 @@ test('mixin works without context', async ({ ok, same }) => {
 
 test('mixin can use level number', async ({ ok, same }) => {
   const stream = sink()
-  const instance = bingo-logger({
+  const instance = bingo({
     mixin (context, num) {
       ok(num !== null, 'level should be defined')
       ok(num !== undefined, 'level should be defined')
@@ -158,5 +158,61 @@ test('mixin can use level number', async ({ ok, same }) => {
   instance[name]({
     message: '123',
     stack: 'stack'
+  }, 'test')
+})
+
+test('mixin receives logger as third parameter', async ({ ok, same }) => {
+  const stream = sink()
+  const instance = bingo({
+    mixin (context, num, logger) {
+      ok(logger !== null, 'logger should be defined')
+      ok(logger !== undefined, 'logger should be defined')
+      same(logger, instance)
+      return { ...context, num }
+    }
+  }, stream)
+  instance.level = name
+  instance[name]({
+    message: '123'
+  }, 'test')
+})
+
+test('mixin receives child logger', async ({ ok, same }) => {
+  const stream = sink()
+  let child = null
+  const instance = bingo({
+    mixin (context, num, logger) {
+      ok(logger !== null, 'logger should be defined')
+      ok(logger !== undefined, 'logger should be defined')
+      same(logger.expected, child.expected)
+      return { ...context, num }
+    }
+  }, stream)
+  instance.level = name
+  instance.expected = false
+  child = instance.child({})
+  child.expected = true
+  child[name]({
+    message: '123'
+  }, 'test')
+})
+
+test('mixin receives logger even if child exists', async ({ ok, same }) => {
+  const stream = sink()
+  let child = null
+  const instance = bingo({
+    mixin (context, num, logger) {
+      ok(logger !== null, 'logger should be defined')
+      ok(logger !== undefined, 'logger should be defined')
+      same(logger.expected, instance.expected)
+      return { ...context, num }
+    }
+  }, stream)
+  instance.level = name
+  instance.expected = false
+  child = instance.child({})
+  child.expected = true
+  instance[name]({
+    message: '123'
   }, 'test')
 })

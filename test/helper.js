@@ -1,14 +1,14 @@
 'use strict'
 
 const crypto = require('crypto')
-const os = require('os')
+const os = require('node:os')
 const writer = require('flush-write-stream')
 const split = require('split2')
-const { existsSync, readFileSync, statSync, unlinkSync } = require('fs')
+const { existsSync, readFileSync, statSync, unlinkSync } = require('node:fs')
 const pid = process.pid
 const hostname = os.hostname()
 const t = require('tap')
-const { join } = require('path')
+const { join } = require('node:path')
 const { tmpdir } = os
 
 const isWin = process.platform === 'win32'
@@ -105,7 +105,7 @@ let files = []
 
 function file () {
   const hash = crypto.randomBytes(12).toString('hex')
-  const file = join(tmpdir(), `bingo-logger-${pid}-${hash}`)
+  const file = join(tmpdir(), `bingo-${pid}-${hash}`)
   files.push(file)
   return file
 }

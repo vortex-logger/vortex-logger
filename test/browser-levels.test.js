@@ -1,6 +1,6 @@
 'use strict'
 const test = require('tape')
-const bingo-logger = require('../browser')
+const bingo = require('../browser')
 
 test('set the level by string', ({ end, same, is }) => {
   const expected = [
@@ -13,7 +13,7 @@ test('set the level by string', ({ end, same, is }) => {
       msg: 'this is fatal'
     }
   ]
-  const instance = bingo-logger({
+  const instance = bingo({
     browser: {
       write (actual) {
         checkLogObjects(is, same, actual, expected.shift())
@@ -40,7 +40,7 @@ test('set the level by string. init with silent', ({ end, same, is }) => {
       msg: 'this is fatal'
     }
   ]
-  const instance = bingo-logger({
+  const instance = bingo({
     level: 'silent',
     browser: {
       write (actual) {
@@ -68,7 +68,7 @@ test('set the level by string. init with silent and transmit', ({ end, same, is 
       msg: 'this is fatal'
     }
   ]
-  const instance = bingo-logger({
+  const instance = bingo({
     level: 'silent',
     browser: {
       write (actual) {
@@ -99,7 +99,7 @@ test('set the level via constructor', ({ end, same, is }) => {
       msg: 'this is fatal'
     }
   ]
-  const instance = bingo-logger({
+  const instance = bingo({
     level: 'error',
     browser: {
       write (actual) {
@@ -115,8 +115,31 @@ test('set the level via constructor', ({ end, same, is }) => {
   end()
 })
 
+test('set custom level and use it', ({ end, same, is }) => {
+  const expected = [
+    {
+      level: 31,
+      msg: 'this is a custom level'
+    }
+  ]
+  const instance = bingo({
+    customLevels: {
+      success: 31
+    },
+    browser: {
+      write (actual) {
+        checkLogObjects(is, same, actual, expected.shift())
+      }
+    }
+  })
+
+  instance.success('this is a custom level')
+
+  end()
+})
+
 test('the wrong level throws', ({ end, throws }) => {
-  const instance = bingo-logger()
+  const instance = bingo()
   throws(() => {
     instance.level = 'kaboom'
   })
@@ -124,7 +147,7 @@ test('the wrong level throws', ({ end, throws }) => {
 })
 
 test('the wrong level by number throws', ({ end, throws }) => {
-  const instance = bingo-logger()
+  const instance = bingo()
   throws(() => {
     instance.levelVal = 55
   })
@@ -132,23 +155,23 @@ test('the wrong level by number throws', ({ end, throws }) => {
 })
 
 test('exposes level string mappings', ({ end, is }) => {
-  is(bingo-logger.levels.values.error, 50)
+  is(bingo.levels.values.error, 50)
   end()
 })
 
 test('exposes level number mappings', ({ end, is }) => {
-  is(bingo-logger.levels.labels[50], 'error')
+  is(bingo.levels.labels[50], 'error')
   end()
 })
 
 test('returns level integer', ({ end, is }) => {
-  const instance = bingo-logger({ level: 'error' })
+  const instance = bingo({ level: 'error' })
   is(instance.levelVal, 50)
   end()
 })
 
 test('silent level via constructor', ({ end, fail }) => {
-  const instance = bingo-logger({
+  const instance = bingo({
     level: 'silent',
     browser: {
       write () {
@@ -157,7 +180,7 @@ test('silent level via constructor', ({ end, fail }) => {
     }
   })
 
-  Object.keys(bingo-logger.levels.values).forEach((level) => {
+  Object.keys(bingo.levels.values).forEach((level) => {
     instance[level]('hello world')
   })
 
@@ -165,7 +188,7 @@ test('silent level via constructor', ({ end, fail }) => {
 })
 
 test('silent level by string', ({ end, fail }) => {
-  const instance = bingo-logger({
+  const instance = bingo({
     browser: {
       write () {
         fail('no data should be logged')
@@ -175,7 +198,7 @@ test('silent level by string', ({ end, fail }) => {
 
   instance.level = 'silent'
 
-  Object.keys(bingo-logger.levels.values).forEach((level) => {
+  Object.keys(bingo.levels.values).forEach((level) => {
     instance[level]('hello world')
   })
 
@@ -183,7 +206,7 @@ test('silent level by string', ({ end, fail }) => {
 })
 
 test('exposed levels', ({ end, same }) => {
-  same(Object.keys(bingo-logger.levels.values), [
+  same(Object.keys(bingo.levels.values), [
     'fatal',
     'error',
     'warn',
@@ -195,7 +218,7 @@ test('exposed levels', ({ end, same }) => {
 })
 
 test('exposed labels', ({ end, same }) => {
-  same(Object.keys(bingo-logger.levels.labels), [
+  same(Object.keys(bingo.levels.labels), [
     '10',
     '20',
     '30',

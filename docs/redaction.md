@@ -1,10 +1,10 @@
 # Redaction
 
-> Redaction is not supported in the browser [#670](https://github.com/bingo-loggerjs/bingo-logger/issues/670)
+> Redaction is not supported in the browser [#670](https://github.com/bingojs/bingo/issues/670)
 
 To redact sensitive information, supply paths to keys that hold sensitive data
-using the `redact` option. Note that paths which contain hypens need to use
-brackets in order to access the hyphenated property:
+using the `redact` option. Note that paths that contain hyphens need to use
+brackets to access the hyphenated property:
 
 ```js
 const logger = require('.')({
@@ -94,13 +94,13 @@ This will output
 {"level":30,"time":1527782356751,"pid":5758,"hostname":"Davids-MacBook-Pro-3.local","path":{"to":{"another":"thing"}},"stuff":{"thats":[{"logme":"will be logged"},{"logme":"as will this"}]}}
 ```
 
-See [bingo-logger options in API](/docs/api.md#redact-array-object) for `redact` API details.
+See [bingo options in API](/docs/api.md#redact-array-object) for `redact` API details.
 
 <a name="paths"></a>
 ## Path Syntax
 
 The syntax for paths supplied to the `redact` option conform to the syntax in path lookups
-in standard EcmaScript, with two additions:
+in standard ECMAScript, with two additions:
 
 * paths may start with bracket notation
 * paths may contain the asterisk `*` to denote a wildcard
@@ -116,11 +116,11 @@ By way of example, the following are all valid paths:
 
 ## Overhead
 
-Pino's redaction functionality is built on top of [`fast-redact`](https://github.com/davidmarkclements/fast-redact)
+Bingo's redaction functionality is built on top of [`fast-redact`](https://github.com/davidmarkclements/fast-redact)
 which adds about 2% overhead to `JSON.stringify` when using paths without wildcards.
 
-When used with bingo-logger logger with a single redacted path, any overhead is within noise -
-a way to deterministically measure it's effect has not been found. This is because its not a bottleneck.
+When used with bingo logger with a single redacted path, any overhead is within noise -
+a way to deterministically measure its effect has not been found. This is because it is not a bottleneck.
 
 However, wildcard redaction does carry a non-trivial cost relative to explicitly declaring the keys
 (50% in a case where four keys are redacted across two objects). See
@@ -129,7 +129,7 @@ the [`fast-redact` benchmarks](https://github.com/davidmarkclements/fast-redact#
 ## Safety
 
 The `redact` option is intended as an initialization time configuration option.
-It's extremely important that path strings do not originate from user input.
+Path strings must not originate from user input.
 The `fast-redact` module uses a VM context to syntax check the paths, user input
 should never be combined with such an approach. See the [`fast-redact` Caveat](https://github.com/davidmarkclements/fast-redact#caveat)
 and the [`fast-redact` Approach](https://github.com/davidmarkclements/fast-redact#approach) for in-depth information.
