@@ -33,49 +33,49 @@ const max = 10
 // note that "redact me." is the same amount of bytes as the censor: "[Redacted]"
 
 const run = bench([
-  function benchPinoNoRedact (cb) {
+  function benchBingoNoRedact (cb) {
     for (var i = 0; i < max; i++) {
       plog.info({ a: { b: { c: 'redact me.', d: 'leave me' } } })
     }
     setImmediate(cb)
   },
-  function benchPinoRedact (cb) {
+  function benchBingoRedact (cb) {
     for (var i = 0; i < max; i++) {
       plogRedact.info({ a: { b: { c: 'redact me.', d: 'leave me' } } })
     }
     setImmediate(cb)
   },
-  function benchPinoUnsafeNoRedact (cb) {
+  function benchBingoUnsafeNoRedact (cb) {
     for (var i = 0; i < max; i++) {
       plogUnsafe.info({ a: { b: { c: 'redact me.', d: 'leave me' } } })
     }
     setImmediate(cb)
   },
-  function benchPinoUnsafeRedact (cb) {
+  function benchBingoUnsafeRedact (cb) {
     for (var i = 0; i < max; i++) {
       plogUnsafeRedact.info({ a: { b: { c: 'redact me.', d: 'leave me' } } })
     }
     setImmediate(cb)
   },
-  function benchPinoAsyncNoRedact (cb) {
+  function benchBingoAsyncNoRedact (cb) {
     for (var i = 0; i < max; i++) {
       plogAsync.info({ a: { b: { c: 'redact me.', d: 'leave me' } } })
     }
     setImmediate(cb)
   },
-  function benchPinoAsyncRedact (cb) {
+  function benchBingoAsyncRedact (cb) {
     for (var i = 0; i < max; i++) {
       plogAsyncRedact.info({ a: { b: { c: 'redact me.', d: 'leave me' } } })
     }
     setImmediate(cb)
   },
-  function benchPinoUnsafeAsyncNoRedact (cb) {
+  function benchBingoUnsafeAsyncNoRedact (cb) {
     for (var i = 0; i < max; i++) {
       plogUnsafeAsync.info({ a: { b: { c: 'redact me.', d: 'leave me' } } })
     }
     setImmediate(cb)
   },
-  function benchPinoUnsafeAsyncRedact (cb) {
+  function benchBingoUnsafeAsyncRedact (cb) {
     for (var i = 0; i < max; i++) {
       plogUnsafeAsyncRedact.info({ a: { b: { c: 'redact me.', d: 'leave me' } } })
     }

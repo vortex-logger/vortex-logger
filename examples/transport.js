@@ -9,7 +9,7 @@ const file = join(tmpdir(), `bingo-${process.pid}-example`)
 const transport = bingo.transport({
   targets: [{
     level: 'warn',
-    target: 'bingo/file',
+    target: 'bingo-logger/file',
     options: {
       destination: file
     }
@@ -23,7 +23,7 @@ const transport = bingo.transport({
     */
   }, {
     level: 'info',
-    target: 'pino-pretty'
+    target: 'bingo-pretty'
   }]
 })
 

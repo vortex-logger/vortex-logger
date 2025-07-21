@@ -2,7 +2,7 @@
 const bingo = require('../..')
 const log = bingo({
   transport: {
-    target: 'bingo/file',
+    target: 'bingo-logger/file',
     options: { destination: 1 }
   }
 })

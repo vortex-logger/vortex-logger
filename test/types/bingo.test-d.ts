@@ -391,7 +391,7 @@ const bLogger = bingo({
   },
   level: 'log',
   transport: {
-    target: 'pino-pretty',
+    target: 'bingo-pretty',
     options: {
       colorize: true,
     },
@@ -404,7 +404,7 @@ expectType<Logger<'log'>>(bingo({
   },
   level: 'log',
   transport: {
-    target: 'pino-pretty',
+    target: 'bingo-pretty',
     options: {
       colorize: true,
     },

@@ -28,6 +28,6 @@ module.exports = () => {
     return myTransportStream
   }, {
     enablePipelining: true,
-    expectPinoConfig: true
+    expectBingoConfig: true
   })
 }

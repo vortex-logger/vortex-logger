@@ -61,19 +61,19 @@ const run = bench([
     }
     setImmediate(cb)
   },
-  function benchPinoInterpolate (cb) {
+  function benchBingoInterpolate (cb) {
     for (var i = 0; i < max; i++) {
       plogDest.info('hello %s', 'world')
     }
     setImmediate(cb)
   },
-  function benchPinoMinLengthInterpolate (cb) {
+  function benchBingoMinLengthInterpolate (cb) {
     for (var i = 0; i < max; i++) {
       plogMinLength.info('hello %s', 'world')
     }
     setImmediate(cb)
   },
-  function benchPinoNodeStreamInterpolate (cb) {
+  function benchBingoNodeStreamInterpolate (cb) {
     for (var i = 0; i < max; i++) {
       plogNodeStream.info('hello %s', 'world')
     }
@@ -98,19 +98,19 @@ const run = bench([
     }
     setImmediate(cb)
   },
-  function benchPinoInterpolateAll (cb) {
+  function benchBingoInterpolateAll (cb) {
     for (var i = 0; i < max; i++) {
       plogDest.info('hello %s %j %d', 'world', { obj: true }, 4)
     }
     setImmediate(cb)
   },
-  function benchPinoMinLengthInterpolateAll (cb) {
+  function benchBingoMinLengthInterpolateAll (cb) {
     for (var i = 0; i < max; i++) {
       plogMinLength.info('hello %s %j %d', 'world', { obj: true }, 4)
     }
     setImmediate(cb)
   },
-  function benchPinoNodeStreamInterpolateAll (cb) {
+  function benchBingoNodeStreamInterpolateAll (cb) {
     for (var i = 0; i < max; i++) {
       plogNodeStream.info('hello %s %j %d', 'world', { obj: true }, 4)
     }
@@ -134,19 +134,19 @@ const run = bench([
     }
     setImmediate(cb)
   },
-  function benchPinoInterpolateExtra (cb) {
+  function benchBingoInterpolateExtra (cb) {
     for (var i = 0; i < max; i++) {
       plogDest.info('hello %s %j %d', 'world', { obj: true }, 4, { another: 'obj' })
     }
     setImmediate(cb)
   },
-  function benchPinoMinLengthInterpolateExtra (cb) {
+  function benchBingoMinLengthInterpolateExtra (cb) {
     for (var i = 0; i < max; i++) {
       plogMinLength.info('hello %s %j %d', 'world', { obj: true }, 4, { another: 'obj' })
     }
     setImmediate(cb)
   },
-  function benchPinoNodeStreamInterpolateExtra (cb) {
+  function benchBingoNodeStreamInterpolateExtra (cb) {
     for (var i = 0; i < max; i++) {
       plogNodeStream.info('hello %s %j %d', 'world', { obj: true }, 4, { another: 'obj' })
     }
@@ -170,19 +170,19 @@ const run = bench([
     }
     setImmediate(cb)
   },
-  function benchPinoInterpolateDeep (cb) {
+  function benchBingoInterpolateDeep (cb) {
     for (var i = 0; i < max; i++) {
       plogDest.info('hello %j', deep)
     }
     setImmediate(cb)
   },
-  function benchPinoMinLengthInterpolateDeep (cb) {
+  function benchBingoMinLengthInterpolateDeep (cb) {
     for (var i = 0; i < max; i++) {
       plogMinLength.info('hello %j', deep)
     }
     setImmediate(cb)
   },
-  function benchPinoNodeStreamInterpolateDeep (cb) {
+  function benchBingoNodeStreamInterpolateDeep (cb) {
     for (var i = 0; i < max; i++) {
       plogNodeStream.info('hello %j', deep)
     }

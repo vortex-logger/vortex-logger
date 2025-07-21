@@ -182,7 +182,7 @@ Although it works, we recommend using one of these options instead if you are ab
 
 1. If the only change desired is the name then a transport can be used. One such
 transport is [`bingo-text-level-transport`](https://npm.im/bingo-text-level-transport).
-1. Use a prettifier like [`pino-pretty`](https://npm.im/pino-pretty) to make
+1. Use a prettifier like [`bingo-pretty`](https://npm.im/bingo-pretty) to make
 the logs human friendly.
 
 <a id="debug"></a>
@@ -234,7 +234,7 @@ similar to the one below to retain log levels in Google Cloud Logging
 const bingo = require('bingo')
 
 // https://cloud.google.com/logging/docs/reference/v2/rest/v2/LogEntry#logseverity
-const PinoLevelToSeverityLookup = {
+const BingoLevelToSeverityLookup = {
   trace: 'DEBUG',
   debug: 'DEBUG',
   info: 'INFO',
@@ -243,12 +243,12 @@ const PinoLevelToSeverityLookup = {
   fatal: 'CRITICAL',
 };
 
-const defaultPinoConf = {
+const defaultBingoConf = {
   messageKey: 'message',
   formatters: {
     level(label, number) {
       return {
-        severity: PinoLevelToSeverityLookup[label] || PinoLevelToSeverityLookup['info'],
+        severity: BingoLevelToSeverityLookup[label] || BingoLevelToSeverityLookup['info'],
         level: number,
       }
     }
@@ -256,7 +256,7 @@ const defaultPinoConf = {
 }
 
 module.exports = function createLogger(options) {
-  return bingo(Object.assign({}, options, defaultPinoConf))
+  return bingo(Object.assign({}, options, defaultBingoConf))
 }
 ```
 

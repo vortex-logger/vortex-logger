@@ -18,7 +18,7 @@ const tenStreams = [
   { level: 'warn', stream: dest },
   { level: 'fatal', stream: dest }
 ]
-const pinomsTen = bingo({ level: 'debug' }, bingo.multistream(tenStreams))
+const bingomsTen = bingo({ level: 'debug' }, bingo.multistream(tenStreams))
 
 const fourStreams = [
   { stream: dest },
@@ -26,9 +26,9 @@ const fourStreams = [
   { level: 'debug', stream: dest },
   { level: 'trace', stream: dest }
 ]
-const pinomsFour = bingo({ level: 'debug' }, bingo.multistream(fourStreams))
+const bingomsFour = bingo({ level: 'debug' }, bingo.multistream(fourStreams))
 
-const pinomsOne = bingo({ level: 'info' }, bingo.multistream(dest))
+const bingomsOne = bingo({ level: 'info' }, bingo.multistream(dest))
 const blogOne = bunyan.createLogger({
   name: 'myapp',
   streams: [{ stream: dest }]
@@ -55,13 +55,13 @@ const run = bench([
     }
     setImmediate(cb)
   },
-  function benchPinoMSTen (cb) {
+  function benchBingoMSTen (cb) {
     for (let i = 0; i < max; i++) {
-      pinomsTen.info('hello world')
-      pinomsTen.debug('hello world')
-      pinomsTen.trace('hello world')
-      pinomsTen.warn('hello world')
-      pinomsTen.fatal('hello world')
+      bingomsTen.info('hello world')
+      bingomsTen.debug('hello world')
+      bingomsTen.trace('hello world')
+      bingomsTen.warn('hello world')
+      bingomsTen.fatal('hello world')
     }
     setImmediate(cb)
   },
@@ -73,11 +73,11 @@ const run = bench([
     }
     setImmediate(cb)
   },
-  function benchPinoMSFour (cb) {
+  function benchBingoMSFour (cb) {
     for (let i = 0; i < max; i++) {
-      pinomsFour.info('hello world')
-      pinomsFour.debug('hello world')
-      pinomsFour.trace('hello world')
+      bingomsFour.info('hello world')
+      bingomsFour.debug('hello world')
+      bingomsFour.trace('hello world')
     }
     setImmediate(cb)
   },
@@ -87,9 +87,9 @@ const run = bench([
     }
     setImmediate(cb)
   },
-  function benchPinoMSOne (cb) {
+  function benchBingoMSOne (cb) {
     for (let i = 0; i < max; i++) {
-      pinomsOne.info('hello world')
+      bingomsOne.info('hello world')
     }
     setImmediate(cb)
   }

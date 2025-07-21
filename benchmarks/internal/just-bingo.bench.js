@@ -1,14 +1,14 @@
 'use strict'
 
 const bench = require('fastbench')
-const bingo = require('../../')
+const bingo = require('../../bingo-logger')
 const fs = require('node:fs')
 const dest = fs.createWriteStream('/dev/null')
 const plog = bingo(dest)
 delete require.cache[require.resolve('../../')]
-const plogDest = require('../../')(bingo.destination('/dev/null'))
+const plogDest = require('../../bingo-logger')(bingo.destination('/dev/null'))
 delete require.cache[require.resolve('../../')]
-const plogAsync = require('../../')(bingo.destination({ dest: '/dev/null', sync: false }))
+const plogAsync = require('../../bingo-logger')(bingo.destination({ dest: '/dev/null', sync: false }))
 const plogChild = plog.child({ a: 'property' })
 const plogDestChild = plogDest.child({ a: 'property' })
 const plogAsyncChild = plogAsync.child({ a: 'property' })
@@ -19,159 +19,159 @@ const plogAsyncChildChild = plogAsync.child({ a: 'property' }).child({ sub: 'chi
 const max = 10
 
 const run = bench([
-  function benchPino (cb) {
+  function benchBingo (cb) {
     for (var i = 0; i < max; i++) {
       plog.info('hello world')
     }
     setImmediate(cb)
   },
-  function benchPinoDest (cb) {
+  function benchBingoDest (cb) {
     for (var i = 0; i < max; i++) {
       plogDest.info('hello world')
     }
     setImmediate(cb)
   },
-  function benchPinoExtreme (cb) {
+  function benchBingoExtreme (cb) {
     for (var i = 0; i < max; i++) {
       plogAsync.info('hello world')
     }
     setImmediate(cb)
   },
-  function benchPinoObj (cb) {
+  function benchBingoObj (cb) {
     for (var i = 0; i < max; i++) {
       plog.info({ hello: 'world' })
     }
     setImmediate(cb)
   },
-  function benchPinoDestObj (cb) {
+  function benchBingoDestObj (cb) {
     for (var i = 0; i < max; i++) {
       plogDest.info({ hello: 'world' })
     }
     setImmediate(cb)
   },
-  function benchPinoAsyncObj (cb) {
+  function benchBingoAsyncObj (cb) {
     for (var i = 0; i < max; i++) {
       plogAsync.info({ hello: 'world' })
     }
     setImmediate(cb)
   },
-  function benchPinoChild (cb) {
+  function benchBingoChild (cb) {
     for (var i = 0; i < max; i++) {
       plogChild.info({ hello: 'world' })
     }
     setImmediate(cb)
   },
-  function benchPinoDestChild (cb) {
+  function benchBingoDestChild (cb) {
     for (var i = 0; i < max; i++) {
       plogDestChild.info({ hello: 'world' })
     }
     setImmediate(cb)
   },
-  function benchPinoAsyncChild (cb) {
+  function benchBingoAsyncChild (cb) {
     for (var i = 0; i < max; i++) {
       plogAsyncChild.info({ hello: 'world' })
     }
     setImmediate(cb)
   },
-  function benchPinoChildChild (cb) {
+  function benchBingoChildChild (cb) {
     for (var i = 0; i < max; i++) {
       plogChildChild.info({ hello: 'world' })
     }
     setImmediate(cb)
   },
-  function benchPinoDestChildChild (cb) {
+  function benchBingoDestChildChild (cb) {
     for (var i = 0; i < max; i++) {
       plogDestChildChild.info({ hello: 'world' })
     }
     setImmediate(cb)
   },
-  function benchPinoAsyncChildChild (cb) {
+  function benchBingoAsyncChildChild (cb) {
     for (var i = 0; i < max; i++) {
       plogAsyncChildChild.info({ hello: 'world' })
     }
     setImmediate(cb)
   },
-  function benchPinoChildCreation (cb) {
+  function benchBingoChildCreation (cb) {
     const child = plog.child({ a: 'property' })
     for (var i = 0; i < max; i++) {
       child.info({ hello: 'world' })
     }
     setImmediate(cb)
   },
-  function benchPinoDestChildCreation (cb) {
+  function benchBingoDestChildCreation (cb) {
     const child = plogDest.child({ a: 'property' })
     for (var i = 0; i < max; i++) {
       child.info({ hello: 'world' })
     }
     setImmediate(cb)
   },
-  function benchPinoMulti (cb) {
+  function benchBingoMulti (cb) {
     for (var i = 0; i < max; i++) {
       plog.info('hello', 'world')
     }
     setImmediate(cb)
   },
-  function benchPinoDestMulti (cb) {
+  function benchBingoDestMulti (cb) {
     for (var i = 0; i < max; i++) {
       plogDest.info('hello', 'world')
     }
     setImmediate(cb)
   },
-  function benchPinoAsyncMulti (cb) {
+  function benchBingoAsyncMulti (cb) {
     for (var i = 0; i < max; i++) {
       plogAsync.info('hello', 'world')
     }
     setImmediate(cb)
   },
-  function benchPinoInterpolate (cb) {
+  function benchBingoInterpolate (cb) {
     for (var i = 0; i < max; i++) {
       plog.info('hello %s', 'world')
     }
     setImmediate(cb)
   },
-  function benchPinoDestInterpolate (cb) {
+  function benchBingoDestInterpolate (cb) {
     for (var i = 0; i < max; i++) {
       plogDest.info('hello %s', 'world')
     }
     setImmediate(cb)
   },
-  function benchPinoDestInterpolate (cb) {
+  function benchBingoDestInterpolate (cb) {
     for (var i = 0; i < max; i++) {
       plogDest.info('hello %s', 'world')
     }
     setImmediate(cb)
   },
-  function benchPinoInterpolateAll (cb) {
+  function benchBingoInterpolateAll (cb) {
     for (var i = 0; i < max; i++) {
       plog.info('hello %s %j %d', 'world', { obj: true }, 4)
     }
     setImmediate(cb)
   },
-  function benchPinoDestInterpolateAll (cb) {
+  function benchBingoDestInterpolateAll (cb) {
     for (var i = 0; i < max; i++) {
       plogDest.info('hello %s %j %d', 'world', { obj: true }, 4)
     }
     setImmediate(cb)
   },
-  function benchPinoAsyncInterpolateAll (cb) {
+  function benchBingoAsyncInterpolateAll (cb) {
     for (var i = 0; i < max; i++) {
       plogAsync.info('hello %s %j %d', 'world', { obj: true }, 4)
     }
     setImmediate(cb)
   },
-  function benchPinoInterpolateExtra (cb) {
+  function benchBingoInterpolateExtra (cb) {
     for (var i = 0; i < max; i++) {
       plog.info('hello %s %j %d', 'world', { obj: true }, 4, { another: 'obj' })
     }
     setImmediate(cb)
   },
-  function benchPinoDestInterpolateExtra (cb) {
+  function benchBingoDestInterpolateExtra (cb) {
     for (var i = 0; i < max; i++) {
       plogDest.info('hello %s %j %d', 'world', { obj: true }, 4, { another: 'obj' })
     }
     setImmediate(cb)
   },
-  function benchPinoAsyncInterpolateExtra (cb) {
+  function benchBingoAsyncInterpolateExtra (cb) {
     for (var i = 0; i < max; i++) {
       plogAsync.info('hello %s %j %d', 'world', { obj: true }, 4, { another: 'obj' })
     }

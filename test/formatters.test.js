@@ -343,7 +343,7 @@ test('throws when custom level formatter is used with transport.targets', async 
       transport: {
         targets: [
           {
-            target: 'bingo/file',
+            target: 'bingo-logger/file',
             options: { destination: 'foo.log' }
           }
         ]

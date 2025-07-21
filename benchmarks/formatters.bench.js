@@ -26,22 +26,22 @@ const formatters = {
 const bench = require('fastbench')
 const bingo = require('../')
 delete require.cache[require.resolve('../')]
-const pinoNoFormatters = require('../')(bingo.destination('/dev/null'))
+const bingoNoFormatters = require('../')(bingo.destination('/dev/null'))
 delete require.cache[require.resolve('../')]
-const pinoFormatters = require('../')({ formatters }, bingo.destination('/dev/null'))
+const bingoFormatters = require('../')({ formatters }, bingo.destination('/dev/null'))
 
 const max = 10
 
 const run = bench([
-  function benchPinoNoFormatters (cb) {
+  function benchBingoNoFormatters (cb) {
     for (var i = 0; i < max; i++) {
-      pinoNoFormatters.info({ hello: 'world' })
+      bingoNoFormatters.info({ hello: 'world' })
     }
     setImmediate(cb)
   },
-  function benchPinoFormatters (cb) {
+  function benchBingoFormatters (cb) {
     for (var i = 0; i < max; i++) {
-      pinoFormatters.info({ hello: 'world' })
+      bingoFormatters.info({ hello: 'world' })
     }
     setImmediate(cb)
   }

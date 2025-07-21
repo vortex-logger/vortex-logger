@@ -16,55 +16,55 @@ const baseSerializersChildSerializers = baseSerializers.child({})
 const max = 100
 
 const run = bench([
-  function benchPinoBase (cb) {
+  function benchBingoBase (cb) {
     for (var i = 0; i < max; i++) {
       base.info({ hello: 'world' })
     }
     setImmediate(cb)
   },
-  function benchPinoChild (cb) {
+  function benchBingoChild (cb) {
     for (var i = 0; i < max; i++) {
       child.info({ hello: 'world' })
     }
     setImmediate(cb)
   },
-  function benchPinoChildChild (cb) {
+  function benchBingoChildChild (cb) {
     for (var i = 0; i < max; i++) {
       childChild.info({ hello: 'world' })
     }
     setImmediate(cb)
   },
-  function benchPinoChildChildChild (cb) {
+  function benchBingoChildChildChild (cb) {
     for (var i = 0; i < max; i++) {
       childChildChild.info({ hello: 'world' })
     }
     setImmediate(cb)
   },
-  function benchPinoChildChildChildChild (cb) {
+  function benchBingoChildChildChildChild (cb) {
     for (var i = 0; i < max; i++) {
       childChildChildChild.info({ hello: 'world' })
     }
     setImmediate(cb)
   },
-  function benchPinoChild2 (cb) {
+  function benchBingoChild2 (cb) {
     for (var i = 0; i < max; i++) {
       child2.info({ hello: 'world' })
     }
     setImmediate(cb)
   },
-  function benchPinoBaseSerializers (cb) {
+  function benchBingoBaseSerializers (cb) {
     for (var i = 0; i < max; i++) {
       baseSerializers.info({ hello: 'world' })
     }
     setImmediate(cb)
   },
-  function benchPinoBaseSerializersChild (cb) {
+  function benchBingoBaseSerializersChild (cb) {
     for (var i = 0; i < max; i++) {
       baseSerializersChild.info({ hello: 'world' })
     }
     setImmediate(cb)
   },
-  function benchPinoBaseSerializersChildSerializers (cb) {
+  function benchBingoBaseSerializersChildSerializers (cb) {
     for (var i = 0; i < max; i++) {
       baseSerializersChildSerializers.info({ hello: 'world' })
     }

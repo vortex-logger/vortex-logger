@@ -27,8 +27,8 @@ Child logger creation is fast:
 ```
 benchBunyanCreation*10000: 564.514ms
 benchBoleCreation*10000: 283.276ms
-benchPinoCreation*10000: 258.745ms
-benchPinoExtremeCreation*10000: 150.506ms
+benchBingoCreation*10000: 258.745ms
+benchBingoExtremeCreation*10000: 150.506ms
 ```
 
 Logging through a child logger has little performance penalty:
@@ -36,16 +36,16 @@ Logging through a child logger has little performance penalty:
 ```
 benchBunyanChild*10000: 556.275ms
 benchBoleChild*10000: 288.124ms
-benchPinoChild*10000: 231.695ms
-benchPinoExtremeChild*10000: 122.117ms
+benchBingoChild*10000: 231.695ms
+benchBingoExtremeChild*10000: 122.117ms
 ```
 
 Logging via the child logger of a child logger also has negligible overhead:
 
 ```
 benchBunyanChildChild*10000: 559.082ms
-benchPinoChildChild*10000: 229.264ms
-benchPinoExtremeChildChild*10000: 127.753ms
+benchBingoChildChild*10000: 229.264ms
+benchBingoExtremeChildChild*10000: 127.753ms
 ```
 
 ## Duplicate keys caveat

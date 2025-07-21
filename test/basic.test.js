@@ -229,11 +229,11 @@ test('serializers can return undefined to strip field', async ({ equal }) => {
   equal('test' in result, false)
 })
 
-test('streams receive a message event with PINO_CONFIG', ({ match, end }) => {
+test('streams receive a message event with BINGO_CONFIG', ({ match, end }) => {
   const stream = sink()
   stream.once('message', (message) => {
     match(message, {
-      code: 'PINO_CONFIG',
+      code: 'BINGO_CONFIG',
       config: {
         errorKey: 'err',
         levels: {

@@ -29,19 +29,19 @@ const run = bench([
     }
     setImmediate(cb)
   },
-  function benchPinoChildChild (cb) {
+  function benchBingoChildChild (cb) {
     for (var i = 0; i < max; i++) {
       plogDest.info({ hello: 'world' })
     }
     setImmediate(cb)
   },
-  function benchPinoMinLengthChildChild (cb) {
+  function benchBingoMinLengthChildChild (cb) {
     for (var i = 0; i < max; i++) {
       plogMinLength.info({ hello: 'world' })
     }
     setImmediate(cb)
   },
-  function benchPinoNodeStreamChildChild (cb) {
+  function benchBingoNodeStreamChildChild (cb) {
     for (var i = 0; i < max; i++) {
       plogNodeStream.info({ hello: 'world' })
     }

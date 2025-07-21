@@ -40,28 +40,28 @@ const run = bench([
     }
     setImmediate(cb)
   },
-  function benchPinoCreation (cb) {
+  function benchBingoCreation (cb) {
     const child = plogDest.child({ a: 'property' })
     for (var i = 0; i < max; i++) {
       child.info({ hello: 'world' })
     }
     setImmediate(cb)
   },
-  function benchPinoMinLengthCreation (cb) {
+  function benchBingoMinLengthCreation (cb) {
     const child = plogMinLength.child({ a: 'property' })
     for (var i = 0; i < max; i++) {
       child.info({ hello: 'world' })
     }
     setImmediate(cb)
   },
-  function benchPinoNodeStreamCreation (cb) {
+  function benchBingoNodeStreamCreation (cb) {
     const child = plogNodeStream.child({ a: 'property' })
     for (var i = 0; i < max; i++) {
       child.info({ hello: 'world' })
     }
     setImmediate(cb)
   },
-  function benchPinoCreationWithOption (cb) {
+  function benchBingoCreationWithOption (cb) {
     const child = plogDest.child({ a: 'property' }, { redact: [] })
     for (var i = 0; i < max; i++) {
       child.info({ hello: 'world' })

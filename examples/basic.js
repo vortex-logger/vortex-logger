@@ -4,10 +4,10 @@
 const bingo = require('..')()
 
 // However, if "human readable" output is desired,
-// `pino-pretty` can be provided as the destination
+// `bingo-pretty` can be provided as the destination
 // stream by uncommenting the following line in place
 // of the previous declaration:
-// const bingo = require('..')(require('pino-pretty')())
+// const bingo = require('..')(require('bingo-pretty')())
 
 bingo.info('hello world')
 bingo.error('this is at error level')

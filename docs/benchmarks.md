@@ -12,8 +12,8 @@ Bole average: 172.690ms
 Debug average: 220.527ms
 LogLevel average: 222.802ms
 Bingo average: 114.801ms
-PinoMinLength average: 70.968ms
-PinoNodeStream average: 159.192ms
+BingoMinLength average: 70.968ms
+BingoNodeStream average: 159.192ms
 
 ```
 
@@ -26,9 +26,9 @@ BunyanObj average: 410.379ms
 WinstonObj average: 273.120ms
 BoleObj average: 185.069ms
 LogLevelObject average: 433.425ms
-PinoObj average: 119.315ms
-PinoMinLengthObj average: 76.968ms
-PinoNodeStreamObj average: 164.268ms
+BingoObj average: 119.315ms
+BingoMinLengthObj average: 76.968ms
+BingoNodeStreamObj average: 164.268ms
 
 ```
 
@@ -41,9 +41,9 @@ BunyanDeepObj average: 1.839ms
 WinstonDeepObj average: 5.604ms
 BoleDeepObj average: 3.422ms
 LogLevelDeepObj average: 11.716ms
-PinoDeepObj average: 2.256ms
-PinoMinLengthDeepObj average: 2.240ms
-PinoNodeStreamDeepObj average: 2.595ms
+BingoDeepObj average: 2.256ms
+BingoMinLengthDeepObj average: 2.240ms
+BingoNodeStreamDeepObj average: 2.595ms
 
 ```
 

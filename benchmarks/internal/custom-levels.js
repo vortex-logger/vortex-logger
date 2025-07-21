@@ -16,13 +16,13 @@ const childOfBaseCl = baseCl.child({})
 const max = 100
 
 const run = bench([
-  function benchPinoNoCustomLevel (cb) {
+  function benchBingoNoCustomLevel (cb) {
     for (var i = 0; i < max; i++) {
       base.info({ hello: 'world' })
     }
     setImmediate(cb)
   },
-  function benchPinoCustomLevel (cb) {
+  function benchBingoCustomLevel (cb) {
     for (var i = 0; i < max; i++) {
       baseCl.foo({ hello: 'world' })
     }
@@ -34,26 +34,26 @@ const run = bench([
     }
     setImmediate(cb)
   },
-  function benchPinoChildCustomLevel (cb) {
+  function benchBingoChildCustomLevel (cb) {
     for (var i = 0; i < max; i++) {
       childCl.foo({ hello: 'world' })
     }
     setImmediate(cb)
   },
-  function benchPinoChildInheritedCustomLevel (cb) {
+  function benchBingoChildInheritedCustomLevel (cb) {
     for (var i = 0; i < max; i++) {
       childOfBaseCl.foo({ hello: 'world' })
     }
     setImmediate(cb)
   },
-  function benchPinoChildCreation (cb) {
+  function benchBingoChildCreation (cb) {
     const child = base.child({})
     for (var i = 0; i < max; i++) {
       child.info({ hello: 'world' })
     }
     setImmediate(cb)
   },
-  function benchPinoChildCreationCustomLevel (cb) {
+  function benchBingoChildCreationCustomLevel (cb) {
     const child = base.child({
       customLevels: { foo: 31 }
     })

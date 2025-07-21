@@ -49,7 +49,7 @@ in a MongoDB database.
 logs to multiple destination streams (slow!).
 + [`bingo-noir`](https://github.com/bingojs/bingo-noir): redact sensitive information
 in logs.
-+ [`pino-pretty`](https://github.com/bingojs/pino-pretty): basic prettifier to
++ [`bingo-pretty`](https://github.com/bingojs/bingo-pretty): basic prettifier to
 make log lines human-readable.
 + [`bingo-socket`](https://github.com/bingojs/bingo-socket): send logs to TCP or UDP
 destinations.
@@ -78,7 +78,7 @@ according to a given format string.
 + [`bingo-fluentd`](https://github.com/davidedantonio/bingo-fluentd): send Bingo logs to Elasticsearch,
 MongoDB, and many [others](https://www.fluentd.org/dataoutputs) via Fluentd.
 + [`bingo-lambda`](https://github.com/FormidableLabs/bingo-lambda): log transport for cloudwatch support inside aws-lambda 
-+ [`pino-pretty-min`](https://github.com/unjello/pino-pretty-min): a minimal
++ [`bingo-pretty-min`](https://github.com/unjello/bingo-pretty-min): a minimal
 prettifier inspired by the [logrus](https://github.com/sirupsen/logrus) logger.
 + [`bingo-rotating-file`](https://github.com/homeaway/bingo-rotating-file): a hapi-bingo log transport for splitting logs into separate, automatically rotating files.
 + [`bingo-tiny`](https://github.com/holmok/bingo-tiny): a tiny (and extensible?) little log formatter for bingo.

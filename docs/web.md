@@ -281,7 +281,7 @@ npm install bingo bingo-http hono
 import { serve } from '@hono/node-server';
 import { Hono } from 'hono';
 import { requestId } from 'hono/request-id';
-import { pinoHttp } from 'bingo-http';
+import { bingoHttp } from 'bingo-http';
 
 const app = new Hono();
 app.use(requestId());
@@ -290,7 +290,7 @@ app.use(async (c, next) => {
   c.env.incoming.id = c.var.requestId;
 
   // map express style middleware to hono
-  await new Promise((resolve) => pinoHttp()(c.env.incoming, c.env.outgoing, () => resolve()));
+  await new Promise((resolve) => bingoHttp()(c.env.incoming, c.env.outgoing, () => resolve()));
 
   c.set('logger', c.env.incoming.log);
 

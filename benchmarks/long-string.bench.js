@@ -58,19 +58,19 @@ const run = bench([
     }
     setImmediate(cb)
   },
-  function benchPino (cb) {
+  function benchBingo (cb) {
     for (var i = 0; i < max; i++) {
       plogDest.info(longStr)
     }
     setImmediate(cb)
   },
-  function benchPinoMinLength (cb) {
+  function benchBingoMinLength (cb) {
     for (var i = 0; i < max; i++) {
       plogMinLength.info(longStr)
     }
     setImmediate(cb)
   },
-  function benchPinoNodeStream (cb) {
+  function benchBingoNodeStream (cb) {
     for (var i = 0; i < max; i++) {
       plogNodeStream.info(longStr)
     }

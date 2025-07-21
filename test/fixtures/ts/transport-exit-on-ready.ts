@@ -1,7 +1,7 @@
 import bingo from '../../..'
 
 const transport = bingo.transport({
-  target: 'bingo/file'
+  target: 'bingo-logger/file'
 })
 const logger = bingo(transport)
 

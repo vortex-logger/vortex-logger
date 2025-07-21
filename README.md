@@ -70,7 +70,7 @@ For using Bingo with a web framework see:
 
 ### Development Formatting
 
-The [`pino-pretty`](https://github.com/bingojs/pino-pretty) module can be used to
+The [`bingo-pretty`](https://github.com/bingojs/bingo-pretty) module can be used to
 format logs during development:
 
 ![pretty demo](pretty-demo.png)

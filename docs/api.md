@@ -790,7 +790,7 @@ logger.info('hello', 'world')
 However, it's possible to inject a hook to modify this behavior:
 
 ```js
-const pinoOptions = {
+const bingoOptions = {
   hooks: { logMethod }
 }
 
@@ -801,7 +801,7 @@ function logMethod (args, method) {
   method.apply(this, args)
 }
 
-const logger = bingo(pinoOptions)
+const logger = bingo(bingoOptions)
 ```
 
 * See [`message` log method parameter](#message)
@@ -1232,10 +1232,10 @@ const bingo = require('bingo')
 const transport = bingo.transport({
   targets: [{
     level: 'info',
-    target: 'pino-pretty' // must be installed separately
+    target: 'bingo-pretty' // must be installed separately
   }, {
     level: 'trace',
-    target: 'bingo/file',
+    target: 'bingo-logger/file',
     options: { destination: '/path/to/store/logs' }
   }]
 })
@@ -1263,10 +1263,10 @@ const bingo = require('bingo')
 const transport = bingo.transport({
   targets: [{
     level: 'info',
-    target: 'pino-pretty' // must be installed separately
+    target: 'bingo-pretty' // must be installed separately
   }, {
     level: 'trace',
-    target: 'bingo/file',
+    target: 'bingo-logger/file',
     options: { destination: '/path/to/store/logs' }
   }, {
     pipeline: [{
@@ -1334,7 +1334,7 @@ object implementing the [MultiStreamRes](#multistreamres) interface.
 ```js
 var fs = require('node:fs')
 var bingo = require('bingo')
-var pretty = require('pino-pretty')
+var pretty = require('bingo-pretty')
 var streams = [
   {stream: fs.createWriteStream('/tmp/info.stream.out')},
   {stream: pretty() },

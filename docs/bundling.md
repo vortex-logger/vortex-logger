@@ -7,7 +7,7 @@ In particular, a bundler must ensure that the following files are also bundled s
 * `lib/worker.js` from the `thread-stream` dependency
 * `file.js`
 * `lib/worker.js`
-* Any transport used by the user (like `pino-pretty`)
+* Any transport used by the user (like `bingo-pretty`)
 
 Once the files above have been generated, the bundler must also add information about the files above by injecting a code that sets `__bundlerPathsOverrides` in the `globalThis` object.
 
@@ -18,14 +18,14 @@ Example:
 ```javascript
 // Inject this using your bundle plugin
 globalThis.__bundlerPathsOverrides = {
-  'thread-stream-worker': pinoWebpackAbsolutePath('./thread-stream-worker.js')
-  'bingo/file': pinoWebpackAbsolutePath('./bingo-file.js'),
-  'bingo-worker': pinoWebpackAbsolutePath('./bingo-worker.js'),
-  'pino-pretty': pinoWebpackAbsolutePath('./pino-pretty.js'),
+  'thread-stream-worker': bingoWebpackAbsolutePath('./thread-stream-worker.js')
+  'bingo-logger/file': bingoWebpackAbsolutePath('./bingo-file.js'),
+  'bingo-worker': bingoWebpackAbsolutePath('./bingo-worker.js'),
+  'bingo-pretty': bingoWebpackAbsolutePath('./bingo-pretty.js'),
 };
 ```
 
-Note that `bingo/file`, `bingo-worker` and `thread-stream-worker` are required identifiers. Other identifiers are possible based on the user configuration.
+Note that `bingo-logger/file`, `bingo-worker` and `thread-stream-worker` are required identifiers. Other identifiers are possible based on the user configuration.
 
 ## Webpack Plugin
 
