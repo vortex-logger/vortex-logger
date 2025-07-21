@@ -1,13 +1,16 @@
 /* eslint-disable no-eval */
 
-const { spawn } = require('child_process')
+const { spawn } = require('node:child_process')
+const fs = require('node:fs')
+const path = require('node:path')
 
-const path = require('path')
+const out = fs.openSync('./out.log', 'a')
+const err = fs.openSync('./err.log', 'a')
 
 const filePath = path.join(__dirname, 'node_modules/file15.js')
 const child = spawn(process.execPath, [filePath], {
   detached: true,
-  stdio: ['ignore', 'ignore', 'ignore']
+  stdio: ['ignore', out, err]
 })
 
 child.unref() // Allow parent to exit independently
