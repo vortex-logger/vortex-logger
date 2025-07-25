@@ -182,7 +182,7 @@ Although it works, we recommend using one of these options instead if you are ab
 
 1. If the only change desired is the name then a transport can be used. One such
 transport is [`bingo-text-level-transport`](https://npm.im/bingo-text-level-transport).
-1. Use a prettifier like [`bingo-pretty`](https://npm.im/bingo-pretty) to make
+1. Use a prettifier like [`pino-pretty`](https://npm.im/pino-pretty) to make
 the logs human friendly.
 
 <a id="debug"></a>

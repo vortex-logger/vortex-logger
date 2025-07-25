@@ -1232,7 +1232,7 @@ const bingo = require('bingo')
 const transport = bingo.transport({
   targets: [{
     level: 'info',
-    target: 'bingo-pretty' // must be installed separately
+    target: 'pino-pretty' // must be installed separately
   }, {
     level: 'trace',
     target: 'bingo-logger/file',
@@ -1263,7 +1263,7 @@ const bingo = require('bingo')
 const transport = bingo.transport({
   targets: [{
     level: 'info',
-    target: 'bingo-pretty' // must be installed separately
+    target: 'pino-pretty' // must be installed separately
   }, {
     level: 'trace',
     target: 'bingo-logger/file',
@@ -1334,7 +1334,7 @@ object implementing the [MultiStreamRes](#multistreamres) interface.
 ```js
 var fs = require('node:fs')
 var bingo = require('bingo')
-var pretty = require('bingo-pretty')
+var pretty = require('pino-pretty')
 var streams = [
   {stream: fs.createWriteStream('/tmp/info.stream.out')},
   {stream: pretty() },

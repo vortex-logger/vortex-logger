@@ -789,7 +789,7 @@ test('throws if prettyPrint is passed in as an option', async (t) => {
     bingo({
       prettyPrint: true
     })
-  }, new Error('prettyPrint option is no longer supported, see the bingo-pretty package (https://github.com/bingojs/bingo-pretty)'))
+  }, new Error('prettyPrint option is no longer supported, see the pino-pretty package (https://github.com/bingojs/pino-pretty)'))
 })
 
 test('Should invoke `onChild` with the newly created child', async ({ equal }) => {

@@ -1,8 +1,8 @@
 # Transports
 
-Bingo transports can be used for both transmitting and transforming log output.
+pino transports can be used for both transmitting and transforming log output.
 
-The way Bingo generates logs:
+The way pino generates logs:
 
 1. Reduces the impact of logging on an application to the absolute minimum.
 2. Gives greater flexibility in how logs are processed and stored.
@@ -10,11 +10,11 @@ The way Bingo generates logs:
 It is recommended that any log transformation or transmission is performed either
 in a separate thread or a separate process.
 
-Before Bingo v7 transports would ideally operate in a separate process - these are
+Before pino v7 transports would ideally operate in a separate process - these are
 now referred to as [Legacy Transports](#legacy-transports).
 
-From Bingo v7 and upwards transports can also operate inside a [Worker Thread][worker-thread]
-and can be used or configured via the options object passed to `bingo` on initialization.
+From pino v7 and upwards transports can also operate inside a [Worker Thread][worker-thread]
+and can be used or configured via the options object passed to `pino` on initialization.
 In this case the transports would always operate asynchronously (unless `options.sync` is set to `true` in transport options), and logs would be
 flushed as quickly as possible (there is nothing to do).
 
@@ -35,15 +35,15 @@ export default (options) => {
 Let's imagine the above defines our "transport" as the file `my-transport.mjs`
 (ESM files are supported even if the project is written in CJS).
 
-We would set up our transport by creating a transport stream with `bingo.transport`
-and passing it to the `bingo` function:
+We would set up our transport by creating a transport stream with `pino.transport`
+and passing it to the `pino` function:
 
 ```js
-const bingo = require('bingo')
-const transport = bingo.transport({
+const pino = require('pino')
+const transport = pino.transport({
   target: '/absolute/path/to/my-transport.mjs'
 })
-bingo(transport)
+pino(transport)
 ```
 
 The transport code will be executed in a separate worker thread. The main thread
@@ -68,15 +68,15 @@ case, waiting for the write streams `open` event.
 
 Let's imagine the above was published to npm with the module name `some-file-transport`.
 
-The `options.destination` value can be set when creating the transport stream with `bingo.transport` like so:
+The `options.destination` value can be set when creating the transport stream with `pino.transport` like so:
 
 ```js
-const bingo = require('bingo')
-const transport = bingo.transport({
+const pino = require('pino')
+const transport = pino.transport({
   target: 'some-file-transport',
   options: { destination: '/dev/null' }
 })
-bingo(transport)
+pino(transport)
 ```
 
 Note here we've specified a module by package rather than by relative path. The options object we provide
@@ -85,79 +85,79 @@ This means that the options object can only contain types that are supported by 
 [Structured Clone Algorithm][sca] which is used to (de)serialize objects between threads.
 
 What if we wanted to use both transports, but send only error logs to `my-transport.mjs` while
-sending all logs to `some-file-transport`? We can use the `bingo.transport` function's `level` option:
+sending all logs to `some-file-transport`? We can use the `pino.transport` function's `level` option:
 
 ```js
-const bingo = require('bingo')
-const transport = bingo.transport({
+const pino = require('pino')
+const transport = pino.transport({
   targets: [
     { target: '/absolute/path/to/my-transport.mjs', level: 'error' },
     { target: 'some-file-transport', options: { destination: '/dev/null' }}
   ]
 })
-bingo(transport)
+pino(transport)
 ```
 
 If we're using custom levels, they should be passed in when using more than one transport.
 ```js
-const bingo = require('bingo')
-const transport = bingo.transport({
+const pino = require('pino')
+const transport = pino.transport({
   targets: [
     { target: '/absolute/path/to/my-transport.mjs', level: 'error' },
     { target: 'some-file-transport', options: { destination: '/dev/null' }
   ],
   levels: { foo: 35 }
 })
-bingo(transport)
+pino(transport)
 ```
 
 It is also possible to use the `dedupe` option to send logs only to the stream with the higher level.
 ```js
-const bingo = require('bingo')
-const transport = bingo.transport({
+const pino = require('pino')
+const transport = pino.transport({
   targets: [
     { target: '/absolute/path/to/my-transport.mjs', level: 'error' },
     { target: 'some-file-transport', options: { destination: '/dev/null' }
   ],
   dedupe: true
 })
-bingo(transport)
+pino(transport)
 ```
 
-To make bingo log synchronously, pass `sync: true` to transport options.
+To make pino log synchronously, pass `sync: true` to transport options.
 ```js
-const bingo = require('bingo')
-const transport = bingo.transport({
+const pino = require('pino')
+const transport = pino.transport({
   targets: [
     { target: '/absolute/path/to/my-transport.mjs', level: 'error' },
   ],
   dedupe: true,
   sync: true,
 });
-bingo(transport);
+pino(transport);
 ```
 
-For more details on `bingo.transport` see the [API docs for `bingo.transport`][bingo-transport].
+For more details on `pino.transport` see the [API docs for `pino.transport`][pino-transport].
 
-[bingo-transport]: /docs/api.md#bingo-transport
+[pino-transport]: /docs/api.md#pino-transport
 [sca]: https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm
 
 <a id="writing"></a>
 ### Writing a Transport
 
-The module [bingo-abstract-transport](https://github.com/bingo/bingo-abstract-transport) provides
+The module [pino-abstract-transport](https://github.com/pino/pino-abstract-transport) provides
 a simple utility to parse each line.  Its usage is highly recommended.
 
 You can see an example using an async iterator with ESM:
 
 ```js
-import build from 'bingo-abstract-transport'
+import build from 'pino-abstract-transport'
 import SonicBoom from 'sonic-boom'
 import { once } from 'events'
 
 export default async function (opts) {
   // SonicBoom is necessary to avoid loops with the main thread.
-  // It is the same of bingo.destination().
+  // It is the same of pino.destination().
   const destination = new SonicBoom({ dest: opts.destination || 1, sync: false })
   await once(destination, 'ready')
 
@@ -183,7 +183,7 @@ or using Node.js streams and CommonJS:
 ```js
 'use strict'
 
-const build = require('bingo-abstract-transport')
+const build = require('pino-abstract-transport')
 const SonicBoom = require('sonic-boom')
 
 module.exports = function (opts) {
@@ -208,12 +208,12 @@ callback is called or the returned promise resolves. Otherwise, log lines will b
 
 ### Writing to a custom transport & stdout
 
-In case you want to both use a custom transport, and output the log entries with default processing to STDOUT, you can use 'bingo-logger/file' transport configured with `destination: 1`:
+In case you want to both use a custom transport, and output the log entries with default processing to STDOUT, you can use 'pino-logger/file' transport configured with `destination: 1`:
 
 ```js
     const transports = [
       {
-        target: 'bingo-logger/file',
+        target: 'pino-logger/file',
         options: { destination: 1 } // this writes to STDOUT
       },
       {
@@ -222,7 +222,7 @@ In case you want to both use a custom transport, and output the log entries with
       }
     ]
 
-    const logger = bingo(bingo.transport({ targets: transports }))
+    const logger = pino(pino.transport({ targets: transports }))
 ```
 
 ### Creating a transport pipeline
@@ -230,7 +230,7 @@ In case you want to both use a custom transport, and output the log entries with
 As an example, the following transport returns a `Transform` stream:
 
 ```js
-import build from 'bingo-abstract-transport'
+import build from 'pino-abstract-transport'
 import { pipeline, Transform } from 'node:stream'
 export default async function (options) {
   return build(function (source) {
@@ -244,7 +244,7 @@ export default async function (options) {
       transform (chunk, enc, cb) {
 
         // modifies the payload somehow
-        chunk.service = 'bingo'
+        chunk.service = 'pino'
 
         // stringify the payload again
         this.push(`${JSON.stringify(chunk)}\n`)
@@ -263,16 +263,16 @@ export default async function (options) {
 Then you can pipeline them with:
 
 ```js
-import bingo from 'bingo'
+import pino from 'pino'
 
-const logger = bingo({
+const logger = pino({
   transport: {
     pipeline: [{
       target: './my-transform.js'
     }, {
-      // Use target: 'bingo-logger/file' with STDOUT descriptor 1 to write
+      // Use target: 'pino-logger/file' with STDOUT descriptor 1 to write
       // logs without any change.
-      target: 'bingo-logger/file',
+      target: 'pino-logger/file',
       options: { destination: 1 }
     }]
   }
@@ -286,7 +286,7 @@ a terminating target, i.e. a `Writable` stream.__
 
 ### TypeScript compatibility
 
-Bingo provides basic support for transports written in TypeScript.
+pino provides basic support for transports written in TypeScript.
 
 Ideally, they should be transpiled to ensure maximum compatibility, but sometimes
 you might want to use tools such as TS-Node, to execute your TypeScript
@@ -302,62 +302,62 @@ some known caveats:
 
 ### Notable transports
 
-#### `bingo-logger/file`
+#### `pino-logger/file`
 
-The `bingo-logger/file` transport routes logs to a file (or file descriptor).
+The `pino-logger/file` transport routes logs to a file (or file descriptor).
 
 The `options.destination` property may be set to specify the desired file destination.
 
 ```js
-const bingo = require('bingo')
-const transport = bingo.transport({
-  target: 'bingo-logger/file',
+const pino = require('pino')
+const transport = pino.transport({
+  target: 'pino-logger/file',
   options: { destination: '/path/to/file' }
 })
-bingo(transport)
+pino(transport)
 ```
 
-By default, the `bingo-logger/file` transport assumes the directory of the destination file exists. If it does not exist, the transport will throw an error when it attempts to open the file for writing. The `mkdir` option may be set to `true` to configure the transport to create the directory, if it does not exist, before opening the file for writing.
+By default, the `pino-logger/file` transport assumes the directory of the destination file exists. If it does not exist, the transport will throw an error when it attempts to open the file for writing. The `mkdir` option may be set to `true` to configure the transport to create the directory, if it does not exist, before opening the file for writing.
 
 ```js
-const bingo = require('bingo')
-const transport = bingo.transport({
-  target: 'bingo-logger/file',
+const pino = require('pino')
+const transport = pino.transport({
+  target: 'pino-logger/file',
   options: { destination: '/path/to/file', mkdir: true }
 })
-bingo(transport)
+pino(transport)
 ```
 
-By default, the `bingo-logger/file` transport appends to the destination file if it exists. The `append` option may be set to `false` to configure the transport to truncate the file upon opening it for writing.
+By default, the `pino-logger/file` transport appends to the destination file if it exists. The `append` option may be set to `false` to configure the transport to truncate the file upon opening it for writing.
 
 ```js
-const bingo = require('bingo')
-const transport = bingo.transport({
-  target: 'bingo-logger/file',
+const pino = require('pino')
+const transport = pino.transport({
+  target: 'pino-logger/file',
   options: { destination: '/path/to/file', append: false }
 })
-bingo(transport)
+pino(transport)
 ```
 
 The `options.destination` property may also be a number to represent a file descriptor. Typically this would be `1` to write to STDOUT or `2` to write to STDERR. If `options.destination` is not set, it defaults to `1` which means logs will be written to STDOUT. If `options.destination` is a string integer, e.g. `'1'`, it will be coerced to a number and used as a file descriptor. If this is not desired, provide a full path, e.g. `/tmp/1`.
 
-The difference between using the `bingo-logger/file` transport builtin and using `bingo.destination` is that `bingo.destination` runs in the main thread, whereas `bingo-logger/file` sets up `bingo.destination` in a worker thread.
+The difference between using the `pino-logger/file` transport builtin and using `pino.destination` is that `pino.destination` runs in the main thread, whereas `pino-logger/file` sets up `pino.destination` in a worker thread.
 
-#### `bingo-pretty`
+#### `pino-pretty`
 
-The [`bingo-pretty`][bingo-pretty] transport prettifies logs.
+The [`pino-pretty`][pino-pretty] transport prettifies logs.
 
-By default the `bingo-pretty` builtin logs to STDOUT.
+By default the `pino-pretty` builtin logs to STDOUT.
 
 The `options.destination` property may be set to log pretty logs to a file descriptor or file. The following would send the prettified logs to STDERR:
 
 ```js
-const bingo = require('bingo')
-const transport = bingo.transport({
-  target: 'bingo-pretty',
+const pino = require('pino')
+const transport = pino.transport({
+  target: 'pino-pretty',
   options: { destination: 1 } // use 2 for stderr
 })
-bingo(transport)
+pino(transport)
 ```
 
 ### Asynchronous startup
@@ -366,14 +366,14 @@ The new transports boot asynchronously and calling `process.exit()` before the t
 starts will cause logs to not be delivered.
 
 ```js
-const bingo = require('bingo')
-const transport = bingo.transport({
+const pino = require('pino')
+const transport = pino.transport({
   targets: [
     { target: '/absolute/path/to/my-transport.mjs', level: 'error' },
     { target: 'some-file-transport', options: { destination: '/dev/null' } }
   ]
 })
-const logger = bingo(transport)
+const logger = pino(transport)
 
 logger.info('hello')
 
@@ -386,7 +386,7 @@ transport.on('ready', function () {
 
 ## Legacy Transports
 
-A legacy Bingo "transport" is a supplementary tool that consumes Bingo logs.
+A legacy pino "transport" is a supplementary tool that consumes pino logs.
 
 Consider the following example for creating a transport:
 
@@ -421,67 +421,67 @@ Node's single-threaded event loop.
 
 PRs to this document are welcome for any new transports!
 
-### Bingo v7+ Compatible
+### pino v7+ Compatible
 
-+ [@axiomhq/bingo](#@axiomhq/bingo)
-+ [@logtail/bingo](#@logtail/bingo)
-+ [@macfja/bingo-fingers-crossed](#macfja-bingo-fingers-crossed)
-+ [@openobserve/bingo-openobserve](#bingo-openobserve)
-+ [bingo-airbrake-transport](#bingo-airbrake-transport)
-+ [bingo-axiom](#bingo-axiom)
-+ [bingo-datadog-transport](#bingo-datadog-transport)
-+ [bingo-discord-webhook](#bingo-discord-webhook)
-+ [bingo-elasticsearch](#bingo-elasticsearch)
-+ [bingo-hana](#bingo-hana)
-+ [bingo-logfmt](#bingo-logfmt)
-+ [bingo-loki](#bingo-loki)
-+ [bingo-opentelemetry-transport](#bingo-opentelemetry-transport)
-+ [bingo-pretty](#bingo-pretty)
-+ [bingo-roll](#bingo-roll)
-+ [bingo-seq-transport](#bingo-seq-transport)
-+ [bingo-sentry-transport](#bingo-sentry-transport)
-+ [bingo-slack-webhook](#bingo-slack-webhook)
-+ [bingo-telegram-webhook](#bingo-telegram-webhook)
-+ [bingo-yc-transport](#bingo-yc-transport)
++ [@axiomhq/pino](#@axiomhq/pino)
++ [@logtail/pino](#@logtail/pino)
++ [@macfja/pino-fingers-crossed](#macfja-pino-fingers-crossed)
++ [@openobserve/pino-openobserve](#pino-openobserve)
++ [pino-airbrake-transport](#pino-airbrake-transport)
++ [pino-axiom](#pino-axiom)
++ [pino-datadog-transport](#pino-datadog-transport)
++ [pino-discord-webhook](#pino-discord-webhook)
++ [pino-elasticsearch](#pino-elasticsearch)
++ [pino-hana](#pino-hana)
++ [pino-logfmt](#pino-logfmt)
++ [pino-loki](#pino-loki)
++ [pino-opentelemetry-transport](#pino-opentelemetry-transport)
++ [pino-pretty](#pino-pretty)
++ [pino-roll](#pino-roll)
++ [pino-seq-transport](#pino-seq-transport)
++ [pino-sentry-transport](#pino-sentry-transport)
++ [pino-slack-webhook](#pino-slack-webhook)
++ [pino-telegram-webhook](#pino-telegram-webhook)
++ [pino-yc-transport](#pino-yc-transport)
 
 ### Legacy
 
-+ [bingo-applicationinsights](#bingo-applicationinsights)
-+ [bingo-azuretable](#bingo-azuretable)
-+ [bingo-cloudwatch](#bingo-cloudwatch)
-+ [bingo-couch](#bingo-couch)
-+ [bingo-datadog](#bingo-datadog)
-+ [bingo-gelf](#bingo-gelf)
-+ [bingo-http-send](#bingo-http-send)
-+ [bingo-kafka](#bingo-kafka)
-+ [bingo-logdna](#bingo-logdna)
-+ [bingo-logflare](#bingo-logflare)
-+ [bingo-loki](#bingo-loki)
-+ [bingo-mq](#bingo-mq)
-+ [bingo-mysql](#bingo-mysql)
-+ [bingo-papertrail](#bingo-papertrail)
-+ [bingo-pg](#bingo-pg)
-+ [bingo-redis](#bingo-redis)
-+ [bingo-sentry](#bingo-sentry)
-+ [bingo-seq](#bingo-seq)
-+ [bingo-socket](#bingo-socket)
-+ [bingo-stackdriver](#bingo-stackdriver)
-+ [bingo-syslog](#bingo-syslog)
-+ [bingo-websocket](#bingo-websocket)
++ [pino-applicationinsights](#pino-applicationinsights)
++ [pino-azuretable](#pino-azuretable)
++ [pino-cloudwatch](#pino-cloudwatch)
++ [pino-couch](#pino-couch)
++ [pino-datadog](#pino-datadog)
++ [pino-gelf](#pino-gelf)
++ [pino-http-send](#pino-http-send)
++ [pino-kafka](#pino-kafka)
++ [pino-logdna](#pino-logdna)
++ [pino-logflare](#pino-logflare)
++ [pino-loki](#pino-loki)
++ [pino-mq](#pino-mq)
++ [pino-mysql](#pino-mysql)
++ [pino-papertrail](#pino-papertrail)
++ [pino-pg](#pino-pg)
++ [pino-redis](#pino-redis)
++ [pino-sentry](#pino-sentry)
++ [pino-seq](#pino-seq)
++ [pino-socket](#pino-socket)
++ [pino-stackdriver](#pino-stackdriver)
++ [pino-syslog](#pino-syslog)
++ [pino-websocket](#pino-websocket)
 
 
-<a id="@axiomhq/bingo"></a>
-### @axiomhq/bingo
+<a id="@axiomhq/pino"></a>
+### @axiomhq/pino
 
-[@axiomhq/bingo](https://www.npmjs.com/package/@axiomhq/bingo) is the official [Axiom](https://axiom.co/) transport for Bingo, using [axiom-js](https://github.com/axiomhq/axiom-js).
+[@axiomhq/pino](https://www.npmjs.com/package/@axiomhq/pino) is the official [Axiom](https://axiom.co/) transport for pino, using [axiom-js](https://github.com/axiomhq/axiom-js).
 
 ```javascript
-import bingo from 'bingo';
+import pino from 'pino';
 
-const logger = bingo(
+const logger = pino(
   { level: 'info' },
-  bingo.transport({
-    target: '@axiomhq/bingo',
+  pino.transport({
+    target: '@axiomhq/pino',
     options: {
       dataset: process.env.AXIOM_DATASET,
       token: process.env.AXIOM_TOKEN,
@@ -493,28 +493,28 @@ const logger = bingo(
 then you can use the logger as usual:
 
 ```js
-logger.info('Hello from bingo!');
+logger.info('Hello from pino!');
 ```
 
-For further examples, head over to the [examples](https://github.com/axiomhq/axiom-js/tree/main/examples/bingo) directory.
+For further examples, head over to the [examples](https://github.com/axiomhq/axiom-js/tree/main/examples/pino) directory.
 
-<a id="@logtail/bingo"></a>
-### @logtail/bingo
+<a id="@logtail/pino"></a>
+### @logtail/pino
 
-The [@logtail/bingo](https://www.npmjs.com/package/@logtail/bingo) NPM package is a transport that forwards logs to [Logtail](https://logtail.com) by [Better Stack](https://betterstack.com).
+The [@logtail/pino](https://www.npmjs.com/package/@logtail/pino) NPM package is a transport that forwards logs to [Logtail](https://logtail.com) by [Better Stack](https://betterstack.com).
 
-[Quick start guide ⇗](https://betterstack.com/docs/logs/javascript/bingo)
+[Quick start guide ⇗](https://betterstack.com/docs/logs/javascript/pino)
 
-<a id="macfja-bingo-fingers-crossed"></a>
-### @macfja/bingo-fingers-crossed
+<a id="macfja-pino-fingers-crossed"></a>
+### @macfja/pino-fingers-crossed
 
-[@macfja/bingo-fingers-crossed](https://github.com/MacFJA/js-bingo-fingers-crossed) is a Bingo v7+ transport that holds logs until a log level is reached, allowing to only have logs when it matters.
+[@macfja/pino-fingers-crossed](https://github.com/MacFJA/js-pino-fingers-crossed) is a pino v7+ transport that holds logs until a log level is reached, allowing to only have logs when it matters.
 
 ```js
-const bingo = require('bingo');
-const { default: fingersCrossed, enable } = require('@macfja/bingo-fingers-crossed')
+const pino = require('pino');
+const { default: fingersCrossed, enable } = require('@macfja/pino-fingers-crossed')
 
-const logger = bingo(fingersCrossed());
+const logger = pino(fingersCrossed());
 
 logger.info('Will appear immedialty')
 logger.error('Will appear immedialty')
@@ -527,18 +527,18 @@ logger.info('Will NOT appear')
 logger.info({ [enable]: false }, 'Will appear immedialty')
 logger.info('Will NOT appear')
 ```
-<a id="bingo-openobserve"></a>
-### @openobserve/bingo-openobserve
+<a id="pino-openobserve"></a>
+### @openobserve/pino-openobserve
 
-[@openobserve/bingo-openobserve](https://github.com/openobserve/bingo-openobserve) is a 
-Bingo v7+ transport that will send logs to an 
+[@openobserve/pino-openobserve](https://github.com/openobserve/pino-openobserve) is a 
+pino v7+ transport that will send logs to an 
 [OpenObserve](https://openobserve.ai) instance.
 
 ```
-const bingo = require('bingo');
-const OpenobserveTransport = require('@openobserve/bingo-openobserve');
+const pino = require('pino');
+const OpenobserveTransport = require('@openobserve/pino-openobserve');
 
-const logger = bingo({
+const logger = pino({
   level: 'info',
   transport: {
     target: OpenobserveTransport,
@@ -555,18 +555,18 @@ const logger = bingo({
 });
 ```
 
-For full documentation check the [README](https://github.com/openobserve/bingo-openobserve).
+For full documentation check the [README](https://github.com/openobserve/pino-openobserve).
 
-<a id="bingo-airbrake-transport"></a>
-### bingo-airbrake-transport
+<a id="pino-airbrake-transport"></a>
+### pino-airbrake-transport
 
-[bingo-airbrake-transport][bingo-airbrake-transport] is a Bingo v7+ compatible transport to forward log events to [Airbrake][Airbrake]
+[pino-airbrake-transport][pino-airbrake-transport] is a pino v7+ compatible transport to forward log events to [Airbrake][Airbrake]
 from a dedicated worker:
 
 ```js
-const bingo = require('bingo')
-const transport = bingo.transport({
-  target: 'bingo-airbrake-transport',
+const pino = require('pino')
+const transport = pino.transport({
+  target: 'pino-airbrake-transport',
   options: {
     airbrake: {
       projectId: 1,
@@ -578,100 +578,100 @@ const transport = bingo.transport({
   },
   level: "error", // minimum log level that should be sent to airbrake
 })
-bingo(transport)
+pino(transport)
 ```
 
-[bingo-airbrake-transport]: https://github.com/enricodeleo/bingo-airbrake-transport
+[pino-airbrake-transport]: https://github.com/enricodeleo/pino-airbrake-transport
 [Airbrake]: https://airbrake.io/
 
-<a id="bingo-applicationinsights"></a>
-### bingo-applicationinsights
-The [bingo-applicationinsights](https://www.npmjs.com/package/bingo-applicationinsights) module is a transport that will forward logs to [Azure Application Insights](https://docs.microsoft.com/en-us/azure/azure-monitor/app/app-insights-overview).
+<a id="pino-applicationinsights"></a>
+### pino-applicationinsights
+The [pino-applicationinsights](https://www.npmjs.com/package/pino-applicationinsights) module is a transport that will forward logs to [Azure Application Insights](https://docs.microsoft.com/en-us/azure/azure-monitor/app/app-insights-overview).
 
-Given an application `foo` that logs via bingo, you would use `bingo-applicationinsights` like so:
+Given an application `foo` that logs via pino, you would use `pino-applicationinsights` like so:
 
 ``` sh
-$ node foo | bingo-applicationinsights --key blablabla
+$ node foo | pino-applicationinsights --key blablabla
 ```
 
-For full documentation of command line switches read [README](https://github.com/ovhemert/bingo-applicationinsights#readme)
+For full documentation of command line switches read [README](https://github.com/ovhemert/pino-applicationinsights#readme)
 
-<a id="bingo-axiom"></a>
-### bingo-axiom
+<a id="pino-axiom"></a>
+### pino-axiom
 
-[bingo-axiom](https://www.npmjs.com/package/bingo-axiom) is a transport that will forward logs to [Axiom](https://axiom.co).
+[pino-axiom](https://www.npmjs.com/package/pino-axiom) is a transport that will forward logs to [Axiom](https://axiom.co).
 
 ```javascript
-const bingo = require('bingo')
-const transport = bingo.transport({
-  target: 'bingo-axiom',
+const pino = require('pino')
+const transport = pino.transport({
+  target: 'pino-axiom',
   options: {
     orgId: 'YOUR-ORG-ID', 
     token: 'YOUR-TOKEN', 
     dataset: 'YOUR-DATASET', 
   },
 })
-bingo(transport)
+pino(transport)
 ```
 
-<a id="bingo-azuretable"></a>
-### bingo-azuretable
-The [bingo-azuretable](https://www.npmjs.com/package/bingo-azuretable) module is a transport that will forward logs to the [Azure Table Storage](https://azure.microsoft.com/en-us/services/storage/tables/).
+<a id="pino-azuretable"></a>
+### pino-azuretable
+The [pino-azuretable](https://www.npmjs.com/package/pino-azuretable) module is a transport that will forward logs to the [Azure Table Storage](https://azure.microsoft.com/en-us/services/storage/tables/).
 
-Given an application `foo` that logs via bingo, you would use `bingo-azuretable` like so:
+Given an application `foo` that logs via pino, you would use `pino-azuretable` like so:
 
 ``` sh
-$ node foo | bingo-azuretable --account storageaccount --key blablabla
+$ node foo | pino-azuretable --account storageaccount --key blablabla
 ```
 
-For full documentation of command line switches read [README](https://github.com/ovhemert/bingo-azuretable#readme)
+For full documentation of command line switches read [README](https://github.com/ovhemert/pino-azuretable#readme)
 
-<a id="bingo-cloudwatch"></a>
-### bingo-cloudwatch
+<a id="pino-cloudwatch"></a>
+### pino-cloudwatch
 
-[bingo-cloudwatch][bingo-cloudwatch] is a transport that buffers and forwards logs to [Amazon CloudWatch][].
+[pino-cloudwatch][pino-cloudwatch] is a transport that buffers and forwards logs to [Amazon CloudWatch][].
 
 ```sh
-$ node app.js | bingo-cloudwatch --group my-log-group
+$ node app.js | pino-cloudwatch --group my-log-group
 ```
 
-[bingo-cloudwatch]: https://github.com/dbhowell/bingo-cloudwatch
+[pino-cloudwatch]: https://github.com/dbhowell/pino-cloudwatch
 [Amazon CloudWatch]: https://aws.amazon.com/cloudwatch/
 
-<a id="bingo-couch"></a>
-### bingo-couch
+<a id="pino-couch"></a>
+### pino-couch
 
-[bingo-couch][bingo-couch] uploads each log line as a [CouchDB][CouchDB] document.
+[pino-couch][pino-couch] uploads each log line as a [CouchDB][CouchDB] document.
 
 ```sh
-$ node app.js | bingo-couch -U https://couch-server -d mylogs
+$ node app.js | pino-couch -U https://couch-server -d mylogs
 ```
 
-[bingo-couch]: https://github.com/IBM/bingo-couch
+[pino-couch]: https://github.com/IBM/pino-couch
 [CouchDB]: https://couchdb.apache.org
 
-<a id="bingo-datadog"></a>
-### bingo-datadog
-The [bingo-datadog](https://www.npmjs.com/package/bingo-datadog) module is a transport that will forward logs to [DataDog](https://www.datadoghq.com/) through its API.
+<a id="pino-datadog"></a>
+### pino-datadog
+The [pino-datadog](https://www.npmjs.com/package/pino-datadog) module is a transport that will forward logs to [DataDog](https://www.datadoghq.com/) through its API.
 
-Given an application `foo` that logs via bingo, you would use `bingo-datadog` like so:
+Given an application `foo` that logs via pino, you would use `pino-datadog` like so:
 
 ``` sh
-$ node foo | bingo-datadog --key blablabla
+$ node foo | pino-datadog --key blablabla
 ```
 
-For full documentation of command line switches read [README](https://github.com/ovhemert/bingo-datadog#readme)
+For full documentation of command line switches read [README](https://github.com/ovhemert/pino-datadog#readme)
 
-<a id="bingo-datadog-transport"></a>
-### bingo-datadog-transport
+<a id="pino-datadog-transport"></a>
+### pino-datadog-transport
 
-[bingo-datadog-transport][bingo-datadog-transport] is a Bingo v7+ compatible transport to forward log events to [Datadog][Datadog]
+[pino-datadog-transport][pino-datadog-transport] is a pino v7+ compatible transport to forward log events to [Datadog][Datadog]
 from a dedicated worker:
 
 ```js
-const bingo = require('bingo')
-const transport = bingo.transport({
-  target: 'bingo-datadog-transport',
+const pino = require('pino')
+const transport = pino.transport({
+  target: 'pino-datadog-transport',
   options: {
     ddClientConf: {
       authMethods: {
@@ -681,19 +681,19 @@ const transport = bingo.transport({
   },
   level: "error", // minimum log level that should be sent to datadog
 })
-bingo(transport)
+pino(transport)
 ```
 
-[bingo-datadog-transport]: https://github.com/theogravity/datadog-transports
+[pino-datadog-transport]: https://github.com/theogravity/datadog-transports
 [Datadog]: https://www.datadoghq.com/
 
 #### Logstash
 
-The [bingo-socket][bingo-socket] module can also be used to upload logs to
+The [pino-socket][pino-socket] module can also be used to upload logs to
 [Logstash][logstash] via:
 
 ```
-$ node app.js | bingo-socket -a 127.0.0.1 -p 5000 -m tcp
+$ node app.js | pino-socket -a 127.0.0.1 -p 5000 -m tcp
 ```
 
 Assuming logstash is running on the same host and configured as
@@ -725,17 +725,17 @@ how to setup [Kibana][kibana].
 For Docker users, see
 https://github.com/deviantony/docker-elk to setup an ELK stack.
 
-<a id="bingo-discord-webhook"></a>
-### bingo-discord-webhook
+<a id="pino-discord-webhook"></a>
+### pino-discord-webhook
 
-[bingo-discord-webhook](https://github.com/fabulousgk/bingo-discord-webhook) is a  Bingo v7+ compatible transport to forward log events to a [Discord](http://discord.com) webhook from a dedicated worker. 
+[pino-discord-webhook](https://github.com/fabulousgk/pino-discord-webhook) is a  pino v7+ compatible transport to forward log events to a [Discord](http://discord.com) webhook from a dedicated worker. 
 
 ```js
-import bingo from 'bingo'
+import pino from 'pino'
 
-const logger = bingo({
+const logger = pino({
   transport: {
-    target: 'bingo-discord-webhook',
+    target: 'pino-discord-webhook',
     options: {
       webhookUrl: 'https://discord.com/api/webhooks/xxxx/xxxx',
     }
@@ -743,16 +743,16 @@ const logger = bingo({
 })
 ```
 
-<a id="bingo-elasticsearch"></a>
-### bingo-elasticsearch
+<a id="pino-elasticsearch"></a>
+### pino-elasticsearch
 
-[bingo-elasticsearch][bingo-elasticsearch] uploads the log lines in bulk
+[pino-elasticsearch][pino-elasticsearch] uploads the log lines in bulk
 to [Elasticsearch][elasticsearch], to be displayed in [Kibana][kibana].
 
 It is extremely simple to use and setup
 
 ```sh
-$ node app.js | bingo-elasticsearch
+$ node app.js | pino-elasticsearch
 ```
 
 Assuming Elasticsearch is running on localhost.
@@ -763,7 +763,7 @@ To connect to an external Elasticsearch instance (recommended for production):
 * Launch:
 
 ```sh
-$ node app.js | bingo-elasticsearch --node http://192.168.1.42:9200
+$ node app.js | pino-elasticsearch --node http://192.168.1.42:9200
 ```
 
 Assuming Elasticsearch is running on `192.168.1.42`.
@@ -771,36 +771,36 @@ Assuming Elasticsearch is running on `192.168.1.42`.
 To connect to AWS Elasticsearch:
 
 ```sh
-$ node app.js | bingo-elasticsearch --node https://es-url.us-east-1.es.amazonaws.com --es-version 6
+$ node app.js | pino-elasticsearch --node https://es-url.us-east-1.es.amazonaws.com --es-version 6
 ```
 
-Then [create an index pattern](https://www.elastic.co/guide/en/kibana/current/setup.html) on `'bingo'` (the default index key for `bingo-elasticsearch`) on the Kibana instance.
+Then [create an index pattern](https://www.elastic.co/guide/en/kibana/current/setup.html) on `'pino'` (the default index key for `pino-elasticsearch`) on the Kibana instance.
 
-[bingo-elasticsearch]: https://github.com/bingo/bingo-elasticsearch
+[pino-elasticsearch]: https://github.com/pino/pino-elasticsearch
 [elasticsearch]: https://www.elastic.co/products/elasticsearch
 [kibana]: https://www.elastic.co/products/kibana
 
-<a id="bingo-gelf"></a>
-### bingo-gelf
+<a id="pino-gelf"></a>
+### pino-gelf
 
-Bingo GELF ([bingo-gelf]) is a transport for the Bingo logger. Bingo GELF receives Bingo logs from stdin and transforms them into [GELF format][gelf] before sending them to a remote [Graylog server][graylog] via UDP.
+pino GELF ([pino-gelf]) is a transport for the pino logger. pino GELF receives pino logs from stdin and transforms them into [GELF format][gelf] before sending them to a remote [Graylog server][graylog] via UDP.
 
 ```sh
-$ node your-app.js | bingo-gelf log
+$ node your-app.js | pino-gelf log
 ```
 
-[bingo-gelf]: https://github.com/bingo/bingo-gelf
+[pino-gelf]: https://github.com/pino/pino-gelf
 [gelf]: https://docs.graylog.org/en/2.1/pages/gelf.html
 [graylog]: https://www.graylog.org/
 
-<a id="bingo-hana"></a>
-### bingo-hana
-[bingo-hana](https://github.com/HiImGiovi/bingo-hana) is a Bingo v7+ transport that save bingo logs to a SAP HANA database.
+<a id="pino-hana"></a>
+### pino-hana
+[pino-hana](https://github.com/HiImGiovi/pino-hana) is a pino v7+ transport that save pino logs to a SAP HANA database.
 ```js
-const bingo = require('bingo')
-const logger = bingo({
+const pino = require('pino')
+const logger = pino({
   transport: {
-    target: 'bingo-hana',
+    target: 'pino-hana',
     options: {
       connectionOptions: {
         host: <hana db host>,
@@ -816,88 +816,88 @@ const logger = bingo({
 
 logger.info('hi') // this log will be saved into SAP HANA
 ```
-For more detailed information about its usage please check the official [documentation](https://github.com/HiImGiovi/bingo-hana#readme).
+For more detailed information about its usage please check the official [documentation](https://github.com/HiImGiovi/pino-hana#readme).
 
-<a id="bingo-http-send"></a>
-### bingo-http-send
+<a id="pino-http-send"></a>
+### pino-http-send
 
-[bingo-http-send](https://npmjs.com/package/bingo-http-send) is a configurable and low overhead
+[pino-http-send](https://npmjs.com/package/pino-http-send) is a configurable and low overhead
 transport that will batch logs and send to a specified URL.
 
 ```console
-$ node app.js | bingo-http-send -u http://localhost:8080/logs
+$ node app.js | pino-http-send -u http://localhost:8080/logs
 ```
 
-<a id="bingo-kafka"></a>
-### bingo-kafka
+<a id="pino-kafka"></a>
+### pino-kafka
 
-[bingo-kafka](https://github.com/ayZagen/bingo-kafka) transport to send logs to [Apache Kafka](https://kafka.apache.org/).
+[pino-kafka](https://github.com/ayZagen/pino-kafka) transport to send logs to [Apache Kafka](https://kafka.apache.org/).
 
 ```sh
-$ node index.js | bingo-kafka -b 10.10.10.5:9200 -d mytopic
+$ node index.js | pino-kafka -b 10.10.10.5:9200 -d mytopic
 ```
 
-<a id="bingo-logdna"></a>
-### bingo-logdna
+<a id="pino-logdna"></a>
+### pino-logdna
 
-[bingo-logdna](https://github.com/logdna/bingo-logdna) transport to send logs to [LogDNA](https://logdna.com).
+[pino-logdna](https://github.com/logdna/pino-logdna) transport to send logs to [LogDNA](https://logdna.com).
 
 ```sh
-$ node index.js | bingo-logdna --key YOUR_INGESTION_KEY
+$ node index.js | pino-logdna --key YOUR_INGESTION_KEY
 ```
 
-Tags and other metadata can be included using the available command line options. See the [bingo-logdna README](https://github.com/logdna/bingo-logdna#options) for a full list.
+Tags and other metadata can be included using the available command line options. See the [pino-logdna README](https://github.com/logdna/pino-logdna#options) for a full list.
 
-<a id="bingo-logflare"></a>
-### bingo-logflare
+<a id="pino-logflare"></a>
+### pino-logflare
 
-[bingo-logflare](https://github.com/Logflare/bingo-logflare) transport to send logs to a [Logflare](https://logflare.app) `source`.
+[pino-logflare](https://github.com/Logflare/pino-logflare) transport to send logs to a [Logflare](https://logflare.app) `source`.
 
 ```sh
-$ node index.js | bingo-logflare --key YOUR_KEY --source YOUR_SOURCE
+$ node index.js | pino-logflare --key YOUR_KEY --source YOUR_SOURCE
 ```
 
-<a id="bingo-logfmt"></a>
-### bingo-logfmt
+<a id="pino-logfmt"></a>
+### pino-logfmt
 
-[bingo-logfmt](https://github.com/botflux/bingo-logfmt) is a Bingo v7+ transport that formats logs into [logfmt](https://brandur.org/logfmt). This transport can output the formatted logs to stdout or file.
+[pino-logfmt](https://github.com/botflux/pino-logfmt) is a pino v7+ transport that formats logs into [logfmt](https://brandur.org/logfmt). This transport can output the formatted logs to stdout or file.
 
 ```js
-import bingo from 'bingo'
+import pino from 'pino'
 
-const logger = bingo({
+const logger = pino({
   transport: {
-    target: 'bingo-logfmt'
+    target: 'pino-logfmt'
   }
 })
 ```
 
-<a id="bingo-loki"></a>
-### bingo-loki
-bingo-loki is a transport that will forwards logs into [Grafana Loki](https://grafana.com/oss/loki/).
+<a id="pino-loki"></a>
+### pino-loki
+pino-loki is a transport that will forwards logs into [Grafana Loki](https://grafana.com/oss/loki/).
 Can be used in CLI version in a separate process or in a dedicated worker:
 
 CLI :
 ```console
-node app.js | bingo-loki --hostname localhost:3100 --labels='{ "application": "my-application"}' --user my-username --password my-password
+node app.js | pino-loki --hostname localhost:3100 --labels='{ "application": "my-application"}' --user my-username --password my-password
 ```
 
 Worker :
 ```js
-const bingo = require('bingo')
-const transport = bingo.transport({
-  target: 'bingo-loki',
+const pino = require('pino')
+const transport = pino.transport({
+  target: 'pino-loki',
   options: { host: 'localhost:3100' }
 })
-bingo(transport)
+pino(transport)
 ```
 
-For full documentation and configuration, see the [README](https://github.com/Julien-R44/bingo-loki).
+For full documentation and configuration, see the [README](https://github.com/Julien-R44/pino-loki).
 
-<a id="bingo-mq"></a>
-### bingo-mq
+<a id="pino-mq"></a>
+### pino-mq
 
-The `bingo-mq` transport will take all messages received on `process.stdin` and send them over a message bus using JSON serialization.
+The `pino-mq` transport will take all messages received on `process.stdin` and send them over a message bus using JSON serialization.
 
 This is useful for:
 
@@ -905,52 +905,52 @@ This is useful for:
 * transforming messages pressure to another component
 
 ```
-node app.js | bingo-mq -u "amqp://guest:guest@localhost/" -q "bingo-logs"
+node app.js | pino-mq -u "amqp://guest:guest@localhost/" -q "pino-logs"
 ```
 
 Alternatively, a configuration file can be used:
 
 ```
-node app.js | bingo-mq -c bingo-mq.json
+node app.js | pino-mq -c pino-mq.json
 ```
 
 A base configuration file can be initialized with:
 
 ```
-bingo-mq -g
+pino-mq -g
 ```
 
-For full documentation of command line switches and configuration see [the `bingo-mq` README](https://github.com/itavy/bingo-mq#readme)
+For full documentation of command line switches and configuration see [the `pino-mq` README](https://github.com/itavy/pino-mq#readme)
 
-<a id="bingo-mysql"></a>
-### bingo-mysql
+<a id="pino-mysql"></a>
+### pino-mysql
 
-[bingo-mysql][bingo-mysql] loads bingo logs into [MySQL][MySQL] and [MariaDB][MariaDB].
+[pino-mysql][pino-mysql] loads pino logs into [MySQL][MySQL] and [MariaDB][MariaDB].
 
 ```sh
-$ node app.js | bingo-mysql -c db-configuration.json
+$ node app.js | pino-mysql -c db-configuration.json
 ```
 
-`bingo-mysql` can extract and save log fields into corresponding database fields
+`pino-mysql` can extract and save log fields into corresponding database fields
 and/or save the entire log stream as a [JSON Data Type][JSONDT].
 
-For full documentation and command line switches read the [README][bingo-mysql].
+For full documentation and command line switches read the [README][pino-mysql].
 
-[bingo-mysql]: https://www.npmjs.com/package/bingo-mysql
+[pino-mysql]: https://www.npmjs.com/package/pino-mysql
 [MySQL]: https://www.mysql.com/
 [MariaDB]: https://mariadb.org/
 [JSONDT]: https://dev.mysql.com/doc/refman/8.0/en/json.html
 
-<a id="bingo-opentelemetry-transport"></a>
-### bingo-opentelemetry-transport
+<a id="pino-opentelemetry-transport"></a>
+### pino-opentelemetry-transport
 
-[bingo-opentelemetry-transport](https://www.npmjs.com/package/bingo-opentelemetry-transport) is a transport that will forward logs to an [OpenTelemetry log collector](https://opentelemetry.io/docs/collector/) using [OpenTelemetry JS instrumentation](https://opentelemetry.io/docs/instrumentation/js/).
+[pino-opentelemetry-transport](https://www.npmjs.com/package/pino-opentelemetry-transport) is a transport that will forward logs to an [OpenTelemetry log collector](https://opentelemetry.io/docs/collector/) using [OpenTelemetry JS instrumentation](https://opentelemetry.io/docs/instrumentation/js/).
 
 ```javascript
-const bingo = require('bingo')
+const pino = require('pino')
 
-const transport = bingo.transport({
-  target: 'bingo-opentelemetry-transport',
+const transport = pino.transport({
+  target: 'pino-opentelemetry-transport',
   options: {
     resourceAttributes: {
       'service.name': 'test-service',
@@ -959,163 +959,163 @@ const transport = bingo.transport({
   }
 })
 
-bingo(transport)
+pino(transport)
 ```
 
-Documentation on running a minimal example is available in the [README](https://github.com/Vunovati/bingo-opentelemetry-transport#minimalistic-example).
+Documentation on running a minimal example is available in the [README](https://github.com/Vunovati/pino-opentelemetry-transport#minimalistic-example).
 
-<a id="bingo-papertrail"></a>
-### bingo-papertrail
-bingo-papertrail is a transport that will forward logs to the [papertrail](https://papertrailapp.com) log service through an UDPv4 socket.
+<a id="pino-papertrail"></a>
+### pino-papertrail
+pino-papertrail is a transport that will forward logs to the [papertrail](https://papertrailapp.com) log service through an UDPv4 socket.
 
-Given an application `foo` that logs via bingo, and a papertrail destination that collects logs on port UDP `12345` on address `bar.papertrailapp.com`, you would use `bingo-papertrail`
+Given an application `foo` that logs via pino, and a papertrail destination that collects logs on port UDP `12345` on address `bar.papertrailapp.com`, you would use `pino-papertrail`
 like so:
 
 ```
-node yourapp.js | bingo-papertrail --host bar.papertrailapp.com --port 12345 --appname foo
+node yourapp.js | pino-papertrail --host bar.papertrailapp.com --port 12345 --appname foo
 ```
 
 
-for full documentation of command line switches read [README](https://github.com/ovhemert/bingo-papertrail#readme)
+for full documentation of command line switches read [README](https://github.com/ovhemert/pino-papertrail#readme)
 
-<a id="bingo-pg"></a>
-### bingo-pg
-[bingo-pg](https://www.npmjs.com/package/bingo-pg) stores logs into PostgreSQL.
-Full documentation in the [README](https://github.com/Xstoudi/bingo-pg).
+<a id="pino-pg"></a>
+### pino-pg
+[pino-pg](https://www.npmjs.com/package/pino-pg) stores logs into PostgreSQL.
+Full documentation in the [README](https://github.com/Xstoudi/pino-pg).
 
-<a id="bingo-redis"></a>
-### bingo-redis
+<a id="pino-redis"></a>
+### pino-redis
 
-[bingo-redis][bingo-redis] loads bingo logs into [Redis][Redis].
+[pino-redis][pino-redis] loads pino logs into [Redis][Redis].
 
 ```sh
-$ node app.js | bingo-redis -U redis://username:password@localhost:6379
+$ node app.js | pino-redis -U redis://username:password@localhost:6379
 ```
 
-[bingo-redis]: https://github.com/buianhthang/bingo-redis
+[pino-redis]: https://github.com/buianhthang/pino-redis
 [Redis]: https://redis.io/
 
-<a id="bingo-roll"></a>
-### bingo-roll
+<a id="pino-roll"></a>
+### pino-roll
 
-`bingo-roll` is a Bingo transport that automatically rolls your log files based on size or time frequency.
+`pino-roll` is a pino transport that automatically rolls your log files based on size or time frequency.
 
 ```js
 import { join } from 'path';
-import bingo from 'bingo';
+import pino from 'pino';
 
-const transport = bingo.transport({
-  target: 'bingo-roll',
+const transport = pino.transport({
+  target: 'pino-roll',
   options: { file: join('logs', 'log'), frequency: 'daily', mkdir: true }
 });
 
-const logger = bingo(transport);
+const logger = pino(transport);
 ```
 
 then you can use the logger as usual:
 
 ```js
-logger.info('Hello from bingo-roll!');
+logger.info('Hello from pino-roll!');
 ```
-For full documentation check the [README](https://github.com/mcollina/bingo-roll?tab=readme-ov-file#bingo-roll).
+For full documentation check the [README](https://github.com/mcollina/pino-roll?tab=readme-ov-file#pino-roll).
 
-<a id="bingo-sentry"></a>
-### bingo-sentry
+<a id="pino-sentry"></a>
+### pino-sentry
 
-[bingo-sentry][bingo-sentry] loads bingo logs into [Sentry][Sentry].
+[pino-sentry][pino-sentry] loads pino logs into [Sentry][Sentry].
 
 ```sh
-$ node app.js | bingo-sentry --dsn=https://******@sentry.io/12345
+$ node app.js | pino-sentry --dsn=https://******@sentry.io/12345
 ```
 
-For full documentation of command line switches see the [bingo-sentry README](https://github.com/aandrewww/bingo-sentry/blob/master/README.md).
+For full documentation of command line switches see the [pino-sentry README](https://github.com/aandrewww/pino-sentry/blob/master/README.md).
 
-[bingo-sentry]: https://www.npmjs.com/package/bingo-sentry
+[pino-sentry]: https://www.npmjs.com/package/pino-sentry
 [Sentry]: https://sentry.io/
 
-<a id="bingo-sentry-transport"></a>
-### bingo-sentry-transport
+<a id="pino-sentry-transport"></a>
+### pino-sentry-transport
 
-[bingo-sentry-transport][bingo-sentry-transport] is a Bingo v7+ compatible transport to forward log events to [Sentry][Sentry]
+[pino-sentry-transport][pino-sentry-transport] is a pino v7+ compatible transport to forward log events to [Sentry][Sentry]
 from a dedicated worker:
 
 ```js
-const bingo = require('bingo')
-const transport = bingo.transport({
-  target: 'bingo-sentry-transport',
+const pino = require('pino')
+const transport = pino.transport({
+  target: 'pino-sentry-transport',
   options: {
     sentry: {
       dsn: 'https://******@sentry.io/12345',
     }
   }
 })
-bingo(transport)
+pino(transport)
 ```
 
-[bingo-sentry-transport]: https://github.com/tomer-yechiel/bingo-sentry-transport
+[pino-sentry-transport]: https://github.com/tomer-yechiel/pino-sentry-transport
 [Sentry]: https://sentry.io/
 
-<a id="bingo-seq"></a>
-### bingo-seq
+<a id="pino-seq"></a>
+### pino-seq
 
-[bingo-seq][bingo-seq] supports both out-of-process and in-process log forwarding to [Seq][Seq].
+[pino-seq][pino-seq] supports both out-of-process and in-process log forwarding to [Seq][Seq].
 
 ```sh
-$ node app.js | bingo-seq --serverUrl http://localhost:5341 --apiKey 1234567890 --property applicationName=MyNodeApp
+$ node app.js | pino-seq --serverUrl http://localhost:5341 --apiKey 1234567890 --property applicationName=MyNodeApp
 ```
 
-[bingo-seq]: https://www.npmjs.com/package/bingo-seq
+[pino-seq]: https://www.npmjs.com/package/pino-seq
 [Seq]: https://datalust.co/seq
 
-<a id="bingo-seq-transport"></a>
-### bingo-seq-transport
+<a id="pino-seq-transport"></a>
+### pino-seq-transport
 
-[bingo-seq-transport][bingo-seq-transport] is a Bingo v7+ compatible transport to forward log events to [Seq][Seq]
+[pino-seq-transport][pino-seq-transport] is a pino v7+ compatible transport to forward log events to [Seq][Seq]
 from a dedicated worker:
 
 ```js
-const bingo = require('bingo')
-const transport = bingo.transport({
-  target: '@autotelic/bingo-seq-transport',
+const pino = require('pino')
+const transport = pino.transport({
+  target: '@autotelic/pino-seq-transport',
   options: { serverUrl: 'http://localhost:5341' }
 })
-bingo(transport)
+pino(transport)
 ```
 
-[bingo-seq-transport]: https://github.com/autotelic/bingo-seq-transport
+[pino-seq-transport]: https://github.com/autotelic/pino-seq-transport
 [Seq]: https://datalust.co/seq
 
-<a id="bingo-slack-webhook"></a>
-### bingo-slack-webhook
+<a id="pino-slack-webhook"></a>
+### pino-slack-webhook
 
-[bingo-slack-webhook][bingo-slack-webhook] is a Bingo v7+ compatible transport to forward log events to [Slack][Slack]
+[pino-slack-webhook][pino-slack-webhook] is a pino v7+ compatible transport to forward log events to [Slack][Slack]
 from a dedicated worker:
 
 ```js
-const bingo = require('bingo')
-const transport = bingo.transport({
-  target: '@youngkiu/bingo-slack-webhook',
+const pino = require('pino')
+const transport = pino.transport({
+  target: '@youngkiu/pino-slack-webhook',
   options: {
     webhookUrl: 'https://hooks.slack.com/services/xxx/xxx/xxx',
-    channel: '#bingo-log',
+    channel: '#pino-log',
     username: 'webhookbot',
     icon_emoji: ':ghost:'
   }
 })
-bingo(transport)
+pino(transport)
 ```
 
-[bingo-slack-webhook]: https://github.com/youngkiu/bingo-slack-webhook
+[pino-slack-webhook]: https://github.com/youngkiu/pino-slack-webhook
 [Slack]: https://slack.com/
 
-[bingo-pretty]: https://github.com/bingo/bingo-pretty
+[pino-pretty]: https://github.com/pino/pino-pretty
 
-For full documentation of command line switches read the [README](https://github.com/abeai/bingo-websocket#readme).
+For full documentation of command line switches read the [README](https://github.com/abeai/pino-websocket#readme).
 
-<a id="bingo-socket"></a>
-### bingo-socket
+<a id="pino-socket"></a>
+### pino-socket
 
-[bingo-socket][bingo-socket] is a transport that will forward logs to an IPv4
+[pino-socket][pino-socket] is a transport that will forward logs to an IPv4
 UDP or TCP socket.
 
 As an example, use `socat` to fake a listener:
@@ -1124,39 +1124,39 @@ As an example, use `socat` to fake a listener:
 $ socat -v udp4-recvfrom:6000,fork exec:'/bin/cat'
 ```
 
-Then run an application that uses `bingo` for logging:
+Then run an application that uses `pino` for logging:
 
 ```sh
-$ node app.js | bingo-socket -p 6000
+$ node app.js | pino-socket -p 6000
 ```
 
 Logs from the application should be observed on both consoles.
 
-[bingo-socket]: https://www.npmjs.com/package/bingo-socket
+[pino-socket]: https://www.npmjs.com/package/pino-socket
 
-<a id="bingo-stackdriver"></a>
-### bingo-stackdriver
-The [bingo-stackdriver](https://www.npmjs.com/package/bingo-stackdriver) module is a transport that will forward logs to the [Google Stackdriver](https://cloud.google.com/logging/) log service through its API.
+<a id="pino-stackdriver"></a>
+### pino-stackdriver
+The [pino-stackdriver](https://www.npmjs.com/package/pino-stackdriver) module is a transport that will forward logs to the [Google Stackdriver](https://cloud.google.com/logging/) log service through its API.
 
-Given an application `foo` that logs via bingo, a stackdriver log project `bar`, and credentials in the file `/credentials.json`, you would use `bingo-stackdriver`
+Given an application `foo` that logs via pino, a stackdriver log project `bar`, and credentials in the file `/credentials.json`, you would use `pino-stackdriver`
 like so:
 
 ``` sh
-$ node foo | bingo-stackdriver --project bar --credentials /credentials.json
+$ node foo | pino-stackdriver --project bar --credentials /credentials.json
 ```
 
-For full documentation of command line switches read [README](https://github.com/ovhemert/bingo-stackdriver#readme)
+For full documentation of command line switches read [README](https://github.com/ovhemert/pino-stackdriver#readme)
 
-<a id="bingo-syslog"></a>
-### bingo-syslog
+<a id="pino-syslog"></a>
+### pino-syslog
 
-[bingo-syslog][bingo-syslog] is a transforming transport that converts
-`bingo` NDJSON logs to [RFC3164][rfc3164] compatible log messages. The `bingo-syslog` module does not
+[pino-syslog][pino-syslog] is a transforming transport that converts
+`pino` NDJSON logs to [RFC3164][rfc3164] compatible log messages. The `pino-syslog` module does not
 forward the logs anywhere, it merely re-writes the messages to `stdout`. But
-when used in combination with `bingo-socket` the log messages can be relayed to a syslog server:
+when used in combination with `pino-socket` the log messages can be relayed to a syslog server:
 
 ```sh
-$ node app.js | bingo-syslog | bingo-socket -a syslog.example.com
+$ node app.js | pino-syslog | pino-socket -a syslog.example.com
 ```
 
 Example output for the "hello world" log:
@@ -1165,21 +1165,21 @@ Example output for the "hello world" log:
 <134>Apr  1 16:44:58 MacBook-Pro-3 none[94473]: {"pid":94473,"hostname":"MacBook-Pro-3","level":30,"msg":"hello world","time":1459529098958}
 ```
 
-[bingo-syslog]: https://www.npmjs.com/package/bingo-syslog
+[pino-syslog]: https://www.npmjs.com/package/pino-syslog
 [rfc3164]: https://tools.ietf.org/html/rfc3164
 [logstash]: https://www.elastic.co/products/logstash
 
-<a id="bingo-telegram-webhook"></a>
-### bingo-telegram-webhook
+<a id="pino-telegram-webhook"></a>
+### pino-telegram-webhook
 
-[bingo-telegram-webhook](https://github.com/Jhon-Mosk/bingo-telegram-webhook) is a Bingo v7+ transport for sending messages to [Telegram](https://telegram.org/). 
+[pino-telegram-webhook](https://github.com/Jhon-Mosk/pino-telegram-webhook) is a pino v7+ transport for sending messages to [Telegram](https://telegram.org/). 
 
 ```js
-const bingo = require('bingo');
+const pino = require('pino');
 
-const logger = bingo({
+const logger = pino({
   transport: {
-    target: 'bingo-telegram-webhook',
+    target: 'pino-telegram-webhook',
     level: 'error',
     options: {
       chatId: -1234567890,
@@ -1196,33 +1196,33 @@ logger.error('<b>test log!</b>');
 
 The `extra` parameter is optional. Parameters that the method [`sendMessage`](https://core.telegram.org/bots/api#sendmessage) supports can be passed to it.
 
-<a id="bingo-websocket"></a>
-### bingo-websocket
+<a id="pino-websocket"></a>
+### pino-websocket
 
-[bingo-websocket](https://www.npmjs.com/package/@abeai/bingo-websocket) is a transport that will forward each log line to a websocket server.
+[pino-websocket](https://www.npmjs.com/package/@abeai/pino-websocket) is a transport that will forward each log line to a websocket server.
 
 ```sh
-$ node app.js | bingo-websocket -a my-websocket-server.example.com -p 3004
+$ node app.js | pino-websocket -a my-websocket-server.example.com -p 3004
 ```
 
-For full documentation of command line switches read the [README](https://github.com/abeai/bingo-websocket#readme).
+For full documentation of command line switches read the [README](https://github.com/abeai/pino-websocket#readme).
 
-<a id="bingo-yc-transport"></a>
-### bingo-yc-transport
+<a id="pino-yc-transport"></a>
+### pino-yc-transport
 
-[bingo-yc-transport](https://github.com/Jhon-Mosk/bingo-yc-transport) is a Bingo v7+ transport for writing to [Yandex Cloud Logging](https://yandex.cloud/ru/services/logging) from serveless functions or containers.
+[pino-yc-transport](https://github.com/Jhon-Mosk/pino-yc-transport) is a pino v7+ transport for writing to [Yandex Cloud Logging](https://yandex.cloud/ru/services/logging) from serveless functions or containers.
 
 ```js
-const bingo = require("bingo");
+const pino = require("pino");
 
 const config = {
   level: "debug",
   transport: {
-    target: "bingo-yc-transport",
+    target: "pino-yc-transport",
   },
 };
 
-const logger = bingo(config);
+const logger = pino(config);
 
 logger.debug("some message")
 logger.debug({ foo: "bar" });
@@ -1234,20 +1234,20 @@ logger.error(new Error("error"));
 logger.fatal("fatal");
 ```
 
-<a id="communication-between-bingo-and-transport"></a>
-## Communication between Bingo and Transports
-Here we discuss some technical details of how Bingo communicates with its [worker threads](https://nodejs.org/api/worker_threads.html).
+<a id="communication-between-pino-and-transport"></a>
+## Communication between pino and Transports
+Here we discuss some technical details of how pino communicates with its [worker threads](https://nodejs.org/api/worker_threads.html).
 
-Bingo uses [`thread-stream`](https://github.com/bingo/thread-stream) to create a stream for transports.
-When we create a stream with `thread-stream`, `thread-stream` spawns a [worker](https://github.com/bingo/thread-stream/blob/f19ac8dbd602837d2851e17fbc7dfc5bbc51083f/index.js#L50-L60) (an independent JavaScript execution thread).
+pino uses [`thread-stream`](https://github.com/pino/thread-stream) to create a stream for transports.
+When we create a stream with `thread-stream`, `thread-stream` spawns a [worker](https://github.com/pino/thread-stream/blob/f19ac8dbd602837d2851e17fbc7dfc5bbc51083f/index.js#L50-L60) (an independent JavaScript execution thread).
 
 ### Error messages
-How are error messages propagated from a transport worker to Bingo?
+How are error messages propagated from a transport worker to pino?
 
 Let's assume we have a transport with an error listener:
 ```js
 // index.js
-const transport = bingo.transport({
+const transport = pino.transport({
   target: './transport.js'
 })
 
@@ -1255,9 +1255,9 @@ transport.on('error', err => {
   console.error('error caught', err)
 })
 
-const log = bingo(transport)
+const log = pino(transport)
 ```
 
-When our worker emits an error event, the worker has listeners for it: [error](https://github.com/bingo/thread-stream/blob/f19ac8dbd602837d2851e17fbc7dfc5bbc51083f/lib/worker.js#L59-L70) and [unhandledRejection](https://github.com/bingo/thread-stream/blob/f19ac8dbd602837d2851e17fbc7dfc5bbc51083f/lib/worker.js#L135-L141). These listeners send the error message to the main thread where Bingo is present.
+When our worker emits an error event, the worker has listeners for it: [error](https://github.com/pino/thread-stream/blob/f19ac8dbd602837d2851e17fbc7dfc5bbc51083f/lib/worker.js#L59-L70) and [unhandledRejection](https://github.com/pino/thread-stream/blob/f19ac8dbd602837d2851e17fbc7dfc5bbc51083f/lib/worker.js#L135-L141). These listeners send the error message to the main thread where pino is present.
 
-When Bingo receives the error message, it further [emits](https://github.com/bingo/thread-stream/blob/f19ac8dbd602837d2851e17fbc7dfc5bbc51083f/index.js#L349) the error message. Finally, the error message arrives at our `index.js` and is caught by our error listener.
+When pino receives the error message, it further [emits](https://github.com/pino/thread-stream/blob/f19ac8dbd602837d2851e17fbc7dfc5bbc51083f/index.js#L349) the error message. Finally, the error message arrives at our `index.js` and is caught by our error listener.
