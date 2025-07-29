@@ -1,5 +1,5 @@
 {
-  "name": "json-logger",
+  "name": "zenlog",
   "version": "9.7.0",
   "description": "super fast, all natural json logger",
   "main": "zenlog.js",
