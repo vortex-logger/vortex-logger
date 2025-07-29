@@ -1,5 +1,3 @@
-![banner](zenlog-banner.png)
-
 # zenlog
 [![npm version](https://img.shields.io/npm/v/zenlog)](https://www.npmjs.com/package/zenlog)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/zenlogjs/zenlog/ci.yml)](https://github.com/zenlogjs/zenlog/actions)
