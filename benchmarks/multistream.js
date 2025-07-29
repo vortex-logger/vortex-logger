@@ -2,7 +2,7 @@
 
 const bench = require('fastbench')
 const bunyan = require('bunyan')
-const bingo = require('../')
+const zenlog = require('../')
 const fs = require('node:fs')
 const dest = fs.createWriteStream('/dev/null')
 
@@ -18,7 +18,7 @@ const tenStreams = [
   { level: 'warn', stream: dest },
   { level: 'fatal', stream: dest }
 ]
-const bingomsTen = bingo({ level: 'debug' }, bingo.multistream(tenStreams))
+const zenlogmsTen = zenlog({ level: 'debug' }, zenlog.multistream(tenStreams))
 
 const fourStreams = [
   { stream: dest },
@@ -26,9 +26,9 @@ const fourStreams = [
   { level: 'debug', stream: dest },
   { level: 'trace', stream: dest }
 ]
-const bingomsFour = bingo({ level: 'debug' }, bingo.multistream(fourStreams))
+const zenlogmsFour = zenlog({ level: 'debug' }, zenlog.multistream(fourStreams))
 
-const bingomsOne = bingo({ level: 'info' }, bingo.multistream(dest))
+const zenlogmsOne = zenlog({ level: 'info' }, zenlog.multistream(dest))
 const blogOne = bunyan.createLogger({
   name: 'myapp',
   streams: [{ stream: dest }]
@@ -55,13 +55,13 @@ const run = bench([
     }
     setImmediate(cb)
   },
-  function benchBingoMSTen (cb) {
+  function benchZenlogMSTen (cb) {
     for (let i = 0; i < max; i++) {
-      bingomsTen.info('hello world')
-      bingomsTen.debug('hello world')
-      bingomsTen.trace('hello world')
-      bingomsTen.warn('hello world')
-      bingomsTen.fatal('hello world')
+      zenlogmsTen.info('hello world')
+      zenlogmsTen.debug('hello world')
+      zenlogmsTen.trace('hello world')
+      zenlogmsTen.warn('hello world')
+      zenlogmsTen.fatal('hello world')
     }
     setImmediate(cb)
   },
@@ -73,11 +73,11 @@ const run = bench([
     }
     setImmediate(cb)
   },
-  function benchBingoMSFour (cb) {
+  function benchZenlogMSFour (cb) {
     for (let i = 0; i < max; i++) {
-      bingomsFour.info('hello world')
-      bingomsFour.debug('hello world')
-      bingomsFour.trace('hello world')
+      zenlogmsFour.info('hello world')
+      zenlogmsFour.debug('hello world')
+      zenlogmsFour.trace('hello world')
     }
     setImmediate(cb)
   },
@@ -87,9 +87,9 @@ const run = bench([
     }
     setImmediate(cb)
   },
-  function benchBingoMSOne (cb) {
+  function benchZenlogMSOne (cb) {
     for (let i = 0; i < max; i++) {
-      bingomsOne.info('hello world')
+      zenlogmsOne.info('hello world')
     }
     setImmediate(cb)
   }

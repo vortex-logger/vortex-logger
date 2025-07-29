@@ -7,7 +7,7 @@ To accomplish this, simply use a child logger:
 
 ```js
 'use strict'
-// imports a bingo logger instance of `require('bingo')()`
+// imports a zenlog logger instance of `require('zenlog')()`
 const parentLogger = require('./lib/logger')
 const log = parentLogger.child({module: 'foo'})
 
@@ -27,8 +27,8 @@ Child logger creation is fast:
 ```
 benchBunyanCreation*10000: 564.514ms
 benchBoleCreation*10000: 283.276ms
-benchBingoCreation*10000: 258.745ms
-benchBingoExtremeCreation*10000: 150.506ms
+benchZenlogCreation*10000: 258.745ms
+benchZenlogExtremeCreation*10000: 150.506ms
 ```
 
 Logging through a child logger has little performance penalty:
@@ -36,16 +36,16 @@ Logging through a child logger has little performance penalty:
 ```
 benchBunyanChild*10000: 556.275ms
 benchBoleChild*10000: 288.124ms
-benchBingoChild*10000: 231.695ms
-benchBingoExtremeChild*10000: 122.117ms
+benchZenlogChild*10000: 231.695ms
+benchZenlogExtremeChild*10000: 122.117ms
 ```
 
 Logging via the child logger of a child logger also has negligible overhead:
 
 ```
 benchBunyanChildChild*10000: 559.082ms
-benchBingoChildChild*10000: 229.264ms
-benchBingoExtremeChildChild*10000: 127.753ms
+benchZenlogChildChild*10000: 229.264ms
+benchZenlogExtremeChildChild*10000: 127.753ms
 ```
 
 ## Duplicate keys caveat
@@ -54,13 +54,13 @@ Naming conflicts can arise between child loggers and
 children of child loggers.
 
 This isn't as bad as it sounds, even if the same keys between
-parent and child loggers are used, Bingo resolves the conflict in the sanest way.
+parent and child loggers are used, Zenlog resolves the conflict in the sanest way.
 
 For example, consider the following:
 
 ```js
-const bingo = require('bingo')
-bingo(bingo.destination('./my-log'))
+const zenlog = require('zenlog')
+zenlog(zenlog.destination('./my-log'))
   .child({a: 'property'})
   .child({a: 'prop'})
   .info('howdy')
@@ -90,6 +90,6 @@ There may be cases where this edge case becomes problematic if a JSON parser wit
 is used to process the logs. It's recommended to be conscious of namespace conflicts with child loggers,
 in light of an expected log processing approach.
 
-One of Bingo's performance tricks is to avoid building objects and stringifying
+One of Zenlog's performance tricks is to avoid building objects and stringifying
 them, so we're building strings instead. This is why duplicate keys between
 parents and children will end up in the log output.

@@ -14,8 +14,8 @@ import {
     symbols,
     transport,
     version,
-} from "../../bingo-logger";
-import bingo from "../../bingo-logger";
+} from "../../zenlog";
+import zenlog from "../../zenlog";
 
 expectType<SonicBoom>(destination(""));
 expectType<LevelMapping>(levels);
@@ -29,7 +29,7 @@ expectAssignable<Symbol>(symbols.endSym);
 
 // TODO: currently returns (aliased) `any`, waiting for strong typed `thread-stream`
 transport({
-    target: '#bingo/pretty',
+    target: '#zenlog/pretty',
     options: { some: 'options for', the: 'transport' }
 });
 

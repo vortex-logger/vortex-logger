@@ -7,7 +7,7 @@ const { test } = require('tap')
 const { isWin, isYarnPnp, watchFileCreated, file } = require('../helper')
 const { once } = require('node:events')
 const execa = require('execa')
-const bingo = require('../../')
+const zenlog = require('../../')
 const rimraf = require('rimraf')
 
 const { pid } = process
@@ -39,12 +39,12 @@ async function uninstallTransportModule () {
 }
 
 // TODO make this test pass on Windows
-test('bingo.transport with package', { skip: isWin }, async ({ same, teardown }) => {
+test('zenlog.transport with package', { skip: isWin }, async ({ same, teardown }) => {
   const destination = file()
 
   await installTransportModule()
 
-  const transport = bingo.transport({
+  const transport = zenlog.transport({
     target: 'transport',
     options: { destination }
   })
@@ -53,7 +53,7 @@ test('bingo.transport with package', { skip: isWin }, async ({ same, teardown })
     await uninstallTransportModule()
     transport.end()
   })
-  const instance = bingo(transport)
+  const instance = zenlog(transport)
   instance.info('hello')
   await watchFileCreated(destination)
   const result = JSON.parse(await readFile(destination))
@@ -67,12 +67,12 @@ test('bingo.transport with package', { skip: isWin }, async ({ same, teardown })
 })
 
 // TODO make this test pass on Windows
-test('bingo.transport with package as a target', { skip: isWin }, async ({ same, teardown }) => {
+test('zenlog.transport with package as a target', { skip: isWin }, async ({ same, teardown }) => {
   const destination = file()
 
   await installTransportModule()
 
-  const transport = bingo.transport({
+  const transport = zenlog.transport({
     targets: [{
       target: 'transport',
       options: { destination }
@@ -82,7 +82,7 @@ test('bingo.transport with package as a target', { skip: isWin }, async ({ same,
     await uninstallTransportModule()
     transport.end()
   })
-  const instance = bingo(transport)
+  const instance = zenlog(transport)
   instance.info('hello')
   await watchFileCreated(destination)
   const result = JSON.parse(await readFile(destination))
@@ -96,7 +96,7 @@ test('bingo.transport with package as a target', { skip: isWin }, async ({ same,
 })
 
 // TODO make this test pass on Windows
-test('bingo({ transport })', { skip: isWin || isYarnPnp }, async ({ same, teardown }) => {
+test('zenlog({ transport })', { skip: isWin || isYarnPnp }, async ({ same, teardown }) => {
   const folder = join(
     os.tmpdir(),
     '_' + Math.random().toString(36).substr(2, 9)
@@ -110,10 +110,10 @@ test('bingo({ transport })', { skip: isWin || isYarnPnp }, async ({ same, teardo
 
   await mkdir(join(folder, 'node_modules'), { recursive: true })
 
-  // Link bingo
+  // Link zenlog
   await symlink(
     join(__dirname, '..', '..'),
-    join(folder, 'node_modules', 'bingo')
+    join(folder, 'node_modules', 'zenlog')
   )
 
   await installTransportModule(folder)
@@ -121,8 +121,8 @@ test('bingo({ transport })', { skip: isWin || isYarnPnp }, async ({ same, teardo
   const toRun = join(folder, 'index.js')
 
   const toRunContent = `
-    const bingo = require('bingo')
-    const logger = bingo({
+    const zenlog = require('zenlog')
+    const logger = zenlog({
       transport: {
         target: 'transport',
         options: { destination: '${destination}' }
@@ -148,7 +148,7 @@ test('bingo({ transport })', { skip: isWin || isYarnPnp }, async ({ same, teardo
 })
 
 // TODO make this test pass on Windows
-test('bingo({ transport }) from a wrapped dependency', { skip: isWin || isYarnPnp }, async ({ same, teardown }) => {
+test('zenlog({ transport }) from a wrapped dependency', { skip: isWin || isYarnPnp }, async ({ same, teardown }) => {
   const folder = join(
     os.tmpdir(),
     '_' + Math.random().toString(36).substr(2, 9)
@@ -169,10 +169,10 @@ test('bingo({ transport }) from a wrapped dependency', { skip: isWin || isYarnPn
     rimraf.sync(folder)
   })
 
-  // Link bingo
+  // Link zenlog
   await symlink(
     join(__dirname, '..', '..'),
-    join(wrappedFolder, 'node_modules', 'bingo')
+    join(wrappedFolder, 'node_modules', 'zenlog')
   )
 
   // Link get-caller-file
@@ -190,7 +190,7 @@ test('bingo({ transport }) from a wrapped dependency', { skip: isWin || isYarnPn
   await installTransportModule(folder)
 
   const pkgjsonContent = {
-    name: 'bingo'
+    name: 'zenlog'
   }
 
   await writeFile(join(wrappedFolder, 'package.json'), JSON.stringify(pkgjsonContent))
@@ -198,11 +198,11 @@ test('bingo({ transport }) from a wrapped dependency', { skip: isWin || isYarnPn
   const wrapped = join(wrappedFolder, 'index.js')
 
   const wrappedContent = `
-    const bingo = require('bingo')
+    const zenlog = require('zenlog')
     const getCaller = require('get-caller-file')
 
     module.exports = function build () {
-      const logger = bingo({
+      const logger = zenlog({
         transport: {
           caller: getCaller(),
           target: 'transport',

@@ -1,113 +1,113 @@
-import { bingo } from '../../bingo-logger'
+import { zenlog } from '../../zenlog'
 import { expectType } from "tsd";
 
 // Single
-const transport = bingo.transport({
-    target: '#bingo/pretty',
+const transport = zenlog.transport({
+    target: '#zenlog/pretty',
     options: { some: 'options for', the: 'transport' }
 })
-bingo(transport)
+zenlog(transport)
 
-expectType<bingo.Logger>(bingo({
+expectType<zenlog.Logger>(zenlog({
     transport: {
         target: 'pino-pretty'
     },
 }))
 
 // Multiple
-const transports = bingo.transport({targets: [
+const transports = zenlog.transport({targets: [
     {
         level: 'info',
-        target: '#bingo/pretty',
+        target: '#zenlog/pretty',
         options: { some: 'options for', the: 'transport' }
     },
     {
         level: 'trace',
-        target: '#bingo-logger/file',
+        target: '#zenlog/file',
         options: { destination: './test.log' }
     }
 ]})
-bingo(transports)
+zenlog(transports)
 
-expectType<bingo.Logger>(bingo({
+expectType<zenlog.Logger>(zenlog({
     transport: {targets: [
             {
                 level: 'info',
-                target: '#bingo/pretty',
+                target: '#zenlog/pretty',
                 options: { some: 'options for', the: 'transport' }
             },
             {
                 level: 'trace',
-                target: '#bingo-logger/file',
+                target: '#zenlog/file',
                 options: { destination: './test.log' }
             }
         ]},
 }))
 
-const transportsWithCustomLevels = bingo.transport({targets: [
+const transportsWithCustomLevels = zenlog.transport({targets: [
     {
         level: 'info',
-        target: '#bingo/pretty',
+        target: '#zenlog/pretty',
         options: { some: 'options for', the: 'transport' }
     },
     {
         level: 'foo',
-        target: '#bingo-logger/file',
+        target: '#zenlog/file',
         options: { destination: './test.log' }
     }
 ], levels: { foo: 35 }})
-bingo(transports)
+zenlog(transports)
 
-expectType<bingo.Logger>(bingo({
+expectType<zenlog.Logger>(zenlog({
     transport: {targets: [
             {
                 level: 'info',
-                target: '#bingo/pretty',
+                target: '#zenlog/pretty',
                 options: { some: 'options for', the: 'transport' }
             },
             {
                 level: 'trace',
-                target: '#bingo-logger/file',
+                target: '#zenlog/file',
                 options: { destination: './test.log' }
             }
         ], levels: { foo: 35 }
     },
 }))
 
-const transportsWithoutOptions = bingo.transport({
+const transportsWithoutOptions = zenlog.transport({
     targets: [
-        { target: '#bingo/pretty' },
-        { target: '#bingo-logger/file' }
+        { target: '#zenlog/pretty' },
+        { target: '#zenlog/file' }
     ], levels: { foo: 35 }
 })
-bingo(transports)
+zenlog(transports)
 
-expectType<bingo.Logger>(bingo({
+expectType<zenlog.Logger>(zenlog({
     transport: {
         targets: [
-            { target: '#bingo/pretty' },
-            { target: '#bingo-logger/file' }
+            { target: '#zenlog/pretty' },
+            { target: '#zenlog/file' }
         ], levels: { foo: 35 }
     },
 }))
 
-const pipelineTransport = bingo.transport({
+const pipelineTransport = zenlog.transport({
     pipeline: [{
         target: './my-transform.js'
     }, {
-        // Use target: 'bingo-logger/file' to write to stdout
+        // Use target: 'zenlog/file' to write to stdout
         // without any change.
         target: 'pino-pretty'
     }]
 })
-bingo(pipelineTransport)
+zenlog(pipelineTransport)
 
-expectType<bingo.Logger>(bingo({
+expectType<zenlog.Logger>(zenlog({
     transport: {
         pipeline: [{
             target: './my-transform.js'
         }, {
-            // Use target: 'bingo-logger/file' to write to stdout
+            // Use target: 'zenlog/file' to write to stdout
             // without any change.
             target: 'pino-pretty'
         }]
@@ -119,14 +119,14 @@ type TransportConfig = {
 }
 
 // Custom transport params
-const customTransport = bingo.transport<TransportConfig>({
+const customTransport = zenlog.transport<TransportConfig>({
     target: 'custom',
     options: { id: 'abc' }
 })
-bingo(customTransport)
+zenlog(customTransport)
 
 // Worker
-bingo.transport({
+zenlog.transport({
     target: 'custom',
     worker: {
         argv: ['a', 'b'],
@@ -139,7 +139,7 @@ bingo.transport({
 })
 
 // Dedupe
-bingo.transport({
+zenlog.transport({
     targets: [],
     dedupe: true,
 })

@@ -1,10 +1,10 @@
 import { IncomingMessage, ServerResponse } from "http";
 import { Socket } from "net";
 import { expectError, expectType } from 'tsd';
-import P, { LoggerOptions, bingo } from "../../bingo-logger";
+import P, { LoggerOptions, zenlog } from "../../zenlog";
 import Logger = P.Logger;
 
-const log = bingo();
+const log = zenlog();
 const info = log.info;
 const error = log.error;
 
@@ -17,75 +17,75 @@ info({ obj: { aa: "bbb" } }, "another");
 setImmediate(info, "after setImmediate");
 error(new Error("an error"));
 
-const writeSym = bingo.symbols.writeSym;
+const writeSym = zenlog.symbols.writeSym;
 
 const testUniqSymbol = {
-    [bingo.symbols.needsMetadataGsym]: true,
-}[bingo.symbols.needsMetadataGsym];
+    [zenlog.symbols.needsMetadataGsym]: true,
+}[zenlog.symbols.needsMetadataGsym];
 
-const log2: P.Logger = bingo({
+const log2: P.Logger = zenlog({
     name: "myapp",
     safe: true,
     serializers: {
-        req: bingo.stdSerializers.req,
-        res: bingo.stdSerializers.res,
-        err: bingo.stdSerializers.err,
+        req: zenlog.stdSerializers.req,
+        res: zenlog.stdSerializers.res,
+        err: zenlog.stdSerializers.err,
     },
 });
 
-bingo({
+zenlog({
     write(o) {},
 });
 
-bingo({
+zenlog({
     mixin() {
         return { customName: "unknown", customId: 111 };
     },
 });
 
-bingo({
+zenlog({
     mixin: () => ({ customName: "unknown", customId: 111 }),
 });
 
-bingo({
+zenlog({
     mixin: (context: object) => ({ customName: "unknown", customId: 111 }),
 });
 
-bingo({
+zenlog({
     mixin: (context: object, level: number) => ({ customName: "unknown", customId: 111 }),
 });
 
-bingo({
+zenlog({
     redact: { paths: [], censor: "SECRET" },
 });
 
-bingo({
+zenlog({
     redact: { paths: [], censor: () => "SECRET" },
 });
 
-bingo({
+zenlog({
     redact: { paths: [], censor: (value) => value },
 });
 
-bingo({
+zenlog({
     redact: { paths: [], censor: (value, path) => path.join() },
 });
 
-bingo({
+zenlog({
     depthLimit: 1
 });
 
-bingo({
+zenlog({
     edgeLimit: 1
 });
 
-bingo({
+zenlog({
     browser: {
         write(o) {},
     },
 });
 
-bingo({
+zenlog({
     browser: {
         write: {
             info(o) {},
@@ -107,10 +107,10 @@ bingo({
     },
 });
 
-bingo({}, undefined);
+zenlog({}, undefined);
 
-bingo({ base: null });
-if ("bingo" in log) console.log(`bingo version: ${log.bingo}`);
+zenlog({ base: null });
+if ("zenlog" in log) console.log(`zenlog version: ${log.zenlog}`);
 
 expectType<void>(log.flush());
 log.flush((err?: Error) => undefined);
@@ -129,15 +129,15 @@ const customSerializers = {
         return "this is my serializer";
     },
 };
-bingo().child({}, { serializers: customSerializers }).info({ test: "should not show up" });
+zenlog().child({}, { serializers: customSerializers }).info({ test: "should not show up" });
 const child2 = log.child({ father: true });
 const childChild = child2.child({ baby: true });
-const childRedacted = bingo().child({}, { redact: ["path"] })
+const childRedacted = zenlog().child({}, { redact: ["path"] })
 childRedacted.info({
   msg: "logged with redacted properties",
   path: "Not shown",
 });
-const childAnotherRedacted = bingo().child({}, {
+const childAnotherRedacted = zenlog().child({}, {
     redact: {
         paths: ["anotherPath"],
         censor: "Not the log you\re looking for",
@@ -163,10 +163,10 @@ log.level = "trace";
 log.removeListener("level-change", listener);
 log.level = "info";
 
-bingo.levels.values.error === 50;
-bingo.levels.labels[50] === "error";
+zenlog.levels.values.error === 50;
+zenlog.levels.labels[50] === "error";
 
-const logstderr: bingo.Logger = bingo(process.stderr);
+const logstderr: zenlog.Logger = zenlog(process.stderr);
 logstderr.error("on stderr instead of stdout");
 
 log.useLevelLabels = true;
@@ -174,7 +174,7 @@ log.info("lol");
 log.level === "info";
 const isEnabled: boolean = log.isLevelEnabled("info");
 
-const redacted = bingo({
+const redacted = zenlog({
     redact: ["path"],
 });
 
@@ -183,7 +183,7 @@ redacted.info({
     path: "Not shown",
 });
 
-const anotherRedacted = bingo({
+const anotherRedacted = zenlog({
     redact: {
         paths: ["anotherPath"],
         censor: "Not the log you\re looking for",
@@ -195,18 +195,18 @@ anotherRedacted.info({
     anotherPath: "Not shown",
 });
 
-const withTimeFn = bingo({
-    timestamp: bingo.stdTimeFunctions.isoTime,
+const withTimeFn = zenlog({
+    timestamp: zenlog.stdTimeFunctions.isoTime,
 });
 
-const withNestedKey = bingo({
+const withNestedKey = zenlog({
     nestedKey: "payload",
 });
 
-const withHooks = bingo({
+const withHooks = zenlog({
     hooks: {
         logMethod(args, method, level) {
-            expectType<bingo.Logger>(this);
+            expectType<zenlog.Logger>(this);
             return method.apply(this, args);
         },
         streamWrite(s) {
@@ -217,13 +217,13 @@ const withHooks = bingo({
 });
 
 // Properties/types imported from pino-std-serializers
-const wrappedErrSerializer = bingo.stdSerializers.wrapErrorSerializer((err: bingo.SerializedError) => {
+const wrappedErrSerializer = zenlog.stdSerializers.wrapErrorSerializer((err: zenlog.SerializedError) => {
     return { ...err, newProp: "foo" };
 });
-const wrappedReqSerializer = bingo.stdSerializers.wrapRequestSerializer((req: bingo.SerializedRequest) => {
+const wrappedReqSerializer = zenlog.stdSerializers.wrapRequestSerializer((req: zenlog.SerializedRequest) => {
     return { ...req, newProp: "foo" };
 });
-const wrappedResSerializer = bingo.stdSerializers.wrapResponseSerializer((res: bingo.SerializedResponse) => {
+const wrappedResSerializer = zenlog.stdSerializers.wrapResponseSerializer((res: zenlog.SerializedResponse) => {
     return { ...res, newProp: "foo" };
 });
 
@@ -231,32 +231,32 @@ const socket = new Socket();
 const incomingMessage = new IncomingMessage(socket);
 const serverResponse = new ServerResponse(incomingMessage);
 
-const mappedHttpRequest: { req: bingo.SerializedRequest } = bingo.stdSerializers.mapHttpRequest(incomingMessage);
-const mappedHttpResponse: { res: bingo.SerializedResponse } = bingo.stdSerializers.mapHttpResponse(serverResponse);
+const mappedHttpRequest: { req: zenlog.SerializedRequest } = zenlog.stdSerializers.mapHttpRequest(incomingMessage);
+const mappedHttpResponse: { res: zenlog.SerializedResponse } = zenlog.stdSerializers.mapHttpResponse(serverResponse);
 
-const serializedErr: bingo.SerializedError = bingo.stdSerializers.err(new Error());
-const serializedReq: bingo.SerializedRequest = bingo.stdSerializers.req(incomingMessage);
-const serializedRes: bingo.SerializedResponse = bingo.stdSerializers.res(serverResponse);
+const serializedErr: zenlog.SerializedError = zenlog.stdSerializers.err(new Error());
+const serializedReq: zenlog.SerializedRequest = zenlog.stdSerializers.req(incomingMessage);
+const serializedRes: zenlog.SerializedResponse = zenlog.stdSerializers.res(serverResponse);
 
 /**
  * Destination static method
  */
-const destinationViaDefaultArgs = bingo.destination();
-const destinationViaStrFileDescriptor = bingo.destination("/log/path");
-const destinationViaNumFileDescriptor = bingo.destination(2);
-const destinationViaStream = bingo.destination(process.stdout);
-const destinationViaOptionsObject = bingo.destination({ dest: "/log/path", sync: false });
+const destinationViaDefaultArgs = zenlog.destination();
+const destinationViaStrFileDescriptor = zenlog.destination("/log/path");
+const destinationViaNumFileDescriptor = zenlog.destination(2);
+const destinationViaStream = zenlog.destination(process.stdout);
+const destinationViaOptionsObject = zenlog.destination({ dest: "/log/path", sync: false });
 
-bingo(destinationViaDefaultArgs);
-bingo({ name: "my-logger" }, destinationViaDefaultArgs);
-bingo(destinationViaStrFileDescriptor);
-bingo({ name: "my-logger" }, destinationViaStrFileDescriptor);
-bingo(destinationViaNumFileDescriptor);
-bingo({ name: "my-logger" }, destinationViaNumFileDescriptor);
-bingo(destinationViaStream);
-bingo({ name: "my-logger" }, destinationViaStream);
-bingo(destinationViaOptionsObject);
-bingo({ name: "my-logger" }, destinationViaOptionsObject);
+zenlog(destinationViaDefaultArgs);
+zenlog({ name: "my-logger" }, destinationViaDefaultArgs);
+zenlog(destinationViaStrFileDescriptor);
+zenlog({ name: "my-logger" }, destinationViaStrFileDescriptor);
+zenlog(destinationViaNumFileDescriptor);
+zenlog({ name: "my-logger" }, destinationViaNumFileDescriptor);
+zenlog(destinationViaStream);
+zenlog({ name: "my-logger" }, destinationViaStream);
+zenlog(destinationViaOptionsObject);
+zenlog({ name: "my-logger" }, destinationViaOptionsObject);
 
 try {
     throw new Error('Some error')
@@ -273,21 +273,21 @@ info<StrictShape>({
     activity: "Required property",
 });
 
-const logLine: bingo.LogDescriptor = {
+const logLine: zenlog.LogDescriptor = {
     level: 20,
     msg: "A log message",
     time: new Date().getTime(),
     aCustomProperty: true,
 };
 
-interface CustomLogger extends bingo.Logger {
+interface CustomLogger extends zenlog.Logger {
     customMethod(msg: string, ...args: unknown[]): void;
 }
 
-const serializerFunc: bingo.SerializerFn = () => {}
-const writeFunc: bingo.WriteFn = () => {}
+const serializerFunc: zenlog.SerializerFn = () => {}
+const writeFunc: zenlog.WriteFn = () => {}
 
-interface CustomBaseLogger extends bingo.BaseLogger {
+interface CustomBaseLogger extends zenlog.BaseLogger {
   child(): CustomBaseLogger
 }
 
@@ -304,7 +304,7 @@ const customBaseLogger: CustomBaseLogger = {
 }
 
 // custom levels
-const log3 = bingo({ customLevels: { myLevel: 100 } })
+const log3 = zenlog({ customLevels: { myLevel: 100 } })
 expectError(log3.log())
 log3.level = 'myLevel'
 log3.myLevel('')
@@ -330,21 +330,21 @@ cclog3.childLevel2('')
 const ccclog3 = clog3.child({})
 expectError(ccclog3.nonLevel(''))
 
-const withChildCallback = bingo({
+const withChildCallback = zenlog({
     onChild: (child: Logger) => {}
 })
 withChildCallback.onChild = (child: Logger) => {}
 
-bingo({
+zenlog({
     crlf: true,
 });
 
 const customLevels = { foo: 99, bar: 42 }
 
-const customLevelLogger = bingo({ customLevels });
+const customLevelLogger = zenlog({ customLevels });
 
 type CustomLevelLogger = typeof customLevelLogger
-type CustomLevelLoggerLevels = bingo.Level | keyof typeof customLevels
+type CustomLevelLoggerLevels = zenlog.Level | keyof typeof customLevels
 
 const fn = (logger: Pick<CustomLevelLogger, CustomLevelLoggerLevels>) => {}
 
@@ -354,14 +354,14 @@ fn(customLevelChildLogger); // missing foo typing
 
 // unknown option
 expectError(
-  bingo({
+  zenlog({
     hello: 'world'
   })
 );
 
 // unknown option
 expectError(
-  bingo({
+  zenlog({
     hello: 'world',
     customLevels: {
       'log': 30
@@ -385,7 +385,7 @@ try {
   log.error({ err })
 }
 
-const bLogger = bingo({
+const bLogger = zenlog({
   customLevels: {
     log: 5,
   },
@@ -398,7 +398,7 @@ const bLogger = bingo({
   },
 });
 
-expectType<Logger<'log'>>(bingo({
+expectType<Logger<'log'>>(zenlog({
   customLevels: {
     log: 5,
   },
@@ -411,7 +411,7 @@ expectType<Logger<'log'>>(bingo({
   },
 }))
 
-const parentLogger1 = bingo({
+const parentLogger1 = zenlog({
   customLevels: { myLevel: 90 },
   onChild: (child) => { const a = child.myLevel; }
 }, process.stdout)
@@ -421,28 +421,28 @@ const childLogger1 = parentLogger1.child({});
 childLogger1.myLevel('');
 expectError(childLogger1.doesntExist(''));
 
-const parentLogger2 = bingo({}, process.stdin);
+const parentLogger2 = zenlog({}, process.stdin);
 expectError(parentLogger2.onChild = (child) => { const b = child.doesntExist; });
 
 const childLogger2 = parentLogger2.child({});
 expectError(childLogger2.doesntExist);
 
-expectError(bingo({
+expectError(zenlog({
   onChild: (child) => { const a = child.doesntExist; }
 }, process.stdout));
 
-const bingoWithoutLevelsSorting = bingo({});
-const bingoWithDescSortingLevels = bingo({ levelComparison: 'DESC' });
-const bingoWithAscSortingLevels = bingo({ levelComparison: 'ASC' });
-const bingoWithCustomSortingLevels = bingo({ levelComparison: () => false });
+const zenlogWithoutLevelsSorting = zenlog({});
+const zenlogWithDescSortingLevels = zenlog({ levelComparison: 'DESC' });
+const zenlogWithAscSortingLevels = zenlog({ levelComparison: 'ASC' });
+const zenlogWithCustomSortingLevels = zenlog({ levelComparison: () => false });
 // with wrong level comparison direction
-expectError(bingo({ levelComparison: 'SOME'}), process.stdout);
+expectError(zenlog({ levelComparison: 'SOME'}), process.stdout);
 // with wrong level comparison type
-expectError(bingo({ levelComparison: 123}), process.stdout);
+expectError(zenlog({ levelComparison: 123}), process.stdout);
 // with wrong custom level comparison return type
-expectError(bingo({ levelComparison: () => null }), process.stdout);
-expectError(bingo({ levelComparison: () => 1 }), process.stdout);
-expectError(bingo({ levelComparison: () => 'string' }), process.stdout);
+expectError(zenlog({ levelComparison: () => null }), process.stdout);
+expectError(zenlog({ levelComparison: () => 1 }), process.stdout);
+expectError(zenlog({ levelComparison: () => 'string' }), process.stdout);
 
 const customLevelsOnlyOpts = {
     useOnlyCustomLevels: true,
@@ -455,7 +455,7 @@ const customLevelsOnlyOpts = {
     level: 'customDebug',
 } satisfies LoggerOptions;
 
-const loggerWithCustomLevelOnly = bingo(customLevelsOnlyOpts);
+const loggerWithCustomLevelOnly = zenlog(customLevelsOnlyOpts);
 loggerWithCustomLevelOnly.customDebug('test3')
 loggerWithCustomLevelOnly.info('test4')
 loggerWithCustomLevelOnly.customError('test5')

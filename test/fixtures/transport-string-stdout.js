@@ -1,9 +1,9 @@
 'use strict'
 
-const bingo = require('../..')
-const transport = bingo.transport({
-  target: 'bingo-logger/file',
+const zenlog = require('../..')
+const transport = zenlog.transport({
+  target: 'zenlog/file',
   options: { destination: '1' }
 })
-const logger = bingo(transport)
+const logger = zenlog(transport)
 logger.info('Hello')

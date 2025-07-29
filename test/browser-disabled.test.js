@@ -1,9 +1,9 @@
 'use strict'
 const test = require('tape')
-const bingo = require('../browser')
+const zenlog = require('../browser')
 
 test('set browser opts disabled to true', ({ end, same }) => {
-  const instance = bingo({
+  const instance = zenlog({
     browser: {
       disabled: true,
       write (actual) {
@@ -33,7 +33,7 @@ test('set browser opts disabled to false', ({ end, same }) => {
       msg: 'this is fatal'
     }
   ]
-  const instance = bingo({
+  const instance = zenlog({
     browser: {
       disabled: false,
       write (actual) {
@@ -63,7 +63,7 @@ test('disabled is not set in browser opts', ({ end, same }) => {
       msg: 'this is fatal'
     }
   ]
-  const instance = bingo({
+  const instance = zenlog({
     browser: {
       write (actual) {
         checkLogObjects(same, actual, expected.shift())

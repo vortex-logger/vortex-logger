@@ -8,10 +8,10 @@
 * [Log to different streams](#multi-stream)
 * [Duplicate keys](#dupe-keys)
 * [Log levels as labels instead of numbers](#level-string)
-* [Bingo with `debug`](#debug)
+* [Zenlog with `debug`](#debug)
 * [Unicode and Windows terminal](#windows)
-* [Mapping Bingo Log Levels to Google Cloud Logging (Stackdriver) Severity Levels](#stackdriver)
-* [Using Grafana Loki to evaluate bingo logs in a kubernetes cluster](#grafana-loki)
+* [Mapping Zenlog Log Levels to Google Cloud Logging (Stackdriver) Severity Levels](#stackdriver)
+* [Using Grafana Loki to evaluate zenlog logs in a kubernetes cluster](#grafana-loki)
 * [Avoid Message Conflict](#avoid-message-conflict)
 * [Best performance for logging to `stdout`](#best-performance-for-stdout)
 * [Testing](#testing)
@@ -51,7 +51,7 @@ help.
 ## Reopening log files
 
 In cases where a log rotation tool doesn't offer copy-truncate capabilities,
-or where using them is deemed inappropriate, `bingo.destination`
+or where using them is deemed inappropriate, `zenlog.destination`
 can reopen file paths after a file has been moved away.
 
 One way to use this is to set up a `SIGUSR2` or `SIGHUP` signal handler that
@@ -63,8 +63,8 @@ somewhere so the log rotation tool knows where to send the signal.
 const fs = require('node:fs')
 fs.writeFileSync('/var/run/myapp.pid', process.pid)
 
-const dest = bingo.destination('/log/file')
-const logger = require('bingo')(dest)
+const dest = zenlog.destination('/log/file')
+const logger = require('zenlog')(dest)
 process.on('SIGHUP', () => dest.reopen())
 ```
 
@@ -92,11 +92,11 @@ Given a similar scenario as in the [Log rotation](#rotate) section a basic
 <a id="multiple"></a>
 ## Saving to multiple files
 
-See [`bingo.multistream`](/docs/api.md#bingo-multistream).
+See [`zenlog.multistream`](/docs/api.md#zenlog-multistream).
 
 <a id="filter-logs"></a>
 ## Log Filtering
-The Bingo philosophy advocates common, preexisting, system utilities.
+The Zenlog philosophy advocates common, preexisting, system utilities.
 
 Some recommendations in line with this philosophy are:
 
@@ -117,35 +117,35 @@ Some recommendations in line with this philosophy are:
 this challenge is to use a subshell:
 
 ```
-ExecStart=/bin/sh -c '/path/to/node app.js | bingo-transport'
+ExecStart=/bin/sh -c '/path/to/node app.js | zenlog-transport'
 ```
 
 <a id="multi-stream"></a>
 ## Log to different streams
 
-Bingo's default log destination is the singular destination of `stdout`. While
+Zenlog's default log destination is the singular destination of `stdout`. While
 not recommended for performance reasons, multiple destinations can be targeted
-by using [`bingo.multistream`](/docs/api.md#bingo-multistream).
+by using [`zenlog.multistream`](/docs/api.md#zenlog-multistream).
 
 In this example, we use `stderr` for `error` level logs and `stdout` as default
 for all other levels (e.g. `debug`, `info`, and `warn`).
 
 ```js
-const bingo = require('bingo')
+const zenlog = require('zenlog')
 var streams = [
   {level: 'debug', stream: process.stdout},
   {level: 'error', stream: process.stderr},
   {level: 'fatal', stream: process.stderr}
 ]
 
-const logger = bingo({
+const logger = zenlog({
   name: 'my-app',
   level: 'debug', // must be the lowest level of all streams
-}, bingo.multistream(streams))
+}, zenlog.multistream(streams))
 ```
 
 <a id="dupe-keys"></a>
-## How Bingo handles duplicate keys
+## How Zenlog handles duplicate keys
 
 Duplicate keys are possibly when a child logger logs an object with a key that
 collides with a key in the child loggers bindings.
@@ -155,15 +155,15 @@ for information on this is handled.
 
 <a id="level-string"></a>
 ## Log levels as labels instead of numbers
-Bingo log lines are meant to be parsable. Thus, Bingo's default mode of operation
+Zenlog log lines are meant to be parsable. Thus, Zenlog's default mode of operation
 is to print the level value instead of the string name. 
 However, you can use the [`formatters`](/docs/api.md#formatters-object) option 
 with a [`level`](/docs/api.md#level) function to print the string name instead of the level value :
 
 ```js
-const bingo = require('bingo')
+const zenlog = require('zenlog')
 
-const log = bingo({
+const log = zenlog({
   formatters: {
     level: (label) => {
       return {
@@ -181,38 +181,38 @@ log.info('message')
 Although it works, we recommend using one of these options instead if you are able:
 
 1. If the only change desired is the name then a transport can be used. One such
-transport is [`bingo-text-level-transport`](https://npm.im/bingo-text-level-transport).
+transport is [`zenlog-text-level-transport`](https://npm.im/zenlog-text-level-transport).
 1. Use a prettifier like [`pino-pretty`](https://npm.im/pino-pretty) to make
 the logs human friendly.
 
 <a id="debug"></a>
-## Bingo with `debug`
+## Zenlog with `debug`
 
 The popular [`debug`](https://npm.im/debug) is used in many modules across the ecosystem.
 
-The [`bingo-debug`](https://github.com/bingojs/bingo-debug) module
+The [`zenlog-debug`](https://github.com/zenlogjs/zenlog-debug) module
 can capture calls to `debug` loggers and run them
-through `bingo` instead. This results in a 10x (20x in asynchronous mode)
-performance improvement - even though `bingo-debug` is logging additional
+through `zenlog` instead. This results in a 10x (20x in asynchronous mode)
+performance improvement - even though `zenlog-debug` is logging additional
 data and wrapping it in JSON.
 
-To quickly enable this install [`bingo-debug`](https://github.com/bingojs/bingo-debug)
+To quickly enable this install [`zenlog-debug`](https://github.com/zenlogjs/zenlog-debug)
 and preload it with the `-r` flag, enabling any `debug` logs with the
 `DEBUG` environment variable:
 
 ```sh
-$ npm i bingo-debug
-$ DEBUG=* node -r bingo-debug app.js
+$ npm i zenlog-debug
+$ DEBUG=* node -r zenlog-debug app.js
 ```
 
-[`bingo-debug`](https://github.com/bingojs/bingo-debug) also offers fine-grain control to map specific `debug`
-namespaces to `bingo` log levels. See [`bingo-debug`](https://github.com/bingojs/bingo-debug)
+[`zenlog-debug`](https://github.com/zenlogjs/zenlog-debug) also offers fine-grain control to map specific `debug`
+namespaces to `zenlog` log levels. See [`zenlog-debug`](https://github.com/zenlogjs/zenlog-debug)
 for more.
 
 <a id="windows"></a>
 ## Unicode and Windows terminal
 
-Bingo uses [sonic-boom](https://github.com/mcollina/sonic-boom) to speed
+Zenlog uses [sonic-boom](https://github.com/mcollina/sonic-boom) to speed
 up logging. Internally, it uses [`fs.write`](https://nodejs.org/dist/latest-v10.x/docs/api/fs.html#fs_fs_write_fd_string_position_encoding_callback) to write log lines directly to a file
 descriptor. On Windows, Unicode output is not handled properly in the
 terminal (both `cmd.exe` and PowerShell), and as such the output could
@@ -223,18 +223,18 @@ executing in the terminal `chcp 65001`. This is a known limitation of
 Node.js.
 
 <a id="stackdriver"></a>
-## Mapping Bingo Log Levels to Google Cloud Logging (Stackdriver) Severity Levels
+## Mapping Zenlog Log Levels to Google Cloud Logging (Stackdriver) Severity Levels
 
 Google Cloud Logging uses `severity` levels instead of log levels. As a result, all logs may show as INFO
-level logs while completely ignoring the level set in the bingo log. Google Cloud Logging also prefers that
-log data is present inside a `message` key instead of the default `msg` key that Bingo uses. Use a technique
+level logs while completely ignoring the level set in the zenlog log. Google Cloud Logging also prefers that
+log data is present inside a `message` key instead of the default `msg` key that Zenlog uses. Use a technique
 similar to the one below to retain log levels in Google Cloud Logging
 
 ```js
-const bingo = require('bingo')
+const zenlog = require('zenlog')
 
 // https://cloud.google.com/logging/docs/reference/v2/rest/v2/LogEntry#logseverity
-const BingoLevelToSeverityLookup = {
+const ZenlogLevelToSeverityLookup = {
   trace: 'DEBUG',
   debug: 'DEBUG',
   info: 'INFO',
@@ -243,12 +243,12 @@ const BingoLevelToSeverityLookup = {
   fatal: 'CRITICAL',
 };
 
-const defaultBingoConf = {
+const defaultZenlogConf = {
   messageKey: 'message',
   formatters: {
     level(label, number) {
       return {
-        severity: BingoLevelToSeverityLookup[label] || BingoLevelToSeverityLookup['info'],
+        severity: ZenlogLevelToSeverityLookup[label] || ZenlogLevelToSeverityLookup['info'],
         level: number,
       }
     }
@@ -256,18 +256,18 @@ const defaultBingoConf = {
 }
 
 module.exports = function createLogger(options) {
-  return bingo(Object.assign({}, options, defaultBingoConf))
+  return zenlog(Object.assign({}, options, defaultZenlogConf))
 }
 ```
 
-A library that configures Bingo for
+A library that configures Zenlog for
 [Google Cloud Structured Logging](https://cloud.google.com/logging/docs/structured-logging)
 is available at:
-[@google-cloud/bingo-logging-gcp-config](https://www.npmjs.com/package/@google-cloud/bingo-logging-gcp-config)
+[@google-cloud/zenlog-logging-gcp-config](https://www.npmjs.com/package/@google-cloud/zenlog-logging-gcp-config)
 
 This library has the following features:
 
-+ Converts Bingo log levels to Google Cloud Logging log levels, as above
++ Converts Zenlog log levels to Google Cloud Logging log levels, as above
 + Uses `message` instead of `msg` for the message key, as above
 + Adds a millisecond-granularity timestamp in the 
   [structure](https://cloud.google.com/logging/docs/agent/logging/configuration#timestamp-processing)
@@ -287,11 +287,11 @@ This library has the following features:
   to the equivalent Google Cloud Logging fields.
 
 <a id="grafana-loki"></a>
-## Using Grafana Loki to evaluate bingo logs in a kubernetes cluster
+## Using Grafana Loki to evaluate zenlog logs in a kubernetes cluster
 
-To get bingo logs into Grafana Loki there are two options:
+To get zenlog logs into Grafana Loki there are two options:
 
-1. **Push:** Use [bingo-loki](https://github.com/Julien-R44/bingo-loki) to send logs directly to Loki.
+1. **Push:** Use [zenlog-loki](https://github.com/Julien-R44/zenlog-loki) to send logs directly to Loki.
 1. **Pull:** Configure Grafana Promtail to read and properly parse the logs before sending them to Loki.  
    Similar to Google Cloud logging, this involves remapping the log levels. See this [article](https://medium.com/@janpaepke/structured-logging-in-the-grafana-monitoring-stack-8aff0a5af2f5) for details.
 
@@ -307,7 +307,7 @@ can be used:
 ```js
 'use strict'
 
-const log = require('bingo')({
+const log = require('zenlog')({
   level: 'debug',
   hooks: {
     logMethod (inputArgs, method) {
@@ -333,7 +333,7 @@ The best performance for logging directly to stdout is _usually_ achieved by usi
 default configuration:
 
 ```js
-const log = require('bingo')();
+const log = require('zenlog')();
 ```
 
 You should only have to configure custom transports or other settings
@@ -342,4 +342,4 @@ if you have broader logging requirements.
 <a id="testing"></a>
 ## Testing
 
-See [`bingo-test`](https://github.com/bingojs/bingo-test).
+See [`zenlog-test`](https://github.com/zenlogjs/zenlog-test).

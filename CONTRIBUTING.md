@@ -1,4 +1,4 @@
-# Bingo is an OPEN Open Source Project
+# Zenlog is an OPEN Open Source Project
 
 ## What?
 

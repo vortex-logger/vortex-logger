@@ -5,7 +5,7 @@
 const os = require('node:os')
 const { test } = require('tap')
 const { sink, once } = require('./helper')
-const bingo = require('../')
+const zenlog = require('../')
 
 const { pid } = process
 const hostname = os.hostname()
@@ -15,7 +15,7 @@ const name = 'error'
 test('err is serialized with additional properties set on the Error object', async ({ ok, same }) => {
   const stream = sink()
   const err = Object.assign(new Error('myerror'), { foo: 'bar' })
-  const instance = bingo(stream)
+  const instance = zenlog(stream)
   instance.level = name
   instance[name](err)
   const result = await once(stream, 'data')
@@ -39,7 +39,7 @@ test('type should be detected based on constructor', async ({ ok, same }) => {
   class Bar extends Error {}
   const stream = sink()
   const err = new Bar('myerror')
-  const instance = bingo(stream)
+  const instance = zenlog(stream)
   instance.level = name
   instance[name](err)
   const result = await once(stream, 'data')
@@ -61,7 +61,7 @@ test('type should be detected based on constructor', async ({ ok, same }) => {
 test('type, message and stack should be first level properties', async ({ ok, same }) => {
   const stream = sink()
   const err = Object.assign(new Error('foo'), { foo: 'bar' })
-  const instance = bingo(stream)
+  const instance = zenlog(stream)
   instance.level = name
   instance[name](err)
 
@@ -85,9 +85,9 @@ test('type, message and stack should be first level properties', async ({ ok, sa
 test('err serializer', async ({ ok, same }) => {
   const stream = sink()
   const err = Object.assign(new Error('myerror'), { foo: 'bar' })
-  const instance = bingo({
+  const instance = zenlog({
     serializers: {
-      err: bingo.stdSerializers.err
+      err: zenlog.stdSerializers.err
     }
   }, stream)
 
@@ -113,7 +113,7 @@ test('err serializer', async ({ ok, same }) => {
 test('an error with statusCode property is not confused for a http response', async ({ ok, same }) => {
   const stream = sink()
   const err = Object.assign(new Error('StatusCodeErr'), { statusCode: 500 })
-  const instance = bingo(stream)
+  const instance = zenlog(stream)
 
   instance.level = name
   instance[name](err)
@@ -139,7 +139,7 @@ test('stack is omitted if it is not set on err', t => {
   t.plan(2)
   const err = new Error('myerror')
   delete err.stack
-  const instance = bingo(sink(function (chunk, enc, cb) {
+  const instance = zenlog(sink(function (chunk, enc, cb) {
     t.ok(new Date(chunk.time) <= new Date(), 'time is greater than Date.now()')
     delete chunk.time
     t.equal(chunk.hasOwnProperty('stack'), false)
@@ -154,7 +154,7 @@ test('correctly ignores toString on errors', async ({ same }) => {
   const err = new Error('myerror')
   err.toString = () => undefined
   const stream = sink()
-  const instance = bingo({
+  const instance = zenlog({
     test: 'this'
   }, stream)
   instance.fatal(err)
@@ -176,7 +176,7 @@ test('correctly ignores toString on errors', async ({ same }) => {
 test('assign mixin()', async ({ same }) => {
   const err = new Error('myerror')
   const stream = sink()
-  const instance = bingo({
+  const instance = zenlog({
     mixin () {
       return { hello: 'world' }
     }
@@ -201,7 +201,7 @@ test('assign mixin()', async ({ same }) => {
 test('no err serializer', async ({ same }) => {
   const err = new Error('myerror')
   const stream = sink()
-  const instance = bingo({
+  const instance = zenlog({
     serializers: {}
   }, stream)
   instance.fatal(err)
@@ -223,7 +223,7 @@ test('no err serializer', async ({ same }) => {
 test('empty serializer', async ({ same }) => {
   const err = new Error('myerror')
   const stream = sink()
-  const instance = bingo({
+  const instance = zenlog({
     serializers: {
       err () {}
     }
@@ -242,7 +242,7 @@ test('empty serializer', async ({ same }) => {
 test('assign mixin()', async ({ same }) => {
   const err = new Error('myerror')
   const stream = sink()
-  const instance = bingo({
+  const instance = zenlog({
     mixin () {
       return { hello: 'world' }
     }
@@ -267,7 +267,7 @@ test('assign mixin()', async ({ same }) => {
 test('no err serializer', async ({ same }) => {
   const err = new Error('myerror')
   const stream = sink()
-  const instance = bingo({
+  const instance = zenlog({
     serializers: {}
   }, stream)
   instance.fatal(err)
@@ -289,7 +289,7 @@ test('no err serializer', async ({ same }) => {
 test('empty serializer', async ({ same }) => {
   const err = new Error('myerror')
   const stream = sink()
-  const instance = bingo({
+  const instance = zenlog({
     serializers: {
       err () {}
     }
@@ -309,7 +309,7 @@ test('correctly adds error information when nestedKey is used', async ({ same })
   const err = new Error('myerror')
   err.toString = () => undefined
   const stream = sink()
-  const instance = bingo({
+  const instance = zenlog({
     test: 'this',
     nestedKey: 'obj'
   }, stream)
@@ -335,7 +335,7 @@ test('correctly adds msg on error when nestedKey is used', async ({ same }) => {
   const err = new Error('myerror')
   err.toString = () => undefined
   const stream = sink()
-  const instance = bingo({
+  const instance = zenlog({
     test: 'this',
     nestedKey: 'obj'
   }, stream)
@@ -360,7 +360,7 @@ test('correctly adds msg on error when nestedKey is used', async ({ same }) => {
 test('msg should take precedence over error message on mergingObject', async ({ same }) => {
   const err = new Error('myerror')
   const stream = sink()
-  const instance = bingo(stream)
+  const instance = zenlog(stream)
   instance.error({ msg: 'my message', err })
   const result = await once(stream, 'data')
   delete result.time
@@ -380,7 +380,7 @@ test('msg should take precedence over error message on mergingObject', async ({ 
 test('considers messageKey when giving msg precedence over error', async ({ same }) => {
   const err = new Error('myerror')
   const stream = sink()
-  const instance = bingo({ messageKey: 'message' }, stream)
+  const instance = zenlog({ messageKey: 'message' }, stream)
   instance.error({ message: 'my message', err })
   const result = await once(stream, 'data')
   delete result.time

@@ -1,9 +1,9 @@
 'use strict'
 const test = require('tape')
-const bingo = require('../browser')
+const zenlog = require('../browser')
 
 test('child has parent level', ({ end, same, is }) => {
-  const instance = bingo({
+  const instance = zenlog({
     level: 'error',
     browser: {}
   })
@@ -15,7 +15,7 @@ test('child has parent level', ({ end, same, is }) => {
 })
 
 test('child can set level at creation time', ({ end, same, is }) => {
-  const instance = bingo({
+  const instance = zenlog({
     level: 'error',
     browser: {}
   })
@@ -27,7 +27,7 @@ test('child can set level at creation time', ({ end, same, is }) => {
 })
 
 test('changing child level does not affect parent', ({ end, same, is }) => {
-  const instance = bingo({
+  const instance = zenlog({
     level: 'error',
     browser: {}
   })
@@ -54,7 +54,7 @@ test('child should log, if its own level allows it', ({ end, same, is }) => {
       msg: 'this is an error'
     }
   ]
-  const instance = bingo({
+  const instance = zenlog({
     level: 'error',
     browser: {
       write (actual) {
@@ -86,7 +86,7 @@ test('changing child log level should not affect parent log behavior', ({ end, s
       msg: 'this is fatal'
     }
   ]
-  const instance = bingo({
+  const instance = zenlog({
     level: 'error',
     browser: {
       write (actual) {
@@ -108,7 +108,7 @@ test('changing child log level should not affect parent log behavior', ({ end, s
 
 test('onChild callback should be called when new child is created', ({ end, pass, plan }) => {
   plan(1)
-  const instance = bingo({
+  const instance = zenlog({
     level: 'error',
     browser: {},
     onChild: (_child) => {

@@ -1,8 +1,8 @@
 /* global test */
-const bingo = require('../../bingo-logger')
+const zenlog = require('../../zenlog')
 
 test('transport should work in jest', function () {
-  bingo({
+  zenlog({
     transport: {
       target: 'pino-pretty'
     }

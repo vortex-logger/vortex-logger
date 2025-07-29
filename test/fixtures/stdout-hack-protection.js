@@ -7,5 +7,5 @@ process.stdout.write = function (chunk) {
 
 Date.now = function () { return 1459875739796 }
 require('node:os').hostname = function () { return 'abcdefghijklmnopqr' }
-const bingo = require(require.resolve('../../'))()
-bingo.info('me')
+const zenlog = require(require.resolve('../../'))()
+zenlog.info('me')

@@ -24,24 +24,24 @@ const formatters = {
 }
 
 const bench = require('fastbench')
-const bingo = require('../')
+const zenlog = require('../')
 delete require.cache[require.resolve('../')]
-const bingoNoFormatters = require('../')(bingo.destination('/dev/null'))
+const zenlogNoFormatters = require('../')(zenlog.destination('/dev/null'))
 delete require.cache[require.resolve('../')]
-const bingoFormatters = require('../')({ formatters }, bingo.destination('/dev/null'))
+const zenlogFormatters = require('../')({ formatters }, zenlog.destination('/dev/null'))
 
 const max = 10
 
 const run = bench([
-  function benchBingoNoFormatters (cb) {
+  function benchZenlogNoFormatters (cb) {
     for (var i = 0; i < max; i++) {
-      bingoNoFormatters.info({ hello: 'world' })
+      zenlogNoFormatters.info({ hello: 'world' })
     }
     setImmediate(cb)
   },
-  function benchBingoFormatters (cb) {
+  function benchZenlogFormatters (cb) {
     for (var i = 0; i < max; i++) {
-      bingoFormatters.info({ hello: 'world' })
+      zenlogFormatters.info({ hello: 'world' })
     }
     setImmediate(cb)
   }

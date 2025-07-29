@@ -1,17 +1,17 @@
 'use strict'
 
 const bench = require('fastbench')
-const bingo = require('../')
+const zenlog = require('../')
 const bunyan = require('bunyan')
 const bole = require('bole')('bench')
 const winston = require('winston')
 const fs = require('node:fs')
 const dest = fs.createWriteStream('/dev/null')
-const plogNodeStream = bingo(dest)
+const plogNodeStream = zenlog(dest)
 delete require.cache[require.resolve('../')]
-const plogDest = require('../')(bingo.destination('/dev/null'))
+const plogDest = require('../')(zenlog.destination('/dev/null'))
 delete require.cache[require.resolve('../')]
-const plogMinLength = require('../')(bingo.destination({ dest: '/dev/null', sync: false, minLength: 4096 }))
+const plogMinLength = require('../')(zenlog.destination({ dest: '/dev/null', sync: false, minLength: 4096 }))
 
 const crypto = require('crypto')
 
@@ -58,19 +58,19 @@ const run = bench([
     }
     setImmediate(cb)
   },
-  function benchBingo (cb) {
+  function benchZenlog (cb) {
     for (var i = 0; i < max; i++) {
       plogDest.info(longStr)
     }
     setImmediate(cb)
   },
-  function benchBingoMinLength (cb) {
+  function benchZenlogMinLength (cb) {
     for (var i = 0; i < max; i++) {
       plogMinLength.info(longStr)
     }
     setImmediate(cb)
   },
-  function benchBingoNodeStream (cb) {
+  function benchZenlogNodeStream (cb) {
     for (var i = 0; i < max; i++) {
       plogNodeStream.info(longStr)
     }

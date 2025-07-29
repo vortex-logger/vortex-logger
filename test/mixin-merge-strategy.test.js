@@ -2,14 +2,14 @@
 
 const { test } = require('tap')
 const { sink, once } = require('./helper')
-const bingo = require('../')
+const zenlog = require('../')
 
 const level = 50
 const name = 'error'
 
 test('default merge strategy', async ({ ok, same }) => {
   const stream = sink()
-  const instance = bingo({
+  const instance = zenlog({
     base: {},
     mixin () {
       return { tag: 'k8s' }
@@ -31,7 +31,7 @@ test('default merge strategy', async ({ ok, same }) => {
 
 test('custom merge strategy with mixin priority', async ({ ok, same }) => {
   const stream = sink()
-  const instance = bingo({
+  const instance = zenlog({
     base: {},
     mixin () {
       return { tag: 'k8s' }

@@ -1,24 +1,24 @@
 import { expectType } from "tsd";
 
-import bingo from '../../bingo-logger';
-import { bingo as bingoNamed, P } from "../../bingo-logger";
-import * as bingoStar from "../../bingo-logger";
-import bingoCjsImport = require ("../../bingo-logger");
-const bingoCjs = require("../../bingo-logger");
-const { P: bingoCjsNamed } = require('bingo')
+import zenlog from '../../zenlog';
+import { zenlog as zenlogNamed, P } from "../../zenlog";
+import * as zenlogStar from "../../zenlog";
+import zenlogCjsImport = require ("../../zenlog");
+const zenlogCjs = require("../../zenlog");
+const { P: zenlogCjsNamed } = require('zenlog')
 
-const log = bingo();
+const log = zenlog();
 expectType<P.LogFn>(log.info);
 expectType<P.LogFn>(log.error);
 
-expectType<bingo.Logger>(bingoNamed());
-expectType<P.Logger>(bingoNamed());
-expectType<bingo.Logger>(bingoStar.default());
-expectType<bingo.Logger>(bingoStar.bingo());
-expectType<bingo.Logger>(bingoCjsImport.default());
-expectType<bingo.Logger>(bingoCjsImport.bingo());
-expectType<any>(bingoCjsNamed());
-expectType<any>(bingoCjs());
+expectType<zenlog.Logger>(zenlogNamed());
+expectType<P.Logger>(zenlogNamed());
+expectType<zenlog.Logger>(zenlogStar.default());
+expectType<zenlog.Logger>(zenlogStar.zenlog());
+expectType<zenlog.Logger>(zenlogCjsImport.default());
+expectType<zenlog.Logger>(zenlogCjsImport.zenlog());
+expectType<any>(zenlogCjsNamed());
+expectType<any>(zenlogCjs());
 
 const levelChangeEventListener: P.LevelChangeEventListener = (
     lvl: P.LevelWithSilent | string,

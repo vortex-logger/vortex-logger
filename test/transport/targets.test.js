@@ -4,13 +4,13 @@ const { test } = require('tap')
 const { join } = require('node:path')
 const proxyquire = require('proxyquire')
 const Writable = require('node:stream').Writable
-const bingo = require('../../bingo-logger')
+const zenlog = require('../../zenlog')
 
 test('file-target mocked', async function ({ equal, same, plan, pass }) {
   plan(1)
   let ret
   const fileTarget = proxyquire('../../file', {
-    './bingo-logger': {
+    './zenlog': {
       destination (opts) {
         same(opts, { dest: 1, sync: false })
 
@@ -29,9 +29,9 @@ test('file-target mocked', async function ({ equal, same, plan, pass }) {
   await fileTarget()
 })
 
-test('bingo.transport with syntax error', ({ same, teardown, plan }) => {
+test('zenlog.transport with syntax error', ({ same, teardown, plan }) => {
   plan(1)
-  const transport = bingo.transport({
+  const transport = zenlog.transport({
     targets: [{
       target: join(__dirname, '..', 'fixtures', 'syntax-error-esm.mjs')
     }]

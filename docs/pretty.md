@@ -1,15 +1,15 @@
 # Pretty Printing
 
-By default, Bingo log lines are newline delimited JSON (NDJSON). This is perfect
+By default, Zenlog log lines are newline delimited JSON (NDJSON). This is perfect
 for production usage and long-term storage. It's not so great for development
-environments. Thus, Bingo logs can be prettified by using a Bingo prettifier
+environments. Thus, Zenlog logs can be prettified by using a Zenlog prettifier
 module like [`pino-pretty`][pp]:
 
 1. Install a prettifier module as a separate dependency, e.g. `npm install pino-pretty`.
 2. Instantiate the logger with the `transport.target` option set to `'pino-pretty'`:
   ```js
-  const bingo = require('bingo')
-  const logger = bingo({
+  const zenlog = require('zenlog')
+  const logger = zenlog({
     transport: {
       target: 'pino-pretty'
     },
@@ -19,8 +19,8 @@ module like [`pino-pretty`][pp]:
   ```
 3. The transport option can also have an options object containing `pino-pretty` options:
   ```js
-  const bingo = require('bingo')
-  const logger = bingo({
+  const zenlog = require('zenlog')
+  const logger = zenlog({
     transport: {
       target: 'pino-pretty',
       options: {

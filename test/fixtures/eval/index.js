@@ -1,11 +1,11 @@
 /* eslint-disable no-eval */
 
 eval(`
-const bingo = require('../../../')
+const zenlog = require('../../../')
 
-const logger = bingo(
-  bingo.transport({
-    target: 'bingo-logger/file'
+const logger = zenlog(
+  zenlog.transport({
+    target: 'zenlog/file'
   })
 )
 

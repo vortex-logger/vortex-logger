@@ -105,7 +105,7 @@ let files = []
 
 function file () {
   const hash = crypto.randomBytes(12).toString('hex')
-  const file = join(tmpdir(), `bingo-${pid}-${hash}`)
+  const file = join(tmpdir(), `zenlog-${pid}-${hash}`)
   files.push(file)
   return file
 }

@@ -2,7 +2,7 @@
 
 const format = require('quick-format-unescaped')
 
-module.exports = bingo
+module.exports = zenlog
 
 const _console = pfGlobalThisOrFallback().console || {}
 const stdSerializers = {
@@ -21,8 +21,8 @@ function levelToValue (level, logger) {
     ? Infinity
     : logger.levels.values[level]
 }
-const baseLogFunctionSymbol = Symbol('bingo.logFuncs')
-const hierarchySymbol = Symbol('bingo.hierarchy')
+const baseLogFunctionSymbol = Symbol('zenlog.logFuncs')
+const hierarchySymbol = Symbol('zenlog.hierarchy')
 
 const logFallbackMap = {
   error: 'log',
@@ -62,12 +62,12 @@ function shouldSerialize (serialize, serializers) {
   return false
 }
 
-function bingo (opts) {
+function zenlog (opts) {
   opts = opts || {}
   opts.browser = opts.browser || {}
 
   const transmit = opts.browser.transmit
-  if (transmit && typeof transmit.send !== 'function') { throw Error('bingo: transmit option must have a send function') }
+  if (transmit && typeof transmit.send !== 'function') { throw Error('zenlog: transmit option must have a send function') }
 
   const proto = opts.browser.write || _console
   if (opts.browser.write) opts.browser.asObject = true
@@ -167,7 +167,7 @@ function bingo (opts) {
 
   function child (setOpts, bindings, childOptions) {
     if (!bindings) {
-      throw new Error('missing bindings for child Bingo')
+      throw new Error('missing bindings for child Zenlog')
     }
     childOptions = childOptions || {}
     if (serialize && bindings.serializers) {
@@ -216,8 +216,8 @@ function bingo (opts) {
 function getLevels (opts) {
   const customLevels = opts.customLevels || {}
 
-  const values = Object.assign({}, bingo.levels.values, customLevels)
-  const labels = Object.assign({}, bingo.levels.labels, invertObject(customLevels))
+  const values = Object.assign({}, zenlog.levels.values, customLevels)
+  const labels = Object.assign({}, zenlog.levels.labels, invertObject(customLevels))
 
   return {
     values,
@@ -233,7 +233,7 @@ function invertObject (obj) {
   return inverted
 }
 
-bingo.levels = {
+zenlog.levels = {
   values: {
     fatal: 60,
     error: 50,
@@ -252,8 +252,8 @@ bingo.levels = {
   }
 }
 
-bingo.stdSerializers = stdSerializers
-bingo.stdTimeFunctions = Object.assign({}, { nullTime, epochTime, unixTime, isoTime })
+zenlog.stdSerializers = stdSerializers
+zenlog.stdTimeFunctions = Object.assign({}, { nullTime, epochTime, unixTime, isoTime })
 
 function getBindingChain (logger) {
   const bindings = []
@@ -397,7 +397,7 @@ function asObject (logger, level, args, ts, opts) {
 function applySerializers (args, serialize, serializers, stdErrSerialize) {
   for (const i in args) {
     if (stdErrSerialize && args[i] instanceof Error) {
-      args[i] = bingo.stdSerializers.err(args[i])
+      args[i] = zenlog.stdSerializers.err(args[i])
     } else if (typeof args[i] === 'object' && !Array.isArray(args[i]) && serialize) {
       for (const k in args[i]) {
         if (serialize.indexOf(k) > -1 && k in serializers) {
@@ -501,5 +501,5 @@ function pfGlobalThisOrFallback () {
 }
 /* eslint-enable */
 
-module.exports.default = bingo
-module.exports.bingo = bingo
+module.exports.default = zenlog
+module.exports.zenlog = zenlog

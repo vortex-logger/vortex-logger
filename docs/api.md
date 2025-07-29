@@ -1,9 +1,9 @@
 # API
 
-* [bingo() => logger](#export)
+* [zenlog() => logger](#export)
   * [options](#options)
   * [destination](#destination)
-  * [destination\[Symbol.for('bingo.metadata')\]](#metadata)
+  * [destination\[Symbol.for('zenlog.metadata')\]](#metadata)
 * [Logger Instance](#logger)
   * [logger.trace()](#trace)
   * [logger.debug()](#debug)
@@ -19,17 +19,17 @@
   * [logger.level](#logger-level)
   * [logger.isLevelEnabled()](#islevelenabled)
   * [logger.levels](#levels)
-  * [logger\[Symbol.for('bingo.serializers')\]](#serializers)
+  * [logger\[Symbol.for('zenlog.serializers')\]](#serializers)
   * [Event: 'level-change'](#level-change)
   * [logger.version](#version)
 * [Statics](#statics)
-  * [bingo.destination()](#bingo-destination)
-  * [bingo.transport()](#bingo-transport)
-  * [bingo.multistream()](#bingo-multistream)
-  * [bingo.stdSerializers](#bingo-stdserializers)
-  * [bingo.stdTimeFunctions](#bingo-stdtimefunctions)
-  * [bingo.symbols](#bingo-symbols)
-  * [bingo.version](#bingo-version)
+  * [zenlog.destination()](#zenlog-destination)
+  * [zenlog.transport()](#zenlog-transport)
+  * [zenlog.multistream()](#zenlog-multistream)
+  * [zenlog.stdSerializers](#zenlog-stdserializers)
+  * [zenlog.stdTimeFunctions](#zenlog-stdtimefunctions)
+  * [zenlog.symbols](#zenlog-symbols)
+  * [zenlog.version](#zenlog-version)
 * [Interfaces](#interfaces)
   * [MultiStreamRes](#multistreamres)
   * [StreamEntry](#streamentry)
@@ -38,9 +38,9 @@
   * [Level](#level-1)
 
 <a id="export"></a>
-## `bingo([options], [destination]) => logger`
+## `zenlog([options], [destination]) => logger`
 
-The exported `bingo` function takes two optional arguments,
+The exported `zenlog` function takes two optional arguments,
 [`options`](#options) and [`destination`](#destination), and
 returns a [logger instance](#logger).
 
@@ -57,7 +57,7 @@ The name of the logger. When set adds a `name` field to every JSON line logged.
 
 Default: `'info'`
 
-The minimum level to log: Bingo will not log messages with a lower level. Setting this option reduces the load, as typically, debug and trace logs are only valid for development, and not needed in production.
+The minimum level to log: Zenlog will not log messages with a lower level. Setting this option reduces the load, as typically, debug and trace logs are only valid for development, and not needed in production.
 
 One of `'fatal'`, `'error'`, `'warn'`, `'info'`, `'debug'`, `'trace'` or `'silent'`.
 
@@ -75,7 +75,7 @@ Use this option to customize levels order.
 In order to be able to define custom levels ordering pass a function which will accept `current` and `expected` values and return `boolean` which shows should `current` level to be shown or not.
 
 ```js
-const logger = bingo({
+const logger = zenlog({
   levelComparison: 'DESC',
   customLevels: {
     foo: 20, // `foo` is more valuable than `bar`
@@ -85,7 +85,7 @@ const logger = bingo({
 
 // OR
 
-const logger = bingo({
+const logger = zenlog({
   levelComparison: function(current, expected) {
     return current >= expected;
   }
@@ -101,7 +101,7 @@ The keys of the object correspond to the namespace of the log level,
 and the values should be the numerical value of the level.
 
 ```js
-const logger = bingo({
+const logger = zenlog({
   customLevels: {
     foo: 35
   }
@@ -114,12 +114,12 @@ logger.foo('hi')
 
 Default: `false`
 
-Use this option to only use defined `customLevels` and omit Bingo's levels.
+Use this option to only use defined `customLevels` and omit Zenlog's levels.
 Logger's default `level` must be changed to a value in `customLevels` to use `useOnlyCustomLevels`
 Warning: this option may not be supported by downstream transports.
 
 ```js
-const logger = bingo({
+const logger = zenlog({
   customLevels: {
     foo: 35
   },
@@ -155,7 +155,7 @@ logged JSON.
 
 ```js
 let n = 0
-const logger = bingo({
+const logger = zenlog({
   mixin () {
     return { line: ++n }
   }
@@ -166,7 +166,7 @@ logger.info('world')
 // {"level":30,"time":1573664685469,"pid":78742,"hostname":"x","line":2,"msg":"world"}
 ```
 
-The result of `mixin()` is supposed to be a _new_ object. For performance reason, the object returned by `mixin()` will be mutated by bingo.
+The result of `mixin()` is supposed to be a _new_ object. For performance reason, the object returned by `mixin()` will be mutated by zenlog.
 In the following example, passing `mergingObject` argument to the first `info` call will mutate the global `mixin` object by default:
 (* See [`mixinMergeStrategy` option](#opt-mixin-merge-strategy)):
 ```js
@@ -174,7 +174,7 @@ const mixin = {
     appName: 'My app'
 }
 
-const logger = bingo({
+const logger = zenlog({
     mixin() {
         return mixin;
     }
@@ -191,7 +191,7 @@ logger.info('Message 2')
 
 The `mixin` method can be used to add the level label to each log message such as in the following example:
 ```js
-const logger = bingo({
+const logger = zenlog({
   mixin(_context, level) {
     return { 'level-label': logger.levels.labels[level] }
   }
@@ -211,7 +211,7 @@ needs to concatenate values for a specific key multiple times, in which case `mi
 used to avoid the [duplicate keys caveat](/docs/child-loggers.md#duplicate-keys-caveat):
 
 ```js
-const logger = bingo({
+const logger = zenlog({
   mixin (obj, num, logger) {
     return {
       tags: logger.tags
@@ -241,12 +241,12 @@ child.info('this will have both `foo: 1` and `bar: 2`')
 logger.info('this will still only have `foo: 1`')
 ```
 
-As of bingo 7.x, when the `mixin` is used with the [`nestedKey` option](#opt-nestedkey),
+As of zenlog 7.x, when the `mixin` is used with the [`nestedKey` option](#opt-nestedkey),
 the object returned from the `mixin` method will also be nested. Prior versions would mix
 this object into the root.
 
 ```js
-const logger = bingo({
+const logger = zenlog({
     nestedKey: 'payload',
     mixin() {
         return { requestId: requestId.currentId() }
@@ -271,7 +271,7 @@ The function must synchronously return an object.
 
 ```js
 // Default strategy, `mergeObject` has priority
-const logger = bingo({
+const logger = zenlog({
     mixin() {
         return { tag: 'docker' }
     },
@@ -288,7 +288,7 @@ logger.info({
 
 ```js
 // Custom mutable strategy, `mixin` has priority
-const logger = bingo({
+const logger = zenlog({
     mixin() {
         return { tag: 'k8s' }
     },
@@ -305,7 +305,7 @@ logger.info({
 
 ```js
 // Custom immutable strategy, `mixin` has priority
-const logger = bingo({
+const logger = zenlog({
     mixin() {
         return { tag: 'k8s' }
     },
@@ -358,7 +358,7 @@ of the arguments that were passed to the log method and `method` is the log
 method itself, `level` is the log level itself. This hook ***must*** invoke the
 `method` function by using apply, like so: `method.apply(this, newArgumentsArray)`.
 
-For example, Bingo expects a binding object to be the first parameter with an
+For example, Zenlog expects a binding object to be the first parameter with an
 optional string message as the second parameter. Using this hook the parameters
 can be flipped:
 
@@ -449,7 +449,7 @@ const formatters = {
 <a id=opt-serializers></a>
 #### `serializers` (Object)
 
-Default: `{err: bingo.stdSerializers.err}`
+Default: `{err: zenlog.stdSerializers.err}`
 
 An object containing functions for custom serialization of objects.
 These functions should return an JSONifiable object and they
@@ -461,7 +461,7 @@ in the serializers. The only exception is the `err` serializer as it is also app
 the object is an instance of `Error`, e.g. `logger.info(new Error('kaboom'))`.
 See `errorKey` option to change `err` namespace.
 
-* See [bingo.stdSerializers](#bingo-stdserializers)
+* See [zenlog.stdSerializers](#zenlog-stdserializers)
 
 #### `msgPrefix` (String)
 
@@ -470,7 +470,7 @@ Default: `undefined`
 The `msgPrefix` property allows you to specify a prefix for every message of the logger and its children.
 
 ```js
-const logger = bingo({
+const logger = zenlog({
   msgPrefix: '[HTTP] '
 })
 logger.info('got new request!')
@@ -513,7 +513,7 @@ representation of the time, e.g. `,"time":1493426328206` (which is the default).
 
 If set to `false`, no timestamp will be included in the output.
 
-See [stdTimeFunctions](#bingo-stdtimefunctions) for a set of available functions
+See [stdTimeFunctions](#zenlog-stdtimefunctions) for a set of available functions
 for passing in as a value for this option.
 
 Example:
@@ -544,25 +544,25 @@ The string key for the 'error' in the JSON object.
 
 Default: `null`
 
-If there's a chance that objects being logged have properties that conflict with those from bingo itself (`level`, `timestamp`, `pid`, etc)
-and duplicate keys in your log records are undesirable, bingo can be configured with a `nestedKey` option that causes any `object`s that are logged
+If there's a chance that objects being logged have properties that conflict with those from zenlog itself (`level`, `timestamp`, `pid`, etc)
+and duplicate keys in your log records are undesirable, zenlog can be configured with a `nestedKey` option that causes any `object`s that are logged
 to be placed under a key whose name is the value of `nestedKey`.
 
 This way, when searching something like Kibana for values, one can consistently search under the configured `nestedKey` value instead of the root log record keys.
 
 For example,
 ```js
-const logger = require('bingo')({
+const logger = require('zenlog')({
   nestedKey: 'payload'
 })
 
-const thing = { level: 'hi', time: 'never', foo: 'bar'} // has bingo-conflicting properties!
+const thing = { level: 'hi', time: 'never', foo: 'bar'} // has zenlog-conflicting properties!
 logger.info(thing)
 
 // logs the following:
 // {"level":30,"time":1578357790020,"pid":91736,"hostname":"x","payload":{"level":"hi","time":"never","foo":"bar"}}
 ```
-In this way, logged objects' properties don't conflict with bingo's standard logging properties,
+In this way, logged objects' properties don't conflict with zenlog's standard logging properties,
 and searching for logged objects can start from a consistent path.
 
 #### `browser` (Object)
@@ -574,17 +574,17 @@ documented in the [Browser API ⇗](/docs/browser.md) documentation.
 
 #### `transport` (Object)
 
-The `transport` option is a shorthand for the [bingo.transport()](#bingo-transport) function.
+The `transport` option is a shorthand for the [zenlog.transport()](#zenlog-transport) function.
 It supports the same input options:
 ```js
-require('bingo')({
+require('zenlog')({
   transport: {
     target: '/absolute/path/to/my-transport.mjs'
   }
 })
 
 // or multiple transports
-require('bingo')({
+require('zenlog')({
   transport: {
     targets: [
       { target: '/absolute/path/to/my-transport.mjs', level: 'error' },
@@ -594,23 +594,23 @@ require('bingo')({
 })
 ```
 
-If the transport option is supplied to `bingo`, a [`destination`](#destination) parameter may not also be passed as a separate argument to `bingo`:
+If the transport option is supplied to `zenlog`, a [`destination`](#destination) parameter may not also be passed as a separate argument to `zenlog`:
 
 ```js
-bingo({ transport: {}}, '/path/to/somewhere') // THIS WILL NOT WORK, DO NOT DO THIS
-bingo({ transport: {}}, process.stderr) // THIS WILL NOT WORK, DO NOT DO THIS
+zenlog({ transport: {}}, '/path/to/somewhere') // THIS WILL NOT WORK, DO NOT DO THIS
+zenlog({ transport: {}}, process.stderr) // THIS WILL NOT WORK, DO NOT DO THIS
 ```
 
 when using the `transport` option. In this case, an `Error` will be thrown.
 
-* See [bingo.transport()](#bingo-transport)
+* See [zenlog.transport()](#zenlog-transport)
 
 #### `onChild` (Function)
 
 The `onChild` function is a synchronous callback that will be called on each creation of a new child, passing the child instance as its first argument.
 Any error thrown inside the callback will be uncaught and should be handled inside the callback.
 ```js
-const parent = require('bingo')({ onChild: (instance) => {
+const parent = require('zenlog')({ onChild: (instance) => {
   // Execute call back code for each newly created child.
 }})
 // `onChild` will now be executed with the new child.
@@ -621,35 +621,35 @@ parent.child(bindings)
 <a id="destination"></a>
 ### `destination` (Number | String | Object | DestinationStream | SonicBoomOpts | WritableStream)
 
-Default: `bingo.destination(1)` (STDOUT)
+Default: `zenlog.destination(1)` (STDOUT)
 
 The `destination` parameter can be a file descriptor, a file path, or an
 object with `dest` property pointing to a fd or path.
 An ordinary Node.js `stream` file descriptor can be passed as the
 destination (such as the result
 of `fs.createWriteStream`) but for peak log writing performance, it is strongly
-recommended to use `bingo.destination` to create the destination stream.
-Note that the `destination` parameter can be the result of `bingo.transport()`.
+recommended to use `zenlog.destination` to create the destination stream.
+Note that the `destination` parameter can be the result of `zenlog.transport()`.
 
 ```js
-// bingo.destination(1) by default
-const stdoutLogger = require('bingo')()
+// zenlog.destination(1) by default
+const stdoutLogger = require('zenlog')()
 
 // destination param may be in first position when no options:
-const fileLogger = require('bingo')( bingo.destination('/log/path'))
+const fileLogger = require('zenlog')( zenlog.destination('/log/path'))
 
 // use the stderr file handle to log to stderr:
 const opts = {name: 'my-logger'}
-const stderrLogger = require('bingo')(opts, bingo.destination(2))
+const stderrLogger = require('zenlog')(opts, zenlog.destination(2))
 
-// automatic wrapping in bingo.destination
-const fileLogger = require('bingo')('/log/path')
+// automatic wrapping in zenlog.destination
+const fileLogger = require('zenlog')('/log/path')
 
 // Asynchronous logging
-const fileLogger = bingo(bingo.destination({ dest: '/log/path', sync: false }))
+const fileLogger = zenlog(zenlog.destination({ dest: '/log/path', sync: false }))
 ```
 
-However, there are some special instances where `bingo.destination` is not used as the default:
+However, there are some special instances where `zenlog.destination` is not used as the default:
 
 + When something, e.g a process manager, has monkey-patched `process.stdout.write`.
 
@@ -659,14 +659,14 @@ Note: If the parameter is a string integer, e.g. `'1'`, it will be coerced to
 a number and used as a file descriptor. If this is not desired, provide a full
 path, e.g. `/tmp/1`.
 
-* See [`bingo.destination`](#bingo-destination)
+* See [`zenlog.destination`](#zenlog-destination)
 
 <a id="metadata"></a>
-#### `destination[Symbol.for('bingo.metadata')]`
+#### `destination[Symbol.for('zenlog.metadata')]`
 
 Default: `false`
 
-Using the global symbol `Symbol.for('bingo.metadata')` as a key on the `destination` parameter and
+Using the global symbol `Symbol.for('zenlog.metadata')` as a key on the `destination` parameter and
 setting the key to `true`, indicates that the following properties should be
 set on the `destination` object after each log line is written:
 
@@ -681,9 +681,9 @@ set on the `destination` object after each log line is written:
 The following is a succinct usage example:
 
 ```js
-const dest = bingo.destination('/dev/null')
-dest[Symbol.for('bingo.metadata')] = true
-const logger = bingo(dest)
+const dest = zenlog.destination('/dev/null')
+dest[Symbol.for('zenlog.metadata')] = true
+const logger = zenlog(dest)
 logger.info({a: 1}, 'hi')
 const { lastMsg, lastLevel, lastObj, lastTime} = dest
 console.log(
@@ -696,7 +696,7 @@ console.log(
 ## Logger Instance
 
 The logger instance is the object returned by the main exported
-[`bingo`](#export) function.
+[`zenlog`](#export) function.
 
 The primary purpose of the logger instance is to provide logging methods.
 
@@ -763,7 +763,7 @@ the following placeholders:
 Values supplied as additional arguments to the logger method will
 then be interpolated accordingly.
 
-* See [`messageKey` bingo option](#opt-messagekey)
+* See [`messageKey` zenlog option](#opt-messagekey)
 * See [`...interpolationValues` log method parameter](#interpolationvalues)
 
 <a id="interpolationvalues"></a>
@@ -778,7 +778,7 @@ logger.info('%o hello %s', {worldly: 1}, 'world')
 // {"level":30,"time":1531257826880,"msg":"{\"worldly\":1} hello world","pid":55956,"hostname":"x"}
 ```
 
-Since bingo v6, we do not automatically concatenate and cast to string
+Since zenlog v6, we do not automatically concatenate and cast to string
 consecutive parameters:
 
 ```js
@@ -790,7 +790,7 @@ logger.info('hello', 'world')
 However, it's possible to inject a hook to modify this behavior:
 
 ```js
-const bingoOptions = {
+const zenlogOptions = {
   hooks: { logMethod }
 }
 
@@ -801,7 +801,7 @@ function logMethod (args, method) {
   method.apply(this, args)
 }
 
-const logger = bingo(bingoOptions)
+const logger = zenlog(zenlogOptions)
 ```
 
 * See [`message` log method parameter](#message)
@@ -937,7 +937,7 @@ By default, the parent log level is inherited.
 After the creation of the child logger, it is also accessible using the [`logger.level`](#logger-level) key.
 
 ```js
-const logger = bingo()
+const logger = zenlog()
 logger.debug('nope') // will not log, since default level is info
 const child = logger.child({foo: 'bar'}, {level: 'debug'})
 child.debug('debug!') // will log as the `level` property set the level to debug
@@ -952,7 +952,7 @@ By default, the parent prefix is inherited.
 If the parent already has a prefix, the prefix of the parent and then the child will be displayed.
 
 ```js
-const logger = bingo({
+const logger = zenlog({
   msgPrefix: '[HTTP] '
 })
 logger.info('got new request!')
@@ -968,7 +968,7 @@ child.info('message proxied!')
 Setting `options.redact` to an array or object will override the parent `redact` options. To remove `redact` options inherited from the parent logger set this value as an empty array (`[]`).
 
 ```js
-const logger = require('bingo')({ redact: ['hello'] })
+const logger = require('zenlog')({ redact: ['hello'] })
 logger.info({ hello: 'world' })
 // {"level":30,"time":1625794363403,"pid":67930,"hostname":"x","hello":"[Redacted]"}
 const child = logger.child({ foo: 'bar' }, { redact: ['foo'] })
@@ -986,7 +986,7 @@ Setting the `serializers` key of the `options` object will override
 any configured parent serializers.
 
 ```js
-const logger = require('bingo')()
+const logger = require('zenlog')()
 logger.info({test: 'will appear'})
 // {"level":30,"time":1531259759482,"pid":67930,"hostname":"x","test":"will appear"}
 const child = logger.child({}, {serializers: {test: () => `child-only serializer`}})
@@ -995,7 +995,7 @@ child.info({test: 'will be overwritten'})
 ```
 
 * See [`serializers` option](#opt-serializers)
-* See [bingo.stdSerializers](#bingo-stdSerializers)
+* See [zenlog.stdSerializers](#zenlog-stdSerializers)
 
 <a id="logger-bindings"></a>
 ### `logger.bindings()`
@@ -1023,7 +1023,7 @@ log lines.
 <a id="flush"></a>
 ### `logger.flush([cb])`
 
-Flushes the content of the buffer when using `bingo.destination({
+Flushes the content of the buffer when using `zenlog.destination({
 sync: false })`.
 
 This is an asynchronous, best used as fire and forget, operation.
@@ -1106,7 +1106,7 @@ The `logger.levels` property holds the mappings between levels and values,
 and vice versa.
 
 ```sh
-$ node -p "require('bingo')().levels"
+$ node -p "require('zenlog')().levels"
 ```
 
 ```js
@@ -1124,7 +1124,7 @@ $ node -p "require('bingo')().levels"
 * See [`logger.level`](#level)
 
 <a id="serializers"></a>
-### logger\[Symbol.for('bingo.serializers')\]
+### logger\[Symbol.for('zenlog.serializers')\]
 
 Returns the serializers as applied to the current logger instance. If a child logger did not
 register its own serializer upon instantiation the serializers of the parent will be returned.
@@ -1145,18 +1145,18 @@ The listener is passed five arguments:
 * `logger` – the logger instance from which the event originated
 
 ```js
-const logger = require('bingo')()
+const logger = require('zenlog')()
 logger.on('level-change', (lvl, val, prevLvl, prevVal) => {
   console.log('%s (%d) was changed to %s (%d)', prevLvl, prevVal, lvl, val)
 })
 logger.level = 'trace' // trigger event
 ```
 
-Please note that due to a [known bug](https://github.com/bingojs/bingo/issues/1006), every `logger.child()` call will
+Please note that due to a [known bug](https://github.com/zenlogjs/zenlog/issues/1006), every `logger.child()` call will
 fire a `level-change` event. These events can be ignored by writing an event handler like:
 
 ```js
-const logger = require('bingo')()
+const logger = require('zenlog')()
 logger.on('level-change', function (lvl, val, prevLvl, prevVal, instance) {
   if (logger !== instance) {
     return
@@ -1170,39 +1170,39 @@ logger.level = 'trace' // trigger event using actual value change, notice consol
 <a id="version"></a>
 ### `logger.version` (String)
 
-Exposes the Bingo package version. Also available on the exported `bingo` function.
+Exposes the Zenlog package version. Also available on the exported `zenlog` function.
 
-* See [`bingo.version`](#bingo-version)
+* See [`zenlog.version`](#zenlog-version)
 
 ## Statics
 
-<a id="bingo-destination"></a>
-### `bingo.destination([opts]) => SonicBoom`
+<a id="zenlog-destination"></a>
+### `zenlog.destination([opts]) => SonicBoom`
 
-Create a Bingo Destination instance: a stream-like object with
+Create a Zenlog Destination instance: a stream-like object with
 significantly more throughput than a standard Node.js stream.
 
 ```js
-const bingo = require('bingo')
-const logger = bingo(bingo.destination('./my-file'))
-const logger2 = bingo(bingo.destination())
-const logger3 = bingo(bingo.destination({
+const zenlog = require('zenlog')
+const logger = zenlog(zenlog.destination('./my-file'))
+const logger2 = zenlog(zenlog.destination())
+const logger3 = zenlog(zenlog.destination({
   dest: './my-file',
   minLength: 4096, // Buffer before writing
   sync: false // Asynchronous logging, the default
 }))
-const logger4 = bingo(bingo.destination({
+const logger4 = zenlog(zenlog.destination({
   dest: './my-file2',
   sync: true // Synchronous logging
 }))
 ```
 
-The `bingo.destination` method may be passed a file path or a numerical file descriptor.
-By default, `bingo.destination` will use `process.stdout.fd` (1) as the file descriptor.
+The `zenlog.destination` method may be passed a file path or a numerical file descriptor.
+By default, `zenlog.destination` will use `process.stdout.fd` (1) as the file descriptor.
 
-`bingo.destination` is implemented on [`sonic-boom` ⇗](https://github.com/mcollina/sonic-boom).
+`zenlog.destination` is implemented on [`sonic-boom` ⇗](https://github.com/mcollina/sonic-boom).
 
-A `bingo.destination` instance can also be used to reopen closed files
+A `zenlog.destination` instance can also be used to reopen closed files
 (for example, for some log rotation scenarios), see [Reopening log files](/docs/help.md#reopening).
 
 * See [`destination` parameter](#destination)
@@ -1210,74 +1210,74 @@ A `bingo.destination` instance can also be used to reopen closed files
 * See [Reopening log files](/docs/help.md#reopening)
 * See [Asynchronous Logging ⇗](/docs/asynchronous.md)
 
-<a id="bingo-transport"></a>
-### `bingo.transport(options) => ThreadStream`
+<a id="zenlog-transport"></a>
+### `zenlog.transport(options) => ThreadStream`
 
 Create a stream that routes logs to a worker thread that
-wraps around a [Bingo Transport](/docs/transports.md).
+wraps around a [Zenlog Transport](/docs/transports.md).
 
 ```js
-const bingo = require('bingo')
-const transport = bingo.transport({
+const zenlog = require('zenlog')
+const transport = zenlog.transport({
   target: 'some-transport',
   options: { some: 'options for', the: 'transport' }
 })
-bingo(transport)
+zenlog(transport)
 ```
 
 Multiple transports may also be defined, and specific levels can be logged to each transport:
 
 ```js
-const bingo = require('bingo')
-const transport = bingo.transport({
+const zenlog = require('zenlog')
+const transport = zenlog.transport({
   targets: [{
     level: 'info',
     target: 'pino-pretty' // must be installed separately
   }, {
     level: 'trace',
-    target: 'bingo-logger/file',
+    target: 'zenlog/file',
     options: { destination: '/path/to/store/logs' }
   }]
 })
-bingo(transport)
+zenlog(transport)
 ```
 
 A pipeline could also be created to transform log lines _before_ sending them:
 
 ```js
-const bingo = require('bingo')
-const transport = bingo.transport({
+const zenlog = require('zenlog')
+const transport = zenlog.transport({
   pipeline: [{
-    target: 'bingo-syslog' // must be installed separately
+    target: 'zenlog-syslog' // must be installed separately
   }, {
-    target: 'bingo-socket' // must be installed separately
+    target: 'zenlog-socket' // must be installed separately
   }]
 })
-bingo(transport)
+zenlog(transport)
 ```
 
 Multiple transports can now be defined to include pipelines:
 
 ```js
-const bingo = require('bingo')
-const transport = bingo.transport({
+const zenlog = require('zenlog')
+const transport = zenlog.transport({
   targets: [{
     level: 'info',
     target: 'pino-pretty' // must be installed separately
   }, {
     level: 'trace',
-    target: 'bingo-logger/file',
+    target: 'zenlog/file',
     options: { destination: '/path/to/store/logs' }
   }, {
     pipeline: [{
-      target: 'bingo-syslog' // must be installed separately
+      target: 'zenlog-syslog' // must be installed separately
     }, {
-      target: 'bingo-socket' // must be installed separately
+      target: 'zenlog-socket' // must be installed separately
     }]
   }
   ]
 })
-bingo(transport)
+zenlog(transport)
 ```
 
 If `WeakRef`, `WeakMap`, and `FinalizationRegistry` are available in the current runtime (v14.5.0+), then the thread
@@ -1288,15 +1288,15 @@ is flushed and all data synced before the process exits.
 Note that calling `process.exit()` on the main thread will stop the event loop on the main thread from turning. As a result,
 using `console.log` and `process.stdout` after the main thread called `process.exit()` will not produce any output.
 
-If you are embedding/integrating bingo within your framework, you will need to make bingo aware of the script that is calling it,
+If you are embedding/integrating zenlog within your framework, you will need to make zenlog aware of the script that is calling it,
 like so:
 
 ```js
-const bingo = require('bingo')
+const zenlog = require('zenlog')
 const getCaller = require('get-caller-file')
 
 module.exports = function build () {
-  const logger = bingo({
+  const logger = zenlog({
     transport: {
       caller: getCaller(),
       target: 'transport',
@@ -1322,18 +1322,18 @@ For more on transports, how they work, and how to create them see the [`Transpor
 * `worker`: [Worker thread](https://nodejs.org/api/worker_threads.html#worker_threads_new_worker_filename_options) configuration options. Additionally, the `worker` option supports `worker.autoEnd`. If this is set to `false` logs will not be flushed on process exit. It is then up to the developer to call `transport.end()` to flush logs.
 * `targets`: May be specified instead of `target`. Must be an array of transport configurations and/or pipelines. Transport configurations include the aforementioned `options` and `target` options plus a `level` option which will send only logs above a specified level to a transport.
 * `pipeline`: May be specified instead of `target`. Must be an array of transport configurations. Transport configurations include the aforementioned `options` and `target` options. All intermediate steps in the pipeline _must_ be `Transform` streams and not `Writable`.
-* `dedupe`: See [bingo.multistream options](#bingo-multistream)
+* `dedupe`: See [zenlog.multistream options](#zenlog-multistream)
 
-<a id="bingo-multistream"></a>
+<a id="zenlog-multistream"></a>
 
-### `bingo.multistream(streamsArray, opts) => MultiStreamRes`
+### `zenlog.multistream(streamsArray, opts) => MultiStreamRes`
 
 Create a stream composed by multiple destination streams and returns an
 object implementing the [MultiStreamRes](#multistreamres) interface.
 
 ```js
 var fs = require('node:fs')
-var bingo = require('bingo')
+var zenlog = require('zenlog')
 var pretty = require('pino-pretty')
 var streams = [
   {stream: fs.createWriteStream('/tmp/info.stream.out')},
@@ -1342,10 +1342,10 @@ var streams = [
   {level: 'fatal', stream: fs.createWriteStream('/tmp/fatal.stream.out')}
 ]
 
-var log = bingo({
+var log = zenlog({
   level: 'debug' // this MUST be set at the lowest level of the
                  // destinations
-}, bingo.multistream(streams))
+}, zenlog.multistream(streams))
 
 log.debug('this will be written to /tmp/debug.stream.out')
 log.info('this will be written to /tmp/debug.stream.out and /tmp/info.stream.out')
@@ -1360,11 +1360,11 @@ In order for `multistream` to work, the log level __must__ be set to the lowest 
 
 + `dedupe`: Set this to `true` to send logs only to the stream with the higher level. Default: `false`
 
-    `dedupe` flag can be useful for example when using `bingo.multistream` to redirect `error` logs to `process.stderr` and others to `process.stdout`:
+    `dedupe` flag can be useful for example when using `zenlog.multistream` to redirect `error` logs to `process.stderr` and others to `process.stdout`:
 
     ```js
-    var bingo = require('bingo')
-    var multistream = bingo.multistream
+    var zenlog = require('zenlog')
+    var multistream = zenlog.multistream
     var streams = [
       {level: 'debug', stream: process.stdout},
       {level: 'error', stream: process.stderr},
@@ -1383,7 +1383,7 @@ In order for `multistream` to work, the log level __must__ be set to the lowest 
         dedupe: true,
     }
 
-    var log = bingo({
+    var log = zenlog({
       level: 'debug' // this MUST be set at the lowest level of the
                     // destinations
     }, multistream(streams, opts))
@@ -1394,50 +1394,50 @@ In order for `multistream` to work, the log level __must__ be set to the lowest 
     log.fatal('this will be written ONLY to process.stderr')
     ```
 
-<a id="bingo-stdserializers"></a>
-### `bingo.stdSerializers` (Object)
+<a id="zenlog-stdserializers"></a>
+### `zenlog.stdSerializers` (Object)
 
-The `bingo.stdSerializers` object provides functions for serializing objects common to many projects. The standard serializers are directly imported from [pino-std-serializers](https://github.com/bingojs/pino-std-serializers).
+The `zenlog.stdSerializers` object provides functions for serializing objects common to many projects. The standard serializers are directly imported from [pino-std-serializers](https://github.com/zenlogjs/pino-std-serializers).
 
-* See [pino-std-serializers ⇗](https://github.com/bingojs/pino-std-serializers)
+* See [pino-std-serializers ⇗](https://github.com/zenlogjs/pino-std-serializers)
 
-<a id="bingo-stdtimefunctions"></a>
-### `bingo.stdTimeFunctions` (Object)
+<a id="zenlog-stdtimefunctions"></a>
+### `zenlog.stdTimeFunctions` (Object)
 
 The [`timestamp`](#opt-timestamp) option can accept a function that determines the
 `timestamp` value in a log line.
 
-The `bingo.stdTimeFunctions` object provides a very small set of common functions for generating the
+The `zenlog.stdTimeFunctions` object provides a very small set of common functions for generating the
 `timestamp` property. These consist of the following
 
-* `bingo.stdTimeFunctions.epochTime`: Milliseconds since Unix epoch (Default)
-* `bingo.stdTimeFunctions.unixTime`: Seconds since Unix epoch
-* `bingo.stdTimeFunctions.nullTime`: Clears timestamp property (Used when `timestamp: false`)
-* `bingo.stdTimeFunctions.isoTime`: ISO 8601-formatted time in UTC
+* `zenlog.stdTimeFunctions.epochTime`: Milliseconds since Unix epoch (Default)
+* `zenlog.stdTimeFunctions.unixTime`: Seconds since Unix epoch
+* `zenlog.stdTimeFunctions.nullTime`: Clears timestamp property (Used when `timestamp: false`)
+* `zenlog.stdTimeFunctions.isoTime`: ISO 8601-formatted time in UTC
 
 * See [`timestamp` option](#opt-timestamp)
 
-<a id="bingo-symbols"></a>
-### `bingo.symbols` (Object)
+<a id="zenlog-symbols"></a>
+### `zenlog.symbols` (Object)
 
-For integration purposes with ecosystem and third-party libraries `bingo.symbols`
+For integration purposes with ecosystem and third-party libraries `zenlog.symbols`
 exposes the symbols used to hold non-public state and methods on the logger instance.
 
 Access to the symbols allows logger state to be adjusted, and methods to be overridden or
 proxied for performant integration where necessary.
 
-The `bingo.symbols` object is intended for library implementers and shouldn't be utilized
+The `zenlog.symbols` object is intended for library implementers and shouldn't be utilized
 for general use.
 
-<a id="bingo-version"></a>
-### `bingo.version` (String)
+<a id="zenlog-version"></a>
+### `zenlog.version` (String)
 
-Exposes the Bingo package version. Also available on the logger instance.
+Exposes the Zenlog package version. Also available on the logger instance.
 
 * See [`logger.version`](#version)
 
 ## Interfaces
-<a id="bingo-multistreamres"></a>
+<a id="zenlog-multistreamres"></a>
 
 ### `MultiStreamRes`
   Properties:

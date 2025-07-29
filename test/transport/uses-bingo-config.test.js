@@ -6,7 +6,7 @@
 // // const writeStream = require('flush-write-stream')
 // const { watchFileCreated, file } = require('../helper')
 // const { test } = require('tap')
-// const bingo = require('../../bingo-logger')
+// const zenlog = require('../../zenlog')
 
 // const { pid } = process
 // const hostname = os.hostname()
@@ -23,19 +23,19 @@
 //   return JSON.parse(`[${buffer.toString().replace(/}{/g, '},{')}]`)
 // }
 
-// test('transport uses bingo config', async ({ same, teardown, plan }) => {
+// test('transport uses zenlog config', async ({ same, teardown, plan }) => {
 //   plan(1)
 //   const destination = file()
-//   const transport = bingo.transport({
+//   const transport = zenlog.transport({
 //     pipeline: [{
-//       target: join(__dirname, '..', 'fixtures', 'transport-uses-bingo-config.js')
+//       target: join(__dirname, '..', 'fixtures', 'transport-uses-zenlog-config.js')
 //     }, {
-//       target: 'bingo-logger/file',
+//       target: 'zenlog/file',
 //       options: { destination }
 //     }]
 //   })
 //   teardown(transport.end.bind(transport))
-//   const instance = bingo({
+//   const instance = zenlog({
 //     messageKey: 'customMessageKey',
 //     errorKey: 'customErrorKey',
 //     customLevels: { custom: 35 }
@@ -65,19 +65,19 @@
 //   }])
 // })
 
-// test('transport uses bingo config without customizations', async ({ same, teardown, plan }) => {
+// test('transport uses zenlog config without customizations', async ({ same, teardown, plan }) => {
 //   plan(1)
 //   const destination = file()
-//   const transport = bingo.transport({
+//   const transport = zenlog.transport({
 //     pipeline: [{
-//       target: join(__dirname, '..', 'fixtures', 'transport-uses-bingo-config.js')
+//       target: join(__dirname, '..', 'fixtures', 'transport-uses-zenlog-config.js')
 //     }, {
-//       target: 'bingo-logger/file',
+//       target: 'zenlog/file',
 //       options: { destination }
 //     }]
 //   })
 //   teardown(transport.end.bind(transport))
-//   const instance = bingo(transport)
+//   const instance = zenlog(transport)
 
 //   const error = new Error('qux')
 //   instance.info('baz')
@@ -103,7 +103,7 @@
 //   }])
 // })
 
-// test('transport uses bingo config with multistream', async ({ same, teardown, plan }) => {
+// test('transport uses zenlog config with multistream', async ({ same, teardown, plan }) => {
 //   plan(2)
 //   const destination = file()
 //   const messages = []
@@ -113,20 +113,20 @@
 //     messages.push(message)
 //     cb()
 //   })
-//   const transport = bingo.transport({
+//   const transport = zenlog.transport({
 //     pipeline: [{
-//       target: join(__dirname, '..', 'fixtures', 'transport-uses-bingo-config.js')
+//       target: join(__dirname, '..', 'fixtures', 'transport-uses-zenlog-config.js')
 //     }, {
-//       target: 'bingo-logger/file',
+//       target: 'zenlog/file',
 //       options: { destination }
 //     }]
 //   })
 //   teardown(transport.end.bind(transport))
-//   const instance = bingo({
+//   const instance = zenlog({
 //     messageKey: 'customMessageKey',
 //     errorKey: 'customErrorKey',
 //     customLevels: { custom: 35 }
-//   }, bingo.multistream([transport, { stream }]))
+//   }, zenlog.multistream([transport, { stream }]))
 
 //   const error = new Error('buzz')
 //   const serializedError = serializeError(error)

@@ -4,8 +4,8 @@ const writeStream = require('flush-write-stream')
 const { readFileSync } = require('node:fs')
 const { join } = require('node:path')
 const test = require('tap').test
-const bingo = require('../')
-const multistream = bingo.multistream
+const zenlog = require('../')
+const multistream = zenlog.multistream
 const proxyquire = require('proxyquire')
 const strip = require('strip-ansi')
 const { file, sink } = require('./helper')
@@ -23,7 +23,7 @@ test('sends to multiple streams using string levels', function (t) {
     { level: 'fatal', stream },
     { level: 'silent', stream }
   ]
-  const log = bingo({
+  const log = zenlog({
     level: 'trace'
   }, multistream(streams))
   log.info('info stream')
@@ -46,7 +46,7 @@ test('sends to multiple streams using custom levels', function (t) {
     { level: 'fatal', stream },
     { level: 'silent', stream }
   ]
-  const log = bingo({
+  const log = zenlog({
     level: 'trace'
   }, multistream(streams))
   log.info('info stream')
@@ -84,7 +84,7 @@ test('sends to multiple streams using optionally predefined levels', function (t
     { level: 'silent', stream }
   ]
   const mstream = multistream(streams, opts)
-  const log = bingo({
+  const log = zenlog({
     level: 'trace'
   }, mstream)
   log.trace('trace stream')
@@ -109,7 +109,7 @@ test('sends to multiple streams using number levels', function (t) {
     { level: 20, stream },
     { level: 60, stream }
   ]
-  const log = bingo({
+  const log = zenlog({
     level: 'debug'
   }, multistream(streams))
   log.info('info stream')
@@ -125,7 +125,7 @@ test('level include higher levels', function (t) {
     messageCount += 1
     cb()
   })
-  const log = bingo({}, multistream([{ level: 'info', stream }]))
+  const log = zenlog({}, multistream([{ level: 'info', stream }]))
   log.fatal('message')
   t.equal(messageCount, 1)
   t.end()
@@ -146,7 +146,7 @@ test('supports multiple arguments', function (t) {
     }
     cb()
   })
-  const log = bingo({}, multistream({ stream }))
+  const log = zenlog({}, multistream({ stream }))
   log.info('%s %s %s %s', 'foo', 'bar', 'baz', 'foobar') // apply not invoked
   log.info('%s %s %s %s %s %s', 'foo', 'bar', 'baz', 'foobar', 'barfoo', 'foofoo') // apply invoked
 })
@@ -162,7 +162,7 @@ test('supports children', function (t) {
   const streams = [
     { stream }
   ]
-  const log = bingo({}, multistream(streams)).child({ child: 'one' })
+  const log = zenlog({}, multistream(streams)).child({ child: 'one' })
   log.info('child stream')
 })
 
@@ -194,7 +194,7 @@ test('supports grandchildren', function (t) {
     { stream },
     { level: 'debug', stream }
   ]
-  const log = bingo({
+  const log = zenlog({
     level: 'debug'
   }, multistream(streams)).child({ child: 'one' }).child({ grandchild: 'two' })
   log.info('grandchild stream')
@@ -206,7 +206,7 @@ test('supports custom levels', function (t) {
     t.equal(JSON.parse(data).msg, 'bar')
     t.end()
   })
-  const log = bingo({
+  const log = zenlog({
     customLevels: {
       foo: 35
     }
@@ -236,7 +236,7 @@ test('supports pretty print', function (t) {
     './lib/utils/index.js': nested
   })
 
-  const log = bingo({
+  const log = zenlog({
     level: 'debug',
     name: 'helloName'
   }, multistream([
@@ -264,7 +264,7 @@ test('children support custom levels', function (t) {
     t.equal(JSON.parse(data).msg, 'bar')
     t.end()
   })
-  const parent = bingo({
+  const parent = zenlog({
     customLevels: {
       foo: 35
     }
@@ -284,7 +284,7 @@ test('levelVal overrides level', function (t) {
     { level: 'blabla', levelVal: 15, stream },
     { level: 60, stream }
   ]
-  const log = bingo({
+  const log = zenlog({
     level: 'debug'
   }, multistream(streams))
   log.info('info stream')
@@ -299,7 +299,7 @@ test('forwards metadata', function (t) {
   const streams = [
     {
       stream: {
-        [Symbol.for('bingo.metadata')]: true,
+        [Symbol.for('zenlog.metadata')]: true,
         write (chunk) {
           t.equal(log, this.lastLogger)
           t.equal(30, this.lastLevel)
@@ -310,7 +310,7 @@ test('forwards metadata', function (t) {
     }
   ]
 
-  const log = bingo({
+  const log = zenlog({
     level: 'debug'
   }, multistream(streams))
 
@@ -323,7 +323,7 @@ test('forward name', function (t) {
   const streams = [
     {
       stream: {
-        [Symbol.for('bingo.metadata')]: true,
+        [Symbol.for('zenlog.metadata')]: true,
         write (chunk) {
           const line = JSON.parse(chunk)
           t.equal(line.name, 'helloName')
@@ -333,7 +333,7 @@ test('forward name', function (t) {
     }
   ]
 
-  const log = bingo({
+  const log = zenlog({
     level: 'debug',
     name: 'helloName'
   }, multistream(streams))
@@ -357,7 +357,7 @@ test('forward name with child', function (t) {
     }
   ]
 
-  const log = bingo({
+  const log = zenlog({
     level: 'debug',
     name: 'helloName'
   }, multistream(streams)).child({ component: 'aComponent' })
@@ -389,7 +389,7 @@ test('clone generates a new multistream with all stream at the same level', func
     t.equal(s.level, 30)
   })
 
-  const log = bingo({
+  const log = zenlog({
     level: 'trace'
   }, clone)
 
@@ -407,7 +407,7 @@ test('one stream', function (t) {
     messageCount += 1
     cb()
   })
-  const log = bingo({
+  const log = zenlog({
     level: 'trace'
   }, multistream({ stream, level: 'fatal' }))
   log.info('info stream')
@@ -440,7 +440,7 @@ test('dedupe', function (t) {
     }
   ]
 
-  const log = bingo({
+  const log = zenlog({
     level: 'trace'
   }, multistream(streams, { dedupe: true }))
   log.info('info stream')
@@ -473,7 +473,7 @@ test('dedupe when logs have different levels', function (t) {
     }
   ]
 
-  const log = bingo({
+  const log = zenlog({
     level: 'trace'
   }, multistream(streams, { dedupe: true }))
 
@@ -517,7 +517,7 @@ test('dedupe when some streams has the same level', function (t) {
     }
   ]
 
-  const log = bingo({
+  const log = zenlog({
     level: 'trace'
   }, multistream(streams, { dedupe: true }))
   log.info('info stream')
@@ -528,7 +528,7 @@ test('dedupe when some streams has the same level', function (t) {
 })
 
 test('no stream', function (t) {
-  const log = bingo({
+  const log = zenlog({
     level: 'trace'
   }, multistream())
   log.info('info stream')
@@ -543,7 +543,7 @@ test('one stream', function (t) {
     messageCount += 1
     cb()
   })
-  const log = bingo({
+  const log = zenlog({
     level: 'trace'
   }, multistream(stream))
   log.info('info stream')
@@ -560,7 +560,7 @@ test('add a stream', function (t) {
     cb()
   })
 
-  const log = bingo({
+  const log = zenlog({
     level: 'trace'
   }, multistream().add(stream))
   log.info('info stream')
@@ -572,7 +572,7 @@ test('add a stream', function (t) {
 
 test('multistream.add throws if not a stream', function (t) {
   try {
-    bingo({
+    zenlog({
       level: 'trace'
     }, multistream().add({}))
   } catch (_) {
@@ -582,7 +582,7 @@ test('multistream.add throws if not a stream', function (t) {
 
 test('multistream throws if not a stream', function (t) {
   try {
-    bingo({
+    zenlog({
       level: 'trace'
     }, multistream({}))
   } catch (_) {
@@ -596,14 +596,14 @@ test('multistream.write should not throw if one stream fails', function (t) {
     messageCount += 1
     cb()
   })
-  const noopStream = bingo.transport({
+  const noopStream = zenlog.transport({
     target: join(__dirname, 'fixtures', 'noop-transport.js')
   })
   // eslint-disable-next-line
   noopStream.on('error', function (err) {
     // something went wrong while writing to noop stream, ignoring!
   })
-  const log = bingo({
+  const log = zenlog({
     level: 'trace'
   },
   multistream([
@@ -628,9 +628,9 @@ test('multistream.write should not throw if one stream fails', function (t) {
 
 test('flushSync', function (t) {
   const tmp = file()
-  const destination = bingo.destination({ dest: tmp, sync: false, minLength: 4096 })
+  const destination = zenlog.destination({ dest: tmp, sync: false, minLength: 4096 })
   const stream = multistream([{ level: 'info', stream: destination }])
-  const log = bingo({ level: 'info' }, stream)
+  const log = zenlog({ level: 'info' }, stream)
   destination.on('ready', () => {
     log.info('foo')
     log.info('bar')
@@ -665,7 +665,7 @@ test('ends all streams', function (t) {
     { level: 'silent', stream }
   ]
   const multi = multistream(streams)
-  const log = bingo({
+  const log = zenlog({
     level: 'trace'
   }, multi)
   log.info('info stream')

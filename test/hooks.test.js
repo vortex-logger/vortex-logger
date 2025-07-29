@@ -2,14 +2,14 @@
 
 const tap = require('tap')
 const { sink, once } = require('./helper')
-const bingo = require('../')
+const zenlog = require('../')
 
 tap.test('log method hook', t => {
   t.test('gets invoked', async t => {
     t.plan(8)
 
     const stream = sink()
-    const logger = bingo({
+    const logger = zenlog({
       hooks: {
         logMethod (args, method, level) {
           t.type(args, Array)
@@ -35,7 +35,7 @@ tap.test('log method hook', t => {
     t.plan(2)
 
     const stream = sink()
-    const logger = bingo({
+    const logger = zenlog({
       hooks: {
         logMethod (args, method) {
           t.pass()
@@ -53,7 +53,7 @@ tap.test('log method hook', t => {
     t.plan(4)
 
     const stream = sink()
-    const root = bingo({
+    const root = zenlog({
       hooks: {
         logMethod (args, method) {
           t.pass()
@@ -77,7 +77,7 @@ tap.test('log method hook', t => {
     t.plan(3)
 
     const stream = sink()
-    const logger = bingo({
+    const logger = zenlog({
       hooks: {
         logMethod (args, method, level) {
           t.type(level, 'number')
@@ -101,7 +101,7 @@ tap.test('streamWrite hook', t => {
     t.plan(1)
 
     const stream = sink()
-    const logger = bingo({
+    const logger = zenlog({
       hooks: {
         streamWrite (s) {
           return s.replaceAll('redact-me', 'XXX')

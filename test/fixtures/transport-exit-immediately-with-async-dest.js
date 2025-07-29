@@ -1,13 +1,13 @@
 'use strict'
 
-const bingo = require('../..')
-const transport = bingo.transport({
+const zenlog = require('../..')
+const transport = zenlog.transport({
   target: './to-file-transport-with-transform.js',
   options: {
     destination: process.argv[2]
   }
 })
-const logger = bingo(transport)
+const logger = zenlog(transport)
 
 logger.info('Hello')
 

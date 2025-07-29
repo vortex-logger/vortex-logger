@@ -1,23 +1,23 @@
 # Web Frameworks
 
-Since HTTP logging is a primary use case, Bingo has first-class support for the Node.js
+Since HTTP logging is a primary use case, Zenlog has first-class support for the Node.js
 web framework ecosystem.
 
 - [Web Frameworks](#web-frameworks)
-  - [Bingo with Fastify](#bingo-with-fastify)
-  - [Bingo with Express](#bingo-with-express)
-  - [Bingo with Hapi](#bingo-with-hapi)
-  - [Bingo with Restify](#bingo-with-restify)
-  - [Bingo with Koa](#bingo-with-koa)
-  - [Bingo with Node core `http`](#bingo-with-node-core-http)
-  - [Bingo with Nest](#bingo-with-nest)
-  - [Bingo with H3](#bingo-with-h3)
-  - [Bingo with Hono](#bingo-with-hono)
+  - [Zenlog with Fastify](#zenlog-with-fastify)
+  - [Zenlog with Express](#zenlog-with-express)
+  - [Zenlog with Hapi](#zenlog-with-hapi)
+  - [Zenlog with Restify](#zenlog-with-restify)
+  - [Zenlog with Koa](#zenlog-with-koa)
+  - [Zenlog with Node core `http`](#zenlog-with-node-core-http)
+  - [Zenlog with Nest](#zenlog-with-nest)
+  - [Zenlog with H3](#zenlog-with-h3)
+  - [Zenlog with Hono](#zenlog-with-hono)
 
 <a id="fastify"></a>
-## Bingo with Fastify
+## Zenlog with Fastify
 
-The Fastify web framework comes bundled with Bingo by default, simply set Fastify's
+The Fastify web framework comes bundled with Zenlog by default, simply set Fastify's
 `logger` option to `true` and use `request.log` or `reply.log` for log messages that correspond
 to each request:
 
@@ -40,22 +40,22 @@ fastify.listen({ port: 3000 }, (err) => {
 ```
 
 The `logger` option can also be set to an object, which will be passed through directly
-as the [`bingo` options object](/docs/api.md#options-object).
+as the [`zenlog` options object](/docs/api.md#options-object).
 
 See the [fastify documentation](https://www.fastify.io/docs/latest/Reference/Logging/) for more information.
 
 <a id="express"></a>
-## Bingo with Express
+## Zenlog with Express
 
 ```sh
-npm install bingo-http
+npm install zenlog-http
 ```
 
 ```js
 const app = require('express')()
-const bingo = require('bingo-http')()
+const zenlog = require('zenlog-http')()
 
-app.use(bingo)
+app.use(zenlog)
 
 app.get('/', function (req, res) {
   req.log.info('something')
@@ -65,20 +65,20 @@ app.get('/', function (req, res) {
 app.listen(3000)
 ```
 
-See the [bingo-http README](https://npm.im/bingo-http) for more info.
+See the [zenlog-http README](https://npm.im/zenlog-http) for more info.
 
 <a id="hapi"></a>
-## Bingo with Hapi
+## Zenlog with Hapi
 
 ```sh
-npm install hapi-bingo
+npm install hapi-zenlog
 ```
 
 ```js
 'use strict'
 
 const Hapi = require('@hapi/hapi')
-const Bingo = require('hapi-bingo');
+const Zenlog = require('hapi-zenlog');
 
 async function start () {
   // Create a server with a host and port
@@ -95,14 +95,14 @@ async function start () {
       // request.log is HAPI's standard way of logging
       request.log(['a', 'b'], 'Request into hello world')
 
-      // a bingo instance can also be used, which will be faster
+      // a zenlog instance can also be used, which will be faster
       request.logger.info('In handler %s', request.path)
 
       return 'hello world'
     }
   })
 
-  await server.register(Bingo)
+  await server.register(Zenlog)
 
   // also as a decorated API
   server.logger.info('another way for accessing it')
@@ -121,20 +121,20 @@ start().catch((err) => {
 })
 ```
 
-See the [hapi-bingo README](https://npm.im/hapi-bingo) for more info.
+See the [hapi-zenlog README](https://npm.im/hapi-zenlog) for more info.
 
 <a id="restify"></a>
-## Bingo with Restify
+## Zenlog with Restify
 
 ```sh
-npm install restify-bingo-logger
+npm install restify-zenlog
 ```
 
 ```js
 const server = require('restify').createServer({name: 'server'})
-const bingo = require('restify-bingo-logger')()
+const zenlog = require('restify-zenlog')()
 
-server.use(bingo)
+server.use(zenlog)
 
 server.get('/', function (req, res) {
   req.log.info('something')
@@ -144,21 +144,21 @@ server.get('/', function (req, res) {
 server.listen(3000)
 ```
 
-See the [restify-bingo-logger README](https://npm.im/restify-bingo-logger) for more info.
+See the [restify-zenlog README](https://npm.im/restify-zenlog) for more info.
 
 <a id="koa"></a>
-## Bingo with Koa
+## Zenlog with Koa
 
 ```sh
-npm install koa-bingo-logger
+npm install koa-zenlog
 ```
 
 ```js
 const Koa = require('koa')
 const app = new Koa()
-const bingo = require('koa-bingo-logger')()
+const zenlog = require('koa-zenlog')()
 
-app.use(bingo)
+app.use(zenlog)
 
 app.use((ctx) => {
   ctx.log.info('something else')
@@ -168,19 +168,19 @@ app.use((ctx) => {
 app.listen(3000)
 ```
 
-See the [koa-bingo-logger README](https://github.com/bingojs/koa-bingo-logger) for more info.
+See the [koa-zenlog README](https://github.com/zenlogjs/koa-zenlog) for more info.
 
 <a id="http"></a>
-## Bingo with Node core `http`
+## Zenlog with Node core `http`
 
 ```sh
-npm install bingo-http
+npm install zenlog-http
 ```
 
 ```js
 const http = require('http')
 const server = http.createServer(handle)
-const logger = require('bingo-http')()
+const logger = require('zenlog-http')()
 
 function handle (req, res) {
   logger(req, res)
@@ -191,20 +191,20 @@ function handle (req, res) {
 server.listen(3000)
 ```
 
-See the [bingo-http README](https://npm.im/bingo-http) for more info.
+See the [zenlog-http README](https://npm.im/zenlog-http) for more info.
 
 
 <a id="nest"></a>
-## Bingo with Nest
+## Zenlog with Nest
 
 ```sh
-npm install nestjs-bingo
+npm install nestjs-zenlog
 ```
 
 ```ts
 import { NestFactory } from '@nestjs/core'
 import { Controller, Get, Module } from '@nestjs/common'
-import { LoggerModule, Logger } from 'nestjs-bingo'
+import { LoggerModule, Logger } from 'nestjs-zenlog'
 
 @Controller()
 export class AppController {
@@ -230,27 +230,27 @@ async function bootstrap() {
 bootstrap()
 ```
 
-See the [nestjs-bingo README](https://npm.im/nestjs-bingo) for more info.
+See the [nestjs-zenlog README](https://npm.im/nestjs-zenlog) for more info.
 
 
 <a id="h3"></a>
-## Bingo with H3
+## Zenlog with H3
 
 ```sh
-npm install bingo-http h3
+npm install zenlog-http h3
 ```
 
 Save as `server.mjs`:
 
 ```js
 import { createApp, createRouter, eventHandler, fromNodeMiddleware } from "h3";
-import bingo from 'bingo-http'
+import zenlog from 'zenlog-http'
 
 export const app = createApp();
 
 const router = createRouter();
 app.use(router);
-app.use(fromNodeMiddleware(bingo()))
+app.use(fromNodeMiddleware(zenlog()))
 
 app.use(eventHandler((event) => {
   event.node.req.log.info('something')
@@ -267,30 +267,30 @@ router.get(
 
 Execute `npx --yes listhen -w --open ./server.mjs`.
 
-See the [bingo-http README](https://npm.im/bingo-http) for more info.
+See the [zenlog-http README](https://npm.im/zenlog-http) for more info.
 
 
 <a id="h3"></a>
-## Bingo with Hono
+## Zenlog with Hono
 
 ```sh
-npm install bingo bingo-http hono
+npm install zenlog zenlog-http hono
 ```
 
 ```js
 import { serve } from '@hono/node-server';
 import { Hono } from 'hono';
 import { requestId } from 'hono/request-id';
-import { bingoHttp } from 'bingo-http';
+import { zenlogHttp } from 'zenlog-http';
 
 const app = new Hono();
 app.use(requestId());
 app.use(async (c, next) => {
-  // pass hono's request-id to bingo-http
+  // pass hono's request-id to zenlog-http
   c.env.incoming.id = c.var.requestId;
 
   // map express style middleware to hono
-  await new Promise((resolve) => bingoHttp()(c.env.incoming, c.env.outgoing, () => resolve()));
+  await new Promise((resolve) => zenlogHttp()(c.env.incoming, c.env.outgoing, () => resolve()));
 
   c.set('logger', c.env.incoming.log);
 
@@ -306,4 +306,4 @@ app.get('/', (c) => {
 serve(app);
 ```
 
-See the [bingo-http README](https://npm.im/bingo-http) for more info.
+See the [zenlog-http README](https://npm.im/zenlog-http) for more info.

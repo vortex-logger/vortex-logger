@@ -4,34 +4,34 @@
 
 const { test } = require('tap')
 const { sink, once } = require('./helper')
-const bingo = require('../')
+const zenlog = require('../')
 
-test('bingo exposes standard time functions', async ({ ok }) => {
-  ok(bingo.stdTimeFunctions)
-  ok(bingo.stdTimeFunctions.epochTime)
-  ok(bingo.stdTimeFunctions.unixTime)
-  ok(bingo.stdTimeFunctions.nullTime)
-  ok(bingo.stdTimeFunctions.isoTime)
+test('zenlog exposes standard time functions', async ({ ok }) => {
+  ok(zenlog.stdTimeFunctions)
+  ok(zenlog.stdTimeFunctions.epochTime)
+  ok(zenlog.stdTimeFunctions.unixTime)
+  ok(zenlog.stdTimeFunctions.nullTime)
+  ok(zenlog.stdTimeFunctions.isoTime)
 })
 
-test('bingo accepts external time functions', async ({ equal }) => {
+test('zenlog accepts external time functions', async ({ equal }) => {
   const opts = {
     timestamp: () => ',"time":"none"'
   }
   const stream = sink()
-  const instance = bingo(opts, stream)
+  const instance = zenlog(opts, stream)
   instance.info('foobar')
   const result = await once(stream, 'data')
   equal(result.hasOwnProperty('time'), true)
   equal(result.time, 'none')
 })
 
-test('bingo accepts external time functions with custom label', async ({ equal }) => {
+test('zenlog accepts external time functions with custom label', async ({ equal }) => {
   const opts = {
     timestamp: () => ',"custom-time-label":"none"'
   }
   const stream = sink()
-  const instance = bingo(opts, stream)
+  const instance = zenlog(opts, stream)
   instance.info('foobar')
   const result = await once(stream, 'data')
   equal(result.hasOwnProperty('custom-time-label'), true)
@@ -40,7 +40,7 @@ test('bingo accepts external time functions with custom label', async ({ equal }
 
 test('inserts timestamp by default', async ({ ok, equal }) => {
   const stream = sink()
-  const instance = bingo(stream)
+  const instance = zenlog(stream)
   instance.info('foobar')
   const result = await once(stream, 'data')
   equal(result.hasOwnProperty('time'), true)
@@ -50,7 +50,7 @@ test('inserts timestamp by default', async ({ ok, equal }) => {
 
 test('omits timestamp when timestamp option is false', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo({ timestamp: false }, stream)
+  const instance = zenlog({ timestamp: false }, stream)
   instance.info('foobar')
   const result = await once(stream, 'data')
   equal(result.hasOwnProperty('time'), false)
@@ -59,7 +59,7 @@ test('omits timestamp when timestamp option is false', async ({ equal }) => {
 
 test('inserts timestamp when timestamp option is true', async ({ ok, equal }) => {
   const stream = sink()
-  const instance = bingo({ timestamp: true }, stream)
+  const instance = zenlog({ timestamp: true }, stream)
   instance.info('foobar')
   const result = await once(stream, 'data')
   equal(result.hasOwnProperty('time'), true)
@@ -69,7 +69,7 @@ test('inserts timestamp when timestamp option is true', async ({ ok, equal }) =>
 
 test('child inserts timestamp by default', async ({ ok, equal }) => {
   const stream = sink()
-  const logger = bingo(stream)
+  const logger = zenlog(stream)
   const instance = logger.child({ component: 'child' })
   instance.info('foobar')
   const result = await once(stream, 'data')
@@ -80,7 +80,7 @@ test('child inserts timestamp by default', async ({ ok, equal }) => {
 
 test('child omits timestamp with option', async ({ equal }) => {
   const stream = sink()
-  const logger = bingo({ timestamp: false }, stream)
+  const logger = zenlog({ timestamp: false }, stream)
   const instance = logger.child({ component: 'child' })
   instance.info('foobar')
   const result = await once(stream, 'data')
@@ -88,12 +88,12 @@ test('child omits timestamp with option', async ({ equal }) => {
   equal(result.msg, 'foobar')
 })
 
-test('bingo.stdTimeFunctions.unixTime returns seconds based timestamps', async ({ equal }) => {
+test('zenlog.stdTimeFunctions.unixTime returns seconds based timestamps', async ({ equal }) => {
   const opts = {
-    timestamp: bingo.stdTimeFunctions.unixTime
+    timestamp: zenlog.stdTimeFunctions.unixTime
   }
   const stream = sink()
-  const instance = bingo(opts, stream)
+  const instance = zenlog(opts, stream)
   const now = Date.now
   Date.now = () => 1531069919686
   instance.info('foobar')
@@ -103,12 +103,12 @@ test('bingo.stdTimeFunctions.unixTime returns seconds based timestamps', async (
   Date.now = now
 })
 
-test('bingo.stdTimeFunctions.isoTime returns ISO 8601 timestamps', async ({ equal }) => {
+test('zenlog.stdTimeFunctions.isoTime returns ISO 8601 timestamps', async ({ equal }) => {
   const opts = {
-    timestamp: bingo.stdTimeFunctions.isoTime
+    timestamp: zenlog.stdTimeFunctions.isoTime
   }
   const stream = sink()
-  const instance = bingo(opts, stream)
+  const instance = zenlog(opts, stream)
   const ms = 1531069919686
   const now = Date.now
   Date.now = () => ms

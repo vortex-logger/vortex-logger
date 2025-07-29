@@ -1,33 +1,33 @@
 'use strict'
 
-const bingo = require('../zenlog')
+const zenlog = require('../zenlog')
 const { tmpdir } = require('node:os')
 const { join } = require('node:path')
 
-const file = join(tmpdir(), `bingo-${process.pid}-example`)
+const file = join(tmpdir(), `zenlog-${process.pid}-example`)
 
-const transport = bingo.transport({
+const transport = zenlog.transport({
   targets: [{
     level: 'warn',
-    target: 'bingo-logger/file',
+    target: 'zenlog/file',
     options: {
       destination: file
     }
     /*
   }, {
     level: 'info',
-    target: 'bingo-elasticsearch',
+    target: 'zenlog-elasticsearch',
     options: {
       node: 'http://localhost:9200'
     }
     */
   }, {
     level: 'info',
-    target: 'bingo-logger'
+    target: 'zenlog'
   }]
 })
 
-const logger = bingo(transport)
+const logger = zenlog(transport)
 
 logger.info({
   file

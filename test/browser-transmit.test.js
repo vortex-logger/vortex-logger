@@ -1,16 +1,16 @@
 'use strict'
 const test = require('tape')
-const bingo = require('../browser')
+const zenlog = require('../browser')
 
 function noop () {}
 
 test('throws if transmit object does not have send function', ({ end, throws }) => {
   throws(() => {
-    bingo({ browser: { transmit: {} } })
+    zenlog({ browser: { transmit: {} } })
   })
 
   throws(() => {
-    bingo({ browser: { transmit: { send: 'not a func' } } })
+    zenlog({ browser: { transmit: { send: 'not a func' } } })
   })
 
   end()
@@ -18,7 +18,7 @@ test('throws if transmit object does not have send function', ({ end, throws }) 
 
 test('calls send function after write', ({ end, is }) => {
   let c = 0
-  const logger = bingo({
+  const logger = zenlog({
     browser: {
       write: () => {
         c++
@@ -34,7 +34,7 @@ test('calls send function after write', ({ end, is }) => {
 })
 
 test('passes send function the logged level', ({ end, is }) => {
-  const logger = bingo({
+  const logger = zenlog({
     browser: {
       write () {},
       transmit: {
@@ -50,7 +50,7 @@ test('passes send function the logged level', ({ end, is }) => {
 })
 
 test('passes send function message strings in logEvent object when asObject is not set', ({ end, same, is }) => {
-  const logger = bingo({
+  const logger = zenlog({
     browser: {
       write: noop,
       transmit: {
@@ -68,7 +68,7 @@ test('passes send function message strings in logEvent object when asObject is n
 })
 
 test('passes send function message objects in logEvent object when asObject is not set', ({ end, same, is }) => {
-  const logger = bingo({
+  const logger = zenlog({
     browser: {
       write: noop,
       transmit: {
@@ -86,7 +86,7 @@ test('passes send function message objects in logEvent object when asObject is n
 })
 
 test('passes send function message strings in logEvent object when asObject is set', ({ end, same, is }) => {
-  const logger = bingo({
+  const logger = zenlog({
     browser: {
       asObject: true,
       write: noop,
@@ -105,7 +105,7 @@ test('passes send function message strings in logEvent object when asObject is s
 })
 
 test('passes send function message objects in logEvent object when asObject is set', ({ end, same, is }) => {
-  const logger = bingo({
+  const logger = zenlog({
     browser: {
       asObject: true,
       write: noop,
@@ -125,7 +125,7 @@ test('passes send function message objects in logEvent object when asObject is s
 
 test('supplies a timestamp (ts) in logEvent object which is exactly the same as the `time` property in asObject mode', ({ end, is }) => {
   let expected
-  const logger = bingo({
+  const logger = zenlog({
     browser: {
       asObject: true, // implicit because `write`, but just to be explicit
       write (o) {
@@ -144,7 +144,7 @@ test('supplies a timestamp (ts) in logEvent object which is exactly the same as 
 })
 
 test('passes send function child bindings via logEvent object', ({ end, same, is }) => {
-  const logger = bingo({
+  const logger = zenlog({
     browser: {
       write: noop,
       transmit: {
@@ -168,7 +168,7 @@ test('passes send function child bindings via logEvent object', ({ end, same, is
 })
 
 test('passes send function level:{label, value} via logEvent object', ({ end, is }) => {
-  const logger = bingo({
+  const logger = zenlog({
     browser: {
       write: noop,
       transmit: {
@@ -189,7 +189,7 @@ test('passes send function level:{label, value} via logEvent object', ({ end, is
 
 test('calls send function according to transmit.level', ({ end, is }) => {
   let c = 0
-  const logger = bingo({
+  const logger = zenlog({
     browser: {
       write: noop,
       transmit: {
@@ -210,7 +210,7 @@ test('calls send function according to transmit.level', ({ end, is }) => {
 
 test('transmit.level defaults to logger level', ({ end, is }) => {
   let c = 0
-  const logger = bingo({
+  const logger = zenlog({
     level: 'error',
     browser: {
       write: noop,
@@ -231,7 +231,7 @@ test('transmit.level defaults to logger level', ({ end, is }) => {
 
 test('transmit.level is effective even if lower than logger level', ({ end, is }) => {
   let c = 0
-  const logger = bingo({
+  const logger = zenlog({
     level: 'error',
     browser: {
       write: noop,
@@ -253,7 +253,7 @@ test('transmit.level is effective even if lower than logger level', ({ end, is }
 })
 
 test('applies all serializers to messages and bindings (serialize:false - default)', ({ end, same, is }) => {
-  const logger = bingo({
+  const logger = zenlog({
     serializers: {
       first: () => 'first',
       second: () => 'second',
@@ -282,7 +282,7 @@ test('applies all serializers to messages and bindings (serialize:false - defaul
 })
 
 test('applies all serializers to messages and bindings (serialize:true)', ({ end, same, is }) => {
-  const logger = bingo({
+  const logger = zenlog({
     serializers: {
       first: () => 'first',
       second: () => 'second',
@@ -315,7 +315,7 @@ test('extracts correct bindings and raw messages over multiple transmits', ({ en
   let messages = null
   let bindings = null
 
-  const logger = bingo({
+  const logger = zenlog({
     browser: {
       write: noop,
       transmit: {
@@ -350,7 +350,7 @@ test('extracts correct bindings and raw messages over multiple transmits', ({ en
 
 test('does not log below configured level', ({ end, is }) => {
   let message = null
-  const logger = bingo({
+  const logger = zenlog({
     level: 'info',
     browser: {
       write (o) {
@@ -369,7 +369,7 @@ test('does not log below configured level', ({ end, is }) => {
 })
 
 test('silent level prevents logging even with transmit', ({ end, fail }) => {
-  const logger = bingo({
+  const logger = zenlog({
     level: 'silent',
     browser: {
       write () {
@@ -383,7 +383,7 @@ test('silent level prevents logging even with transmit', ({ end, fail }) => {
     }
   })
 
-  Object.keys(bingo.levels.values).forEach((level) => {
+  Object.keys(zenlog.levels.values).forEach((level) => {
     logger[level]('ignored')
   })
 
@@ -392,7 +392,7 @@ test('silent level prevents logging even with transmit', ({ end, fail }) => {
 
 test('does not call send when transmit.level is set to silent', ({ end, fail, is }) => {
   let c = 0
-  const logger = bingo({
+  const logger = zenlog({
     level: 'trace',
     browser: {
       write () {
@@ -407,7 +407,7 @@ test('does not call send when transmit.level is set to silent', ({ end, fail, is
     }
   })
 
-  const levels = Object.keys(bingo.levels.values)
+  const levels = Object.keys(zenlog.levels.values)
   levels.forEach((level) => {
     logger[level]('message')
   })

@@ -1,13 +1,13 @@
-import bingo from '../../../zenlog'
+import zenlog from '../../../zenlog'
 import { join } from 'node:path'
 
-const transport = bingo.transport({
+const transport = zenlog.transport({
   target: join(__dirname, 'to-file-transport-with-transform.ts'),
   options: {
     destination: process.argv[2]
   }
 })
-const logger = bingo(transport)
+const logger = zenlog(transport)
 
 logger.info('Hello')
 logger.info('World')

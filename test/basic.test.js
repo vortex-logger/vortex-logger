@@ -3,62 +3,62 @@ const os = require('node:os')
 const { readFileSync } = require('node:fs')
 const { test } = require('tap')
 const { sink, check, once, watchFileCreated, file } = require('./helper')
-const bingo = require('../')
+const zenlog = require('../')
 const { version } = require('../package.json')
 const { pid } = process
 const hostname = os.hostname()
 
-test('bingo version is exposed on export', async ({ equal }) => {
-  equal(bingo.version, version)
+test('zenlog version is exposed on export', async ({ equal }) => {
+  equal(zenlog.version, version)
 })
 
-test('bingo version is exposed on instance', async ({ equal }) => {
-  const instance = bingo()
+test('zenlog version is exposed on instance', async ({ equal }) => {
+  const instance = zenlog()
   equal(instance.version, version)
 })
 
-test('child instance exposes bingo version', async ({ equal }) => {
-  const child = bingo().child({ foo: 'bar' })
+test('child instance exposes zenlog version', async ({ equal }) => {
+  const child = zenlog().child({ foo: 'bar' })
   equal(child.version, version)
 })
 
 test('bindings are exposed on every instance', async ({ same }) => {
-  const instance = bingo()
+  const instance = zenlog()
   same(instance.bindings(), {})
 })
 
 test('bindings contain the name and the child bindings', async ({ same }) => {
-  const instance = bingo({ name: 'basicTest', level: 'info' }).child({ foo: 'bar' }).child({ a: 2 })
+  const instance = zenlog({ name: 'basicTest', level: 'info' }).child({ foo: 'bar' }).child({ a: 2 })
   same(instance.bindings(), { name: 'basicTest', foo: 'bar', a: 2 })
 })
 
 test('set bindings on instance', async ({ same }) => {
-  const instance = bingo({ name: 'basicTest', level: 'info' })
+  const instance = zenlog({ name: 'basicTest', level: 'info' })
   instance.setBindings({ foo: 'bar' })
   same(instance.bindings(), { name: 'basicTest', foo: 'bar' })
 })
 
 test('newly set bindings overwrite old bindings', async ({ same }) => {
-  const instance = bingo({ name: 'basicTest', level: 'info', base: { foo: 'bar' } })
+  const instance = zenlog({ name: 'basicTest', level: 'info', base: { foo: 'bar' } })
   instance.setBindings({ foo: 'baz' })
   same(instance.bindings(), { name: 'basicTest', foo: 'baz' })
 })
 
 test('set bindings on child instance', async ({ same }) => {
-  const child = bingo({ name: 'basicTest', level: 'info' }).child({})
+  const child = zenlog({ name: 'basicTest', level: 'info' }).child({})
   child.setBindings({ foo: 'bar' })
   same(child.bindings(), { name: 'basicTest', foo: 'bar' })
 })
 
 test('child should have bindings set by parent', async ({ same }) => {
-  const instance = bingo({ name: 'basicTest', level: 'info' })
+  const instance = zenlog({ name: 'basicTest', level: 'info' })
   instance.setBindings({ foo: 'bar' })
   const child = instance.child({})
   same(child.bindings(), { name: 'basicTest', foo: 'bar' })
 })
 
 test('child should not share bindings of parent set after child creation', async ({ same }) => {
-  const instance = bingo({ name: 'basicTest', level: 'info' })
+  const instance = zenlog({ name: 'basicTest', level: 'info' })
   const child = instance.child({})
   instance.setBindings({ foo: 'bar' })
   same(instance.bindings(), { name: 'basicTest', foo: 'bar' })
@@ -68,7 +68,7 @@ test('child should not share bindings of parent set after child creation', async
 function levelTest (name, level) {
   test(`${name} logs as ${level}`, async ({ equal }) => {
     const stream = sink()
-    const instance = bingo(stream)
+    const instance = zenlog(stream)
     instance.level = name
     instance[name]('hello world')
     check(equal, await once(stream, 'data'), level, 'hello world')
@@ -76,7 +76,7 @@ function levelTest (name, level) {
 
   test(`passing objects at level ${name}`, async ({ equal, same }) => {
     const stream = sink()
-    const instance = bingo(stream)
+    const instance = zenlog(stream)
     instance.level = name
     const obj = { hello: 'world' }
     instance[name](obj)
@@ -92,7 +92,7 @@ function levelTest (name, level) {
 
   test(`passing an object and a string at level ${name}`, async ({ equal, same }) => {
     const stream = sink()
-    const instance = bingo(stream)
+    const instance = zenlog(stream)
     instance.level = name
     const obj = { hello: 'world' }
     instance[name](obj, 'a string')
@@ -111,7 +111,7 @@ function levelTest (name, level) {
 
   test(`passing a undefined and a string at level ${name}`, async ({ equal, same }) => {
     const stream = sink()
-    const instance = bingo(stream)
+    const instance = zenlog(stream)
     instance.level = name
     instance[name](undefined, 'a string')
     const result = await once(stream, 'data')
@@ -127,7 +127,7 @@ function levelTest (name, level) {
 
   test(`overriding object key by string at level ${name}`, async ({ equal, same }) => {
     const stream = sink()
-    const instance = bingo(stream)
+    const instance = zenlog(stream)
     instance.level = name
     instance[name]({ hello: 'world', msg: 'object' }, 'string')
     const result = await once(stream, 'data')
@@ -144,7 +144,7 @@ function levelTest (name, level) {
 
   test(`formatting logs as ${name}`, async ({ equal }) => {
     const stream = sink()
-    const instance = bingo(stream)
+    const instance = zenlog(stream)
     instance.level = name
     instance[name]('hello %d', 42)
     const result = await once(stream, 'data')
@@ -153,7 +153,7 @@ function levelTest (name, level) {
 
   test(`formatting a symbol at level ${name}`, async ({ equal }) => {
     const stream = sink()
-    const instance = bingo(stream)
+    const instance = zenlog(stream)
     instance.level = name
 
     const sym = Symbol('foo')
@@ -167,9 +167,9 @@ function levelTest (name, level) {
   test(`passing error with a serializer at level ${name}`, async ({ equal, same }) => {
     const stream = sink()
     const err = new Error('myerror')
-    const instance = bingo({
+    const instance = zenlog({
       serializers: {
-        err: bingo.stdSerializers.err
+        err: zenlog.stdSerializers.err
       }
     }, stream)
     instance.level = name
@@ -192,7 +192,7 @@ function levelTest (name, level) {
 
   test(`child logger for level ${name}`, async ({ equal, same }) => {
     const stream = sink()
-    const instance = bingo(stream)
+    const instance = zenlog(stream)
     instance.level = name
     const child = instance.child({ hello: 'world' })
     child[name]('hello world')
@@ -218,7 +218,7 @@ levelTest('trace', 10)
 
 test('serializers can return undefined to strip field', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo({
+  const instance = zenlog({
     serializers: {
       test () { return undefined }
     }
@@ -229,11 +229,11 @@ test('serializers can return undefined to strip field', async ({ equal }) => {
   equal('test' in result, false)
 })
 
-test('streams receive a message event with BINGO_CONFIG', ({ match, end }) => {
+test('streams receive a message event with ZENLOG_CONFIG', ({ match, end }) => {
   const stream = sink()
   stream.once('message', (message) => {
     match(message, {
-      code: 'BINGO_CONFIG',
+      code: 'ZENLOG_CONFIG',
       config: {
         errorKey: 'err',
         levels: {
@@ -259,12 +259,12 @@ test('streams receive a message event with BINGO_CONFIG', ({ match, end }) => {
     })
     end()
   })
-  bingo(stream)
+  zenlog(stream)
 })
 
 test('does not explode with a circular ref', async ({ doesNotThrow }) => {
   const stream = sink()
-  const instance = bingo(stream)
+  const instance = zenlog(stream)
   const b = {}
   const a = {
     hello: b
@@ -275,7 +275,7 @@ test('does not explode with a circular ref', async ({ doesNotThrow }) => {
 
 test('set the name', async ({ equal, same }) => {
   const stream = sink()
-  const instance = bingo({
+  const instance = zenlog({
     name: 'hello'
   }, stream)
   instance.fatal('this is fatal')
@@ -295,7 +295,7 @@ test('set the messageKey', async ({ equal, same }) => {
   const stream = sink()
   const message = 'hello world'
   const messageKey = 'fooMessage'
-  const instance = bingo({
+  const instance = zenlog({
     messageKey
   }, stream)
   instance.info(message)
@@ -314,7 +314,7 @@ test('set the nestedKey', async ({ equal, same }) => {
   const stream = sink()
   const object = { hello: 'world' }
   const nestedKey = 'stuff'
-  const instance = bingo({
+  const instance = zenlog({
     nestedKey
   }, stream)
   instance.info(object)
@@ -331,7 +331,7 @@ test('set the nestedKey', async ({ equal, same }) => {
 
 test('set undefined properties', async ({ equal, same }) => {
   const stream = sink()
-  const instance = bingo(stream)
+  const instance = zenlog(stream)
   instance.info({ hello: 'world', property: undefined })
   const result = await once(stream, 'data')
   equal(new Date(result.time) <= new Date(), true, 'time is greater than Date.now()')
@@ -346,7 +346,7 @@ test('set undefined properties', async ({ equal, same }) => {
 
 test('prototype properties are not logged', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo(stream)
+  const instance = zenlog(stream)
   instance.info(Object.create({ hello: 'world' }))
   const { hello } = await once(stream, 'data')
   equal(hello, undefined)
@@ -354,7 +354,7 @@ test('prototype properties are not logged', async ({ equal }) => {
 
 test('set the base', async ({ equal, same }) => {
   const stream = sink()
-  const instance = bingo({
+  const instance = zenlog({
     base: {
       a: 'b'
     }
@@ -373,7 +373,7 @@ test('set the base', async ({ equal, same }) => {
 
 test('set the base to null', async ({ equal, same }) => {
   const stream = sink()
-  const instance = bingo({
+  const instance = zenlog({
     base: null
   }, stream)
   instance.fatal('this is fatal')
@@ -388,11 +388,11 @@ test('set the base to null', async ({ equal, same }) => {
 
 test('set the base to null and use a formatter', async ({ equal, same }) => {
   const stream = sink()
-  const instance = bingo({
+  const instance = zenlog({
     base: null,
     formatters: {
       log (input) {
-        return Object.assign({}, input, { additionalMessage: 'using bingo' })
+        return Object.assign({}, input, { additionalMessage: 'using zenlog' })
       }
     }
   }, stream)
@@ -403,24 +403,24 @@ test('set the base to null and use a formatter', async ({ equal, same }) => {
   same(result, {
     level: 60,
     msg: 'this is fatal too',
-    additionalMessage: 'using bingo'
+    additionalMessage: 'using zenlog'
   })
 })
 
 test('throw if creating child without bindings', async ({ equal, fail }) => {
   const stream = sink()
-  const instance = bingo(stream)
+  const instance = zenlog(stream)
   try {
     instance.child()
     fail('it should throw')
   } catch (err) {
-    equal(err.message, 'missing bindings for child Bingo')
+    equal(err.message, 'missing bindings for child Zenlog')
   }
 })
 
 test('correctly escapes msg strings with stray double quote at end', async ({ same }) => {
   const stream = sink()
-  const instance = bingo({
+  const instance = zenlog({
     name: 'hello'
   }, stream)
 
@@ -438,7 +438,7 @@ test('correctly escapes msg strings with stray double quote at end', async ({ sa
 
 test('correctly escape msg strings with unclosed double quote', async ({ same }) => {
   const stream = sink()
-  const instance = bingo({
+  const instance = zenlog({
     name: 'hello'
   }, stream)
   instance.fatal('" this contains')
@@ -455,7 +455,7 @@ test('correctly escape msg strings with unclosed double quote', async ({ same })
 
 test('correctly escape quote in a key', async ({ same }) => {
   const stream = sink()
-  const instance = bingo(stream)
+  const instance = zenlog(stream)
   const obj = { 'some"obj': 'world' }
   instance.info(obj, 'a string')
   const result = await once(stream, 'data')
@@ -470,10 +470,10 @@ test('correctly escape quote in a key', async ({ same }) => {
   same(Object.keys(obj), ['some"obj'])
 })
 
-// https://github.com/bingojs/bingo/issues/139
+// https://github.com/zenlogjs/zenlog/issues/139
 test('object and format string', async ({ same }) => {
   const stream = sink()
-  const instance = bingo(stream)
+  const instance = zenlog(stream)
   instance.info({}, 'foo %s', 'bar')
 
   const result = await once(stream, 'data')
@@ -488,7 +488,7 @@ test('object and format string', async ({ same }) => {
 
 test('object and format string property', async ({ same }) => {
   const stream = sink()
-  const instance = bingo(stream)
+  const instance = zenlog(stream)
   instance.info({ answer: 42 }, 'foo %s', 'bar')
   const result = await once(stream, 'data')
   delete result.time
@@ -503,7 +503,7 @@ test('object and format string property', async ({ same }) => {
 
 test('correctly strip undefined when returned from toJSON', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo({
+  const instance = zenlog({
     test: 'this'
   }, stream)
   instance.fatal({ test: { toJSON () { return undefined } } })
@@ -526,13 +526,13 @@ test('correctly supports stderr', async ({ same }) => {
       })
     }
   }
-  const instance = bingo(dest)
+  const instance = zenlog(dest)
   instance.fatal('a message')
 })
 
 test('normalize number to string', async ({ same }) => {
   const stream = sink()
-  const instance = bingo(stream)
+  const instance = zenlog(stream)
   instance.info(1)
   const result = await once(stream, 'data')
   delete result.time
@@ -546,7 +546,7 @@ test('normalize number to string', async ({ same }) => {
 
 test('normalize number to string with an object', async ({ same }) => {
   const stream = sink()
-  const instance = bingo(stream)
+  const instance = zenlog(stream)
   instance.info({ answer: 42 }, 1)
   const result = await once(stream, 'data')
   delete result.time
@@ -561,7 +561,7 @@ test('normalize number to string with an object', async ({ same }) => {
 
 test('handles objects with null prototype', async ({ same }) => {
   const stream = sink()
-  const instance = bingo(stream)
+  const instance = zenlog(stream)
   const o = Object.create(null)
   o.test = 'test'
   instance.info(o)
@@ -575,9 +575,9 @@ test('handles objects with null prototype', async ({ same }) => {
   })
 })
 
-test('bingo.destination', async ({ same }) => {
+test('zenlog.destination', async ({ same }) => {
   const tmp = file()
-  const instance = bingo(bingo.destination(tmp))
+  const instance = zenlog(zenlog.destination(tmp))
   instance.info('hello')
   await watchFileCreated(tmp)
   const result = JSON.parse(readFileSync(tmp).toString())
@@ -590,9 +590,9 @@ test('bingo.destination', async ({ same }) => {
   })
 })
 
-test('auto bingo.destination with a string', async ({ same }) => {
+test('auto zenlog.destination with a string', async ({ same }) => {
   const tmp = file()
-  const instance = bingo(tmp)
+  const instance = zenlog(tmp)
   instance.info('hello')
   await watchFileCreated(tmp)
   const result = JSON.parse(readFileSync(tmp).toString())
@@ -605,9 +605,9 @@ test('auto bingo.destination with a string', async ({ same }) => {
   })
 })
 
-test('auto bingo.destination with a string as second argument', async ({ same }) => {
+test('auto zenlog.destination with a string as second argument', async ({ same }) => {
   const tmp = file()
-  const instance = bingo(null, tmp)
+  const instance = zenlog(null, tmp)
   instance.info('hello')
   await watchFileCreated(tmp)
   const result = JSON.parse(readFileSync(tmp).toString())
@@ -622,7 +622,7 @@ test('auto bingo.destination with a string as second argument', async ({ same })
 
 test('does not override opts with a string as second argument', async ({ same }) => {
   const tmp = file()
-  const instance = bingo({
+  const instance = zenlog({
     timestamp: () => ',"time":"none"'
   }, tmp)
   instance.info('hello')
@@ -637,10 +637,10 @@ test('does not override opts with a string as second argument', async ({ same })
   })
 })
 
-// https://github.com/bingojs/bingo/issues/222
+// https://github.com/zenlogjs/zenlog/issues/222
 test('children with same names render in correct order', async ({ equal }) => {
   const stream = sink()
-  const root = bingo(stream)
+  const root = zenlog(stream)
   root.child({ a: 1 }).child({ a: 2 }).info({ a: 3 })
   const { a } = await once(stream, 'data')
   equal(a, 3, 'last logged object takes precedence')
@@ -648,7 +648,7 @@ test('children with same names render in correct order', async ({ equal }) => {
 
 test('use `safe-stable-stringify` to avoid circular dependencies', async ({ same }) => {
   const stream = sink()
-  const root = bingo(stream)
+  const root = zenlog(stream)
   // circular depth
   const obj = {}
   obj.a = obj
@@ -659,7 +659,7 @@ test('use `safe-stable-stringify` to avoid circular dependencies', async ({ same
 
 test('correctly log non circular objects', async ({ same }) => {
   const stream = sink()
-  const root = bingo(stream)
+  const root = zenlog(stream)
   const obj = {}
   let parent = obj
   for (let i = 0; i < 10; i++) {
@@ -673,7 +673,7 @@ test('correctly log non circular objects', async ({ same }) => {
 
 test('safe-stable-stringify must be used when interpolating', async (t) => {
   const stream = sink()
-  const instance = bingo(stream)
+  const instance = zenlog(stream)
 
   const o = { a: { b: {} } }
   o.a.b.c = o.a.b
@@ -685,7 +685,7 @@ test('safe-stable-stringify must be used when interpolating', async (t) => {
 
 test('throws when setting useOnlyCustomLevels without customLevels', async ({ throws }) => {
   throws(() => {
-    bingo({
+    zenlog({
       useOnlyCustomLevels: true
     })
   }, 'customLevels is required if useOnlyCustomLevels is set true')
@@ -693,7 +693,7 @@ test('throws when setting useOnlyCustomLevels without customLevels', async ({ th
 
 test('correctly log Infinity', async (t) => {
   const stream = sink()
-  const instance = bingo(stream)
+  const instance = zenlog(stream)
 
   const o = { num: Infinity }
   instance.info(o)
@@ -704,7 +704,7 @@ test('correctly log Infinity', async (t) => {
 
 test('correctly log -Infinity', async (t) => {
   const stream = sink()
-  const instance = bingo(stream)
+  const instance = zenlog(stream)
 
   const o = { num: -Infinity }
   instance.info(o)
@@ -715,7 +715,7 @@ test('correctly log -Infinity', async (t) => {
 
 test('correctly log NaN', async (t) => {
   const stream = sink()
-  const instance = bingo(stream)
+  const instance = zenlog(stream)
 
   const o = { num: NaN }
   instance.info(o)
@@ -725,17 +725,17 @@ test('correctly log NaN', async (t) => {
 })
 
 test('offers a .default() method to please typescript', async ({ equal }) => {
-  equal(bingo.default, bingo)
+  equal(zenlog.default, zenlog)
 
   const stream = sink()
-  const instance = bingo.default(stream)
+  const instance = zenlog.default(stream)
   instance.info('hello world')
   check(equal, await once(stream, 'data'), 30, 'hello world')
 })
 
 test('correctly skip function', async (t) => {
   const stream = sink()
-  const instance = bingo(stream)
+  const instance = zenlog(stream)
 
   const o = { num: NaN }
   instance.info(o, () => {})
@@ -746,7 +746,7 @@ test('correctly skip function', async (t) => {
 
 test('correctly skip Infinity', async (t) => {
   const stream = sink()
-  const instance = bingo(stream)
+  const instance = zenlog(stream)
 
   const o = { num: NaN }
   instance.info(o, Infinity)
@@ -757,7 +757,7 @@ test('correctly skip Infinity', async (t) => {
 
 test('correctly log number', async (t) => {
   const stream = sink()
-  const instance = bingo(stream)
+  const instance = zenlog(stream)
 
   const o = { num: NaN }
   instance.info(o, 42)
@@ -770,7 +770,7 @@ test('nestedKey should not be used for non-objects', async ({ strictSame }) => {
   const stream = sink()
   const message = 'hello'
   const nestedKey = 'stuff'
-  const instance = bingo({
+  const instance = zenlog({
     nestedKey
   }, stream)
   instance.info(message)
@@ -786,15 +786,15 @@ test('nestedKey should not be used for non-objects', async ({ strictSame }) => {
 
 test('throws if prettyPrint is passed in as an option', async (t) => {
   t.throws(() => {
-    bingo({
+    zenlog({
       prettyPrint: true
     })
-  }, new Error('prettyPrint option is no longer supported, see the pino-pretty package (https://github.com/bingojs/pino-pretty)'))
+  }, new Error('prettyPrint option is no longer supported, see the pino-pretty package (https://github.com/zenlogjs/pino-pretty)'))
 })
 
 test('Should invoke `onChild` with the newly created child', async ({ equal }) => {
   let innerChild
-  const child = bingo({
+  const child = zenlog({
     onChild: (instance) => {
       innerChild = instance
     }
@@ -804,7 +804,7 @@ test('Should invoke `onChild` with the newly created child', async ({ equal }) =
 
 test('logger message should have the prefix message that defined in the logger creation', async ({ equal }) => {
   const stream = sink()
-  const logger = bingo({
+  const logger = zenlog({
     msgPrefix: 'My name is Bond '
   }, stream)
   logger.info('James Bond')
@@ -814,7 +814,7 @@ test('logger message should have the prefix message that defined in the logger c
 
 test('child message should have the prefix message that defined in the child creation', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo(stream)
+  const instance = zenlog(stream)
   const child = instance.child({}, { msgPrefix: 'My name is Bond ' })
   child.info('James Bond')
   const { msg } = await once(stream, 'data')
@@ -823,7 +823,7 @@ test('child message should have the prefix message that defined in the child cre
 
 test('child message should have the prefix message that defined in the child creation when logging with log meta', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo(stream)
+  const instance = zenlog(stream)
   const child = instance.child({}, { msgPrefix: 'My name is Bond ' })
   child.info({ hello: 'world' }, 'James Bond')
   const { msg, hello } = await once(stream, 'data')
@@ -833,7 +833,7 @@ test('child message should have the prefix message that defined in the child cre
 
 test('logged message should not have the prefix when not providing any message', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo(stream)
+  const instance = zenlog(stream)
   const child = instance.child({}, { msgPrefix: 'This should not be shown ' })
   child.info({ hello: 'world' })
   const { msg, hello } = await once(stream, 'data')
@@ -843,7 +843,7 @@ test('logged message should not have the prefix when not providing any message',
 
 test('child message should append parent prefix to current prefix that defined in the child creation', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo({
+  const instance = zenlog({
     msgPrefix: 'My name is Bond '
   }, stream)
   const child = instance.child({}, { msgPrefix: 'James ' })
@@ -854,7 +854,7 @@ test('child message should append parent prefix to current prefix that defined i
 
 test('child message should inherent parent prefix', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo({
+  const instance = zenlog({
     msgPrefix: 'My name is Bond '
   }, stream)
   const child = instance.child({})
@@ -865,7 +865,7 @@ test('child message should inherent parent prefix', async ({ equal }) => {
 
 test('grandchild message should inherent parent prefix', async ({ equal }) => {
   const stream = sink()
-  const instance = bingo(stream)
+  const instance = zenlog(stream)
   const child = instance.child({}, { msgPrefix: 'My name is Bond ' })
   const grandchild = child.child({})
   grandchild.info('James Bond')

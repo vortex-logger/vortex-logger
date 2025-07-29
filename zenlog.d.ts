@@ -1,4 +1,4 @@
-// Project: https://github.com/bingo/bingo.git, http://getbingo.io
+// Project: https://github.com/zenlog/zenlog.git, http://getzenlog.io
 // Definitions by: Peter Snider <https://github.com/psnider>
 //                 BendingBender <https://github.com/BendingBender>
 //                 Christian Rackerseder <https://github.com/screendriver>
@@ -24,11 +24,11 @@ import type { WorkerOptions } from "worker_threads";
 
 //// Non-exported types and interfaces
 
-// ToDo https://github.com/bingo/thread-stream/issues/24
+// ToDo https://github.com/zenlog/thread-stream/issues/24
 type ThreadStream = any
 
 type TimeFn = () => string;
-type MixinFn<CustomLevels extends string = never> = (mergeObject: object, level: number, logger:bingo.Logger<CustomLevels>) => object;
+type MixinFn<CustomLevels extends string = never> = (mergeObject: object, level: number, logger:zenlog.Logger<CustomLevels>) => object;
 type MixinMergeStrategyFn = (mergeObject: object, mixinObject: object) => object;
 
 type CustomLevelLogger<CustomLevels extends string, UseOnlyCustomLevels extends boolean = boolean> = { 
@@ -37,21 +37,21 @@ type CustomLevelLogger<CustomLevels extends string, UseOnlyCustomLevels extends 
      */
     customLevels: { [level in CustomLevels]: number };
     /**
-     * Use only defined `customLevels` and omit Bingo's levels.
+     * Use only defined `customLevels` and omit Zenlog's levels.
      */
     useOnlyCustomLevels: UseOnlyCustomLevels;
  } & {
     // This will override default log methods
-    [K in Exclude<bingo.Level, CustomLevels>]: UseOnlyCustomLevels extends true ? never : bingo.LogFn;
+    [K in Exclude<zenlog.Level, CustomLevels>]: UseOnlyCustomLevels extends true ? never : zenlog.LogFn;
  } & {
-    [level in CustomLevels]: bingo.LogFn;
+    [level in CustomLevels]: zenlog.LogFn;
  };
 
 /**
 * A synchronous callback that will run on each creation of a new child.
 * @param child: The newly created child logger instance.
 */
-type OnChildCallback<CustomLevels extends string = never> = (child: bingo.Logger<CustomLevels>) => void
+type OnChildCallback<CustomLevels extends string = never> = (child: zenlog.Logger<CustomLevels>) => void
 
 export interface redactOptions {
     paths: string[];
@@ -61,11 +61,11 @@ export interface redactOptions {
 
 export interface LoggerExtras<CustomLevels extends string = never, UseOnlyCustomLevels extends boolean = boolean> extends EventEmitter {
     /**
-     * Exposes the Bingo package version. Also available on the exported bingo function.
+     * Exposes the Zenlog package version. Also available on the exported zenlog function.
      */
     readonly version: string;
 
-    levels: bingo.LevelMapping;
+    levels: zenlog.LevelMapping;
 
     /**
      * Outputs the level as a string instead of integer.
@@ -86,7 +86,7 @@ export interface LoggerExtras<CustomLevels extends string = never, UseOnlyCustom
      * @param options: an options object that will override child logger inherited options.
      * @returns a child logger instance.
      */
-    child<ChildCustomLevels extends string = never>(bindings: bingo.Bindings, options?: ChildLoggerOptions<ChildCustomLevels>): bingo.Logger<CustomLevels | ChildCustomLevels>;
+    child<ChildCustomLevels extends string = never>(bindings: zenlog.Bindings, options?: ChildLoggerOptions<ChildCustomLevels>): zenlog.Logger<CustomLevels | ChildCustomLevels>;
 
     /**
      * This can be used to modify the callback function on creation of a new child.
@@ -101,22 +101,22 @@ export interface LoggerExtras<CustomLevels extends string = never, UseOnlyCustom
      * @param event: only ever fires the `'level-change'` event
      * @param listener: The listener is passed four arguments: `levelLabel`, `levelValue`, `previousLevelLabel`, `previousLevelValue`.
      */
-    on(event: "level-change", listener: bingo.LevelChangeEventListener<CustomLevels, UseOnlyCustomLevels>): this;
-    addListener(event: "level-change", listener: bingo.LevelChangeEventListener<CustomLevels, UseOnlyCustomLevels>): this;
-    once(event: "level-change", listener: bingo.LevelChangeEventListener<CustomLevels, UseOnlyCustomLevels>): this;
-    prependListener(event: "level-change", listener: bingo.LevelChangeEventListener<CustomLevels, UseOnlyCustomLevels>): this;
-    prependOnceListener(event: "level-change", listener: bingo.LevelChangeEventListener<CustomLevels, UseOnlyCustomLevels>): this;
-    removeListener(event: "level-change", listener: bingo.LevelChangeEventListener<CustomLevels, UseOnlyCustomLevels>): this;
+    on(event: "level-change", listener: zenlog.LevelChangeEventListener<CustomLevels, UseOnlyCustomLevels>): this;
+    addListener(event: "level-change", listener: zenlog.LevelChangeEventListener<CustomLevels, UseOnlyCustomLevels>): this;
+    once(event: "level-change", listener: zenlog.LevelChangeEventListener<CustomLevels, UseOnlyCustomLevels>): this;
+    prependListener(event: "level-change", listener: zenlog.LevelChangeEventListener<CustomLevels, UseOnlyCustomLevels>): this;
+    prependOnceListener(event: "level-change", listener: zenlog.LevelChangeEventListener<CustomLevels, UseOnlyCustomLevels>): this;
+    removeListener(event: "level-change", listener: zenlog.LevelChangeEventListener<CustomLevels, UseOnlyCustomLevels>): this;
 
     /**
      * A utility method for determining if a given log level will write to the destination.
      */
-    isLevelEnabled(level: bingo.LevelWithSilentOrString): boolean;
+    isLevelEnabled(level: zenlog.LevelWithSilentOrString): boolean;
 
     /**
      * Returns an object containing all the current bindings, cloned from the ones passed in via logger.child().
      */
-    bindings(): bingo.Bindings;
+    bindings(): zenlog.Bindings;
 
     /**
      * Adds to the bindings of this logger instance.
@@ -124,17 +124,17 @@ export interface LoggerExtras<CustomLevels extends string = never, UseOnlyCustom
      *
      * @param bindings: an object of key-value pairs to include in log lines as properties.
      */
-    setBindings(bindings: bingo.Bindings): void;
+    setBindings(bindings: zenlog.Bindings): void;
 
     /**
-     * Flushes the content of the buffer when using bingo.destination({ sync: false }).
+     * Flushes the content of the buffer when using zenlog.destination({ sync: false }).
      * call the callback when finished
      */
     flush(cb?: (err?: Error) => void): void;
 }
 
 
-declare namespace bingo {
+declare namespace zenlog {
     //// Exported types and interfaces
 
     interface BaseLogger {
@@ -153,7 +153,7 @@ declare namespace bingo {
          *
          * You can pass `'silent'` to disable logging.
          */
-        level: bingo.LevelWithSilentOrString;
+        level: zenlog.LevelWithSilentOrString;
 
         /**
          * Log at `'fatal'` level the given msg. If the first argument is an object, all its properties will be included in the JSON line.
@@ -164,7 +164,7 @@ declare namespace bingo {
          * @param msg: the log message to write
          * @param ...args: format string values when `msg` is a format string
          */
-        fatal: bingo.LogFn;
+        fatal: zenlog.LogFn;
         /**
          * Log at `'error'` level the given msg. If the first argument is an object, all its properties will be included in the JSON line.
          * If more args follows `msg`, these will be used to format `msg` using `util.format`.
@@ -174,7 +174,7 @@ declare namespace bingo {
          * @param msg: the log message to write
          * @param ...args: format string values when `msg` is a format string
          */
-        error: bingo.LogFn;
+        error: zenlog.LogFn;
         /**
          * Log at `'warn'` level the given msg. If the first argument is an object, all its properties will be included in the JSON line.
          * If more args follows `msg`, these will be used to format `msg` using `util.format`.
@@ -184,7 +184,7 @@ declare namespace bingo {
          * @param msg: the log message to write
          * @param ...args: format string values when `msg` is a format string
          */
-        warn: bingo.LogFn;
+        warn: zenlog.LogFn;
         /**
          * Log at `'info'` level the given msg. If the first argument is an object, all its properties will be included in the JSON line.
          * If more args follows `msg`, these will be used to format `msg` using `util.format`.
@@ -194,7 +194,7 @@ declare namespace bingo {
          * @param msg: the log message to write
          * @param ...args: format string values when `msg` is a format string
          */
-        info: bingo.LogFn;
+        info: zenlog.LogFn;
         /**
          * Log at `'debug'` level the given msg. If the first argument is an object, all its properties will be included in the JSON line.
          * If more args follows `msg`, these will be used to format `msg` using `util.format`.
@@ -204,7 +204,7 @@ declare namespace bingo {
          * @param msg: the log message to write
          * @param ...args: format string values when `msg` is a format string
          */
-        debug: bingo.LogFn;
+        debug: zenlog.LogFn;
         /**
          * Log at `'trace'` level the given msg. If the first argument is an object, all its properties will be included in the JSON line.
          * If more args follows `msg`, these will be used to format `msg` using `util.format`.
@@ -214,18 +214,18 @@ declare namespace bingo {
          * @param msg: the log message to write
          * @param ...args: format string values when `msg` is a format string
          */
-        trace: bingo.LogFn;
+        trace: zenlog.LogFn;
         /**
          * Noop function.
          */
-        silent: bingo.LogFn;
+        silent: zenlog.LogFn;
     }
 
     type Bindings = Record<string, any>;
 
     type Level = "fatal" | "error" | "warn" | "info" | "debug" | "trace";
     type LevelOrString = Level | (string & {});
-    type LevelWithSilent = bingo.Level | "silent";
+    type LevelWithSilent = zenlog.Level | "silent";
     type LevelWithSilentOrString = LevelWithSilent | (string & {});
 
     type SerializerFn = (value: any) => any;
@@ -289,7 +289,7 @@ declare namespace bingo {
       lastTime: string;
       lastMsg: string;
       lastObj: object;
-      lastLogger: bingo.Logger;
+      lastLogger: zenlog.Logger;
     }
 
     type DestinationStreamWithMetadata = DestinationStream & ({ [symbols.needsMetadataGsym]?: false } | DestinationStreamHasMetadata);
@@ -347,7 +347,7 @@ declare namespace bingo {
          * Enables or disables the inclusion of a timestamp in the log message. If a function is supplied, it must
          * synchronously return a JSON string representation of the time. If set to `false`, no timestamp will be included in the output.
          * See stdTimeFunctions for a set of available functions for passing in as a value for this option.
-         * Caution: any sort of formatted time will significantly slow down Bingo's performance.
+         * Caution: any sort of formatted time will significantly slow down Zenlog's performance.
          */
         timestamp?: TimeFn | boolean;
         /**
@@ -363,7 +363,7 @@ declare namespace bingo {
         customLevels?: { [level in CustomLevels]: number };
 
         /**
-         * Use this option to only use defined `customLevels` and omit Bingo's levels.
+         * Use this option to only use defined `customLevels` and omit Zenlog's levels.
          * Logger's default `level` must be changed to a value in `customLevels` in order to use `useOnlyCustomLevels`
          * Warning: this option may not be supported by downstream transports.
          */
@@ -425,15 +425,15 @@ declare namespace bingo {
          */
         enabled?: boolean;
         /**
-         * Browser only, see http://getbingo.io/#/docs/browser.
+         * Browser only, see http://getzenlog.io/#/docs/browser.
          */
         browser?: {
             /**
-             * The `asObject` option will create a bingo-like log object instead of passing all arguments to a console
+             * The `asObject` option will create a zenlog-like log object instead of passing all arguments to a console
              * method. When `write` is set, `asObject` will always be true.
              *
              * @example
-             * bingo.info('hi') // creates and logs {msg: 'hi', level: 30, time: <ts>}
+             * zenlog.info('hi') // creates and logs {msg: 'hi', level: 30, time: <ts>}
              */
             asObject?: boolean;
             formatters?: {
@@ -454,7 +454,7 @@ declare namespace bingo {
              * corresponding method is called. If a method isn't present, the logging falls back to using the `console`.
              *
              * @example
-             * const bingo = require('bingo')({
+             * const zenlog = require('zenlog')({
              *   browser: {
              *     write: (o) => {
              *       // do something with o
@@ -463,7 +463,7 @@ declare namespace bingo {
              * })
              *
              * @example
-             * const bingo = require('bingo')({
+             * const zenlog = require('zenlog')({
              *   browser: {
              *     write: {
              *       info: function (o) {
@@ -488,37 +488,37 @@ declare namespace bingo {
             } & { [logLevel: string]: WriteFn });
 
             /**
-             * The serializers provided to `bingo` are ignored by default in the browser, including the standard
-             * serializers provided with Bingo. Since the default destination for log messages is the console, values
+             * The serializers provided to `zenlog` are ignored by default in the browser, including the standard
+             * serializers provided with Zenlog. Since the default destination for log messages is the console, values
              * such as `Error` objects are enhanced for inspection, which they otherwise wouldn't be if the Error
              * serializer was enabled. We can turn all serializers on or we can selectively enable them via an array.
              *
              * When `serialize` is `true` the standard error serializer is also enabled (see
-             * {@link https://github.com/bingojs/bingo/blob/master/docs/api.md#bingo-stdserializers}). This is a global
+             * {@link https://github.com/zenlogjs/zenlog/blob/master/docs/api.md#zenlog-stdserializers}). This is a global
              * serializer which will apply to any `Error` objects passed to the logger methods.
              *
              * If `serialize` is an array the standard error serializer is also automatically enabled, it can be
              * explicitly disabled by including a string in the serialize array: `!stdSerializers.err` (see example).
              *
              * The `serialize` array also applies to any child logger serializers (see
-             * {@link https://github.com/bingo/bingo/blob/master/docs/api.md#bindingsserializers-object} for how to
+             * {@link https://github.com/zenlog/zenlog/blob/master/docs/api.md#bindingsserializers-object} for how to
              * set child-bound serializers).
              *
-             * Unlike server bingo the serializers apply to every object passed to the logger method, if the `asObject`
-             * option is `true`, this results in the serializers applying to the first object (as in server bingo).
+             * Unlike server zenlog the serializers apply to every object passed to the logger method, if the `asObject`
+             * option is `true`, this results in the serializers applying to the first object (as in server zenlog).
              *
              * For more info on serializers see
-             * {@link https://github.com/bingo/bingo/blob/master/docs/api.md#serializers-object}.
+             * {@link https://github.com/zenlog/zenlog/blob/master/docs/api.md#serializers-object}.
              *
              * @example
-             * const bingo = require('bingo')({
+             * const zenlog = require('zenlog')({
              *   browser: {
              *     serialize: true
              *   }
              * })
              *
              * @example
-             * const bingo = require('bingo')({
+             * const zenlog = require('zenlog')({
              *   serializers: {
              *     custom: myCustomSerializer,
              *     another: anotherSerializer
@@ -529,10 +529,10 @@ declare namespace bingo {
              * })
              * // following will apply myCustomSerializer to the custom property,
              * // but will not apply anotherSerializer to another key
-             * bingo.info({custom: 'a', another: 'b'})
+             * zenlog.info({custom: 'a', another: 'b'})
              *
              * @example
-             * const bingo = require('bingo')({
+             * const zenlog = require('zenlog')({
              *   serializers: {
              *     custom: myCustomSerializer,
              *     another: anotherSerializer
@@ -548,7 +548,7 @@ declare namespace bingo {
              * Options for transmission of logs.
              *
              * @example
-             * const bingo = require('bingo')({
+             * const zenlog = require('zenlog')({
              *   browser: {
              *     transmit: {
              *       level: 'warn',
@@ -586,7 +586,7 @@ declare namespace bingo {
              * The disabled option will disable logging in browser if set to true, by default it is set to false.
              *
              * @example
-             * const bingo = require('bingo')({browser: {disabled: true}})
+             * const zenlog = require('zenlog')({browser: {disabled: true}})
              */
             disabled?: boolean;
         };
@@ -764,7 +764,7 @@ declare namespace bingo {
     };
 
     /**
-     * Exposes the Bingo package version. Also available on the logger instance.
+     * Exposes the Zenlog package version. Also available on the logger instance.
      */
     export const version: string;
 
@@ -776,7 +776,7 @@ declare namespace bingo {
      */
     export const stdTimeFunctions: {
         /**
-         * The default time function for Bingo. Returns a string like `,"time":1493426328206`.
+         * The default time function for Zenlog. Returns a string like `,"time":1493426328206`.
          */
         epochTime: TimeFn;
         /*
@@ -796,11 +796,11 @@ declare namespace bingo {
     //// Exported functions
 
     /**
-     * Create a Bingo Destination instance: a stream-like object with significantly more throughput (over 30%) than a standard Node.js stream.
+     * Create a Zenlog Destination instance: a stream-like object with significantly more throughput (over 30%) than a standard Node.js stream.
      * @param [dest]: The `destination` parameter, can be a file descriptor, a file path, or an object with `dest` property pointing to a fd or path.
      *                An ordinary Node.js `stream` file descriptor can be passed as the destination (such as the result of `fs.createWriteStream`)
-     *                but for peak log writing performance, it is strongly recommended to use `bingo.destination` to create the destination stream.
-     * @returns A Sonic-Boom  stream to be used as destination for the bingo function
+     *                but for peak log writing performance, it is strongly recommended to use `zenlog.destination` to create the destination stream.
+     * @returns A Sonic-Boom  stream to be used as destination for the zenlog function
      */
     export function destination(
         dest?: number | object | string | DestinationStream | NodeJS.WritableStream | SonicBoomOpts,
@@ -823,7 +823,7 @@ declare namespace bingo {
  * relative protocol is enabled. Default: process.stdout
  * @returns a new logger instance.
  */
-declare function bingo<CustomLevels extends string = never, UseOnlyCustomLevels extends boolean = boolean>(optionsOrStream?: LoggerOptions<CustomLevels, UseOnlyCustomLevels> | DestinationStream): Logger<CustomLevels, UseOnlyCustomLevels>;
+declare function zenlog<CustomLevels extends string = never, UseOnlyCustomLevels extends boolean = boolean>(optionsOrStream?: LoggerOptions<CustomLevels, UseOnlyCustomLevels> | DestinationStream): Logger<CustomLevels, UseOnlyCustomLevels>;
 
 /**
  * @param [options]: an options object
@@ -831,58 +831,58 @@ declare function bingo<CustomLevels extends string = never, UseOnlyCustomLevels 
  * relative protocol is enabled. Default: process.stdout
  * @returns a new logger instance.
  */
-declare function bingo<CustomLevels extends string = never, UseOnlyCustomLevels extends boolean = boolean>(options: LoggerOptions<CustomLevels, UseOnlyCustomLevels>, stream?: DestinationStream | undefined): Logger<CustomLevels, UseOnlyCustomLevels>;
+declare function zenlog<CustomLevels extends string = never, UseOnlyCustomLevels extends boolean = boolean>(options: LoggerOptions<CustomLevels, UseOnlyCustomLevels>, stream?: DestinationStream | undefined): Logger<CustomLevels, UseOnlyCustomLevels>;
 
 
-// Pass through all the top-level exports, allows `import {version} from "bingo"`
+// Pass through all the top-level exports, allows `import {version} from "zenlog"`
 // Constants and functions
-export const destination: typeof bingo.destination;
-export const transport: typeof bingo.transport;
-export const multistream: typeof bingo.multistream;
-export const levels: typeof bingo.levels;
-export const stdSerializers: typeof bingo.stdSerializers;
-export const stdTimeFunctions: typeof bingo.stdTimeFunctions;
-export const symbols: typeof bingo.symbols;
-export const version: typeof bingo.version;
+export const destination: typeof zenlog.destination;
+export const transport: typeof zenlog.transport;
+export const multistream: typeof zenlog.multistream;
+export const levels: typeof zenlog.levels;
+export const stdSerializers: typeof zenlog.stdSerializers;
+export const stdTimeFunctions: typeof zenlog.stdTimeFunctions;
+export const symbols: typeof zenlog.symbols;
+export const version: typeof zenlog.version;
 
 // Types
-export type Bindings = bingo.Bindings;
-export type DestinationStreamWithMetadata = bingo.DestinationStreamWithMetadata;
-export type Level = bingo.Level;
-export type LevelOrString = bingo.LevelOrString;
-export type LevelWithSilent = bingo.LevelWithSilent;
-export type LevelWithSilentOrString = bingo.LevelWithSilentOrString;
-export type LevelChangeEventListener<CustomLevels extends string> = bingo.LevelChangeEventListener<CustomLevels>;
-export type LogDescriptor = bingo.LogDescriptor;
-export type Logger<CustomLevels extends string = never, UseOnlyCustomLevels extends boolean = boolean> = bingo.Logger<CustomLevels, UseOnlyCustomLevels>;
-export type SerializedError = bingo.SerializedError;
-export type SerializerFn = bingo.SerializerFn;
-export type SerializedRequest = bingo.SerializedRequest;
-export type SerializedResponse = bingo.SerializedResponse;
-export type WriteFn = bingo.WriteFn;
+export type Bindings = zenlog.Bindings;
+export type DestinationStreamWithMetadata = zenlog.DestinationStreamWithMetadata;
+export type Level = zenlog.Level;
+export type LevelOrString = zenlog.LevelOrString;
+export type LevelWithSilent = zenlog.LevelWithSilent;
+export type LevelWithSilentOrString = zenlog.LevelWithSilentOrString;
+export type LevelChangeEventListener<CustomLevels extends string> = zenlog.LevelChangeEventListener<CustomLevels>;
+export type LogDescriptor = zenlog.LogDescriptor;
+export type Logger<CustomLevels extends string = never, UseOnlyCustomLevels extends boolean = boolean> = zenlog.Logger<CustomLevels, UseOnlyCustomLevels>;
+export type SerializedError = zenlog.SerializedError;
+export type SerializerFn = zenlog.SerializerFn;
+export type SerializedRequest = zenlog.SerializedRequest;
+export type SerializedResponse = zenlog.SerializedResponse;
+export type WriteFn = zenlog.WriteFn;
 
 // Interfaces
-export interface BaseLogger extends bingo.BaseLogger {}
-export interface ChildLoggerOptions<CustomLevels extends string = never> extends bingo.ChildLoggerOptions<CustomLevels> {}
-export interface DestinationStream extends bingo.DestinationStream {}
-export interface LevelMapping extends bingo.LevelMapping {}
-export interface LogEvent extends bingo.LogEvent {}
-export interface LogFn extends bingo.LogFn {}
-export interface LoggerOptions<CustomLevels extends string = never, UseOnlyCustomLevels extends boolean = boolean> extends bingo.LoggerOptions<CustomLevels, UseOnlyCustomLevels> {}
-export interface MultiStreamOptions extends bingo.MultiStreamOptions {}
-export interface MultiStreamRes<TLevel = Level> extends bingo.MultiStreamRes<TLevel> {}
-export interface StreamEntry<TLevel = Level> extends bingo.StreamEntry<TLevel> {}
-export interface TransportBaseOptions extends bingo.TransportBaseOptions {}
-export interface TransportMultiOptions extends bingo.TransportMultiOptions {}
-export interface TransportPipelineOptions extends bingo.TransportPipelineOptions {}
-export interface TransportSingleOptions extends bingo.TransportSingleOptions {}
-export interface TransportTargetOptions extends bingo.TransportTargetOptions {}
+export interface BaseLogger extends zenlog.BaseLogger {}
+export interface ChildLoggerOptions<CustomLevels extends string = never> extends zenlog.ChildLoggerOptions<CustomLevels> {}
+export interface DestinationStream extends zenlog.DestinationStream {}
+export interface LevelMapping extends zenlog.LevelMapping {}
+export interface LogEvent extends zenlog.LogEvent {}
+export interface LogFn extends zenlog.LogFn {}
+export interface LoggerOptions<CustomLevels extends string = never, UseOnlyCustomLevels extends boolean = boolean> extends zenlog.LoggerOptions<CustomLevels, UseOnlyCustomLevels> {}
+export interface MultiStreamOptions extends zenlog.MultiStreamOptions {}
+export interface MultiStreamRes<TLevel = Level> extends zenlog.MultiStreamRes<TLevel> {}
+export interface StreamEntry<TLevel = Level> extends zenlog.StreamEntry<TLevel> {}
+export interface TransportBaseOptions extends zenlog.TransportBaseOptions {}
+export interface TransportMultiOptions extends zenlog.TransportMultiOptions {}
+export interface TransportPipelineOptions extends zenlog.TransportPipelineOptions {}
+export interface TransportSingleOptions extends zenlog.TransportSingleOptions {}
+export interface TransportTargetOptions extends zenlog.TransportTargetOptions {}
 
 // Bundle all top level exports into a namespace, then export namespace both
-// as default (`import bingo from "bingo"`) and named variable
-// (`import {bingo} from "bingo"`).
-export { bingo as default, bingo };
+// as default (`import zenlog from "zenlog"`) and named variable
+// (`import {zenlog} from "zenlog"`).
+export { zenlog as default, zenlog };
 // Export just the type side of the namespace as "P", allows
-// `import {P} from "bingo"; const log: P.Logger;`.
+// `import {P} from "zenlog"; const log: P.Logger;`.
 // (Legacy support for early 7.x releases, remove in 8.x.)
-    export type { bingo as P };
+    export type { zenlog as P };

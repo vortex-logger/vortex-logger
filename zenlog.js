@@ -86,7 +86,7 @@ const normalize = createArgsNormalizer(defaultOptions)
 
 const serializers = Object.assign(Object.create(null), stdSerializers)
 
-function bingo (...args) {
+function zenlog (...args) {
   const instance = {}
   const { opts, stream } = normalize(instance, caller(), ...args)
 
@@ -166,7 +166,7 @@ function bingo (...args) {
   const levels = mappings(customLevels, useOnlyCustomLevels)
 
   if (typeof stream.emit === 'function') {
-    stream.emit('message', { code: 'BINGO_CONFIG', config: { levels, messageKey, errorKey } })
+    stream.emit('message', { code: 'ZENLOG_CONFIG', config: { levels, messageKey, errorKey } })
   }
 
   assertLevelComparison(levelComparison)
@@ -209,7 +209,7 @@ function bingo (...args) {
   return instance
 }
 
-module.exports = bingo
+module.exports = zenlog
 
 module.exports.destination = (dest = process.stdout.fd) => {
   if (typeof dest === 'object') {
@@ -230,5 +230,5 @@ module.exports.symbols = symbols
 module.exports.version = version
 
 // Enables default and name export with TypeScript and Babel
-module.exports.default = bingo
-module.exports.bingo = bingo
+module.exports.default = zenlog
+module.exports.zenlog = zenlog

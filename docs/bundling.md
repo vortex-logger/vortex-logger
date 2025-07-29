@@ -1,6 +1,6 @@
 # Bundling
 
-Due to its internal architecture based on Worker Threads, it is not possible to bundle Bingo *without* generating additional files.
+Due to its internal architecture based on Worker Threads, it is not possible to bundle Zenlog *without* generating additional files.
 
 In particular, a bundler must ensure that the following files are also bundled separately:
 
@@ -18,23 +18,23 @@ Example:
 ```javascript
 // Inject this using your bundle plugin
 globalThis.__bundlerPathsOverrides = {
-  'thread-stream-worker': bingoWebpackAbsolutePath('./thread-stream-worker.js')
-  'bingo-logger/file': bingoWebpackAbsolutePath('./bingo-file.js'),
-  'bingo-worker': bingoWebpackAbsolutePath('./bingo-worker.js'),
-  'pino-pretty': bingoWebpackAbsolutePath('./pino-pretty.js'),
+  'thread-stream-worker': zenlogWebpackAbsolutePath('./thread-stream-worker.js')
+  'zenlog/file': zenlogWebpackAbsolutePath('./zenlog-file.js'),
+  'zenlog-worker': zenlogWebpackAbsolutePath('./zenlog-worker.js'),
+  'pino-pretty': zenlogWebpackAbsolutePath('./pino-pretty.js'),
 };
 ```
 
-Note that `bingo-logger/file`, `bingo-worker` and `thread-stream-worker` are required identifiers. Other identifiers are possible based on the user configuration.
+Note that `zenlog/file`, `zenlog-worker` and `thread-stream-worker` are required identifiers. Other identifiers are possible based on the user configuration.
 
 ## Webpack Plugin
 
-If you are a Webpack user, you can achieve this with [bingo-webpack-plugin](https://github.com/bingojs/bingo-webpack-plugin) without manual configuration of `__bundlerPathsOverrides`; however, you still need to configure it manually if you are using other bundlers.
+If you are a Webpack user, you can achieve this with [zenlog-webpack-plugin](https://github.com/zenlogjs/zenlog-webpack-plugin) without manual configuration of `__bundlerPathsOverrides`; however, you still need to configure it manually if you are using other bundlers.
 
 ## Esbuild Plugin
 
-[esbuild-plugin-bingo](https://github.com/davipon/esbuild-plugin-bingo) is the esbuild plugin to generate extra bingo files for bundling.
+[esbuild-plugin-zenlog](https://github.com/davipon/esbuild-plugin-zenlog) is the esbuild plugin to generate extra zenlog files for bundling.
 
 ## Bun Plugin
 
-[bun-plugin-bingo](https://github.com/vktrl/bun-plugin-bingo) is the Bun plugin to generate extra bingo files for bundling.
+[bun-plugin-zenlog](https://github.com/vktrl/bun-plugin-zenlog) is the Bun plugin to generate extra zenlog files for bundling.

@@ -6,11 +6,11 @@ const { join } = require('node:path')
 const { readFile } = require('node:fs').promises
 const { test } = require('tap')
 const { sink, once, watchFileCreated, file } = require('./helper')
-const bingo = require('../')
+const zenlog = require('../')
 
 test('level formatter', async ({ match }) => {
   const stream = sink()
-  const logger = bingo({
+  const logger = zenlog({
     formatters: {
       level (label, number) {
         return {
@@ -33,7 +33,7 @@ test('level formatter', async ({ match }) => {
 
 test('bindings formatter', async ({ match }) => {
   const stream = sink()
-  const logger = bingo({
+  const logger = zenlog({
     formatters: {
       bindings (bindings) {
         return {
@@ -62,7 +62,7 @@ test('bindings formatter', async ({ match }) => {
 
 test('no bindings formatter', async ({ match, notOk }) => {
   const stream = sink()
-  const logger = bingo({
+  const logger = zenlog({
     formatters: {
       bindings (bindings) {
         return null
@@ -80,7 +80,7 @@ test('no bindings formatter', async ({ match, notOk }) => {
 
 test('log formatter', async ({ match, equal }) => {
   const stream = sink()
-  const logger = bingo({
+  const logger = zenlog({
     formatters: {
       log (obj) {
         equal(obj.hasOwnProperty('msg'), false)
@@ -100,7 +100,7 @@ test('log formatter', async ({ match, equal }) => {
 
 test('Formatters combined', async ({ match }) => {
   const stream = sink()
-  const logger = bingo({
+  const logger = zenlog({
     formatters: {
       level (label, number) {
         return {
@@ -145,7 +145,7 @@ test('Formatters combined', async ({ match }) => {
 
 test('Formatters in child logger', async ({ match }) => {
   const stream = sink()
-  const logger = bingo({
+  const logger = zenlog({
     formatters: {
       level (label, number) {
         return {
@@ -202,7 +202,7 @@ test('Formatters in child logger', async ({ match }) => {
 
 test('Formatters without bindings in child logger', async ({ match }) => {
   const stream = sink()
-  const logger = bingo({
+  const logger = zenlog({
     formatters: {
       level (label, number) {
         return {
@@ -264,7 +264,7 @@ test('elastic common schema format', async ({ match, type }) => {
         return {
           log: {
             level: label,
-            logger: 'bingo'
+            logger: 'zenlog'
           }
         }
       },
@@ -286,14 +286,14 @@ test('elastic common schema format', async ({ match, type }) => {
     timestamp: () => `,"@timestamp":"${new Date(Date.now()).toISOString()}"`
   }
 
-  const logger = bingo({ ...ecs }, stream)
+  const logger = zenlog({ ...ecs }, stream)
 
   const o = once(stream, 'data')
   logger.info({ foo: 'bar' }, 'hello world')
   const log = await o
   type(log['@timestamp'], 'string')
   match(log, {
-    log: { level: 'info', logger: 'bingo' },
+    log: { level: 'info', logger: 'zenlog' },
     process: { pid: process.pid },
     host: { name: hostname() },
     ecs: { version: '1.4.0' },
@@ -304,7 +304,7 @@ test('elastic common schema format', async ({ match, type }) => {
 
 test('formatter with transport', async ({ match, equal }) => {
   const destination = file()
-  const logger = bingo({
+  const logger = zenlog({
     formatters: {
       log (obj) {
         equal(obj.hasOwnProperty('msg'), false)
@@ -334,7 +334,7 @@ test('formatter with transport', async ({ match, equal }) => {
 
 test('throws when custom level formatter is used with transport.targets', async ({ throws }) => {
   throws(() => {
-    bingo({
+    zenlog({
       formatters: {
         level (label) {
           return label
@@ -343,7 +343,7 @@ test('throws when custom level formatter is used with transport.targets', async 
       transport: {
         targets: [
           {
-            target: 'bingo-logger/file',
+            target: 'zenlog/file',
             options: { destination: 'foo.log' }
           }
         ]

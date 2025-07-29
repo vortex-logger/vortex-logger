@@ -2,12 +2,12 @@
 const { test } = require('tap')
 const { sink, once } = require('./helper')
 const stdSerializers = require('pino-std-serializers')
-const bingo = require('../')
+const zenlog = require('../')
 
 test('set the errorKey with error serializer', async ({ equal, same }) => {
   const stream = sink()
   const errorKey = 'error'
-  const instance = bingo({
+  const instance = zenlog({
     errorKey,
     serializers: { [errorKey]: stdSerializers.err }
   }, stream)
@@ -22,7 +22,7 @@ test('set the errorKey with error serializer', async ({ equal, same }) => {
 test('set the errorKey without error serializer', async ({ equal, same }) => {
   const stream = sink()
   const errorKey = 'error'
-  const instance = bingo({
+  const instance = zenlog({
     errorKey
   }, stream)
   instance.error(new ReferenceError('test'))

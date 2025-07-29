@@ -1,18 +1,18 @@
 'use strict'
 
 const bench = require('fastbench')
-const bingo = require('../')
+const zenlog = require('../')
 const bunyan = require('bunyan')
 const bole = require('bole')('bench')
 const winston = require('winston')
 const fs = require('node:fs')
 const dest = fs.createWriteStream('/dev/null')
 const loglevel = require('./utils/wrap-log-level')(dest)
-const plogNodeStream = bingo(dest)
+const plogNodeStream = zenlog(dest)
 delete require.cache[require.resolve('../')]
-const plogDest = require('../')(bingo.destination('/dev/null'))
+const plogDest = require('../')(zenlog.destination('/dev/null'))
 delete require.cache[require.resolve('../')]
-const plogMinLength = require('../')(bingo.destination({ dest: '/dev/null', sync: false, minLength: 4096 }))
+const plogMinLength = require('../')(zenlog.destination({ dest: '/dev/null', sync: false, minLength: 4096 }))
 const blog = bunyan.createLogger({
   name: 'myapp',
   streams: [{
@@ -59,19 +59,19 @@ const run = bench([
     }
     setImmediate(cb)
   },
-  function benchBingoObj (cb) {
+  function benchZenlogObj (cb) {
     for (var i = 0; i < max; i++) {
       plogDest.info({ hello: 'world' })
     }
     setImmediate(cb)
   },
-  function benchBingoMinLengthObj (cb) {
+  function benchZenlogMinLengthObj (cb) {
     for (var i = 0; i < max; i++) {
       plogMinLength.info({ hello: 'world' })
     }
     setImmediate(cb)
   },
-  function benchBingoNodeStreamObj (cb) {
+  function benchZenlogNodeStreamObj (cb) {
     for (var i = 0; i < max; i++) {
       plogNodeStream.info({ hello: 'world' })
     }

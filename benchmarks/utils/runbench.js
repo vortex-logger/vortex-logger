@@ -10,7 +10,7 @@ const steed = require('steed')
 
 function usage () {
   console.log(`
-    Bingo Benchmarks
+    Zenlog Benchmarks
 
     To run a benchmark, specify which to run:
 

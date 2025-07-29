@@ -1,8 +1,8 @@
-# Bingo Ecosystem
+# Zenlog Ecosystem
 
-This is a list of ecosystem modules that integrate with `bingo`.
+This is a list of ecosystem modules that integrate with `zenlog`.
 
-Modules listed under [Core](#core) are maintained by the Bingo team. Modules
+Modules listed under [Core](#core) are maintained by the Zenlog team. Modules
 listed under [Community](#community) are maintained by independent community
 members.
 
@@ -12,73 +12,73 @@ Please send a PR to add new modules!
 ## Core
 
 ### Frameworks
-+ [`express-bingo-logger`](https://github.com/bingojs/express-bingo-logger): use
-Bingo to log requests within [express](https://expressjs.com/).
-+ [`koa-bingo-logger`](https://github.com/bingojs/koa-bingo-logger): use Bingo to
++ [`express-zenlog`](https://github.com/zenlogjs/express-zenlog): use
+Zenlog to log requests within [express](https://expressjs.com/).
++ [`koa-zenlog`](https://github.com/zenlogjs/koa-zenlog): use Zenlog to
 log requests within [Koa](https://koajs.com/).
-+ [`restify-bingo-logger`](https://github.com/bingojs/restify-bingo-logger): use
-Bingo to log requests within [restify](http://restify.com/).
-+ [`rill-bingo-logger`](https://github.com/bingojs/rill-bingo-logger): use Bingo as
++ [`restify-zenlog`](https://github.com/zenlogjs/restify-zenlog): use
+Zenlog to log requests within [restify](http://restify.com/).
++ [`rill-zenlog`](https://github.com/zenlogjs/rill-zenlog): use Zenlog as
 the logger for the [Rill framework](https://rill.site/).
 
 ### Utilities
-+ [`bingo-arborsculpture`](https://github.com/bingojs/bingo-arborsculpture): change
++ [`zenlog-arborsculpture`](https://github.com/zenlogjs/zenlog-arborsculpture): change
 log levels at runtime.
-+ [`bingo-caller`](https://github.com/bingojs/bingo-caller): add callsite to the log line.
-+ [`bingo-clf`](https://github.com/bingojs/bingo-clf): reformat Bingo logs into
++ [`zenlog-caller`](https://github.com/zenlogjs/zenlog-caller): add callsite to the log line.
++ [`zenlog-clf`](https://github.com/zenlogjs/zenlog-clf): reformat Zenlog logs into
 Common Log Format.
-+ [`bingo-debug`](https://github.com/bingojs/bingo-debug): use Bingo to interpret
++ [`zenlog-debug`](https://github.com/zenlogjs/zenlog-debug): use Zenlog to interpret
 [`debug`](https://npm.im/debug) logs.
-+ [`bingo-elasticsearch`](https://github.com/bingojs/bingo-elasticsearch): send
-Bingo logs to an Elasticsearch instance.
-+ [`bingo-eventhub`](https://github.com/bingojs/bingo-eventhub): send Bingo logs
++ [`zenlog-elasticsearch`](https://github.com/zenlogjs/zenlog-elasticsearch): send
+Zenlog logs to an Elasticsearch instance.
++ [`zenlog-eventhub`](https://github.com/zenlogjs/zenlog-eventhub): send Zenlog logs
 to an [Event Hub](https://docs.microsoft.com/en-us/azure/event-hubs/event-hubs-what-is-event-hubs).
-+ [`bingo-filter`](https://github.com/bingojs/bingo-filter): filter Bingo logs in
++ [`zenlog-filter`](https://github.com/zenlogjs/zenlog-filter): filter Zenlog logs in
 the same fashion as the [`debug`](https://npm.im/debug) module.
-+ [`bingo-gelf`](https://github.com/bingojs/bingo-gelf): reformat Bingo logs into
++ [`zenlog-gelf`](https://github.com/zenlogjs/zenlog-gelf): reformat Zenlog logs into
 GELF format for Graylog.
-+ [`bingo-hapi`](https://github.com/bingojs/hapi-bingo): use Bingo as the logger
++ [`zenlog-hapi`](https://github.com/zenlogjs/hapi-zenlog): use Zenlog as the logger
 for [Hapi](https://hapijs.com/).
-+ [`bingo-http`](https://github.com/bingojs/bingo-http): easily use Bingo to log
++ [`zenlog-http`](https://github.com/zenlogjs/zenlog-http): easily use Zenlog to log
 requests with the core `http` module.
-+ [`bingo-http-print`](https://github.com/bingojs/bingo-http-print): reformat Bingo
++ [`zenlog-http-print`](https://github.com/zenlogjs/zenlog-http-print): reformat Zenlog
 logs into traditional [HTTPD](https://httpd.apache.org/) style request logs.
-+ [`bingo-mongodb`](https://github.com/bingojs/bingo-mongodb): store Bingo logs
++ [`zenlog-mongodb`](https://github.com/zenlogjs/zenlog-mongodb): store Zenlog logs
 in a MongoDB database.
-+ [`bingo-multi-stream`](https://github.com/bingojs/bingo-multi-stream): send
++ [`zenlog-multi-stream`](https://github.com/zenlogjs/zenlog-multi-stream): send
 logs to multiple destination streams (slow!).
-+ [`bingo-noir`](https://github.com/bingojs/bingo-noir): redact sensitive information
++ [`zenlog-noir`](https://github.com/zenlogjs/zenlog-noir): redact sensitive information
 in logs.
-+ [`pino-pretty`](https://github.com/bingojs/pino-pretty): basic prettifier to
++ [`pino-pretty`](https://github.com/zenlogjs/pino-pretty): basic prettifier to
 make log lines human-readable.
-+ [`bingo-socket`](https://github.com/bingojs/bingo-socket): send logs to TCP or UDP
++ [`zenlog-socket`](https://github.com/zenlogjs/zenlog-socket): send logs to TCP or UDP
 destinations.
-+ [`pino-std-serializers`](https://github.com/bingojs/pino-std-serializers): the
-core object serializers used within Bingo.
-+ [`bingo-syslog`](https://github.com/bingojs/bingo-syslog): reformat Bingo logs
++ [`pino-std-serializers`](https://github.com/zenlogjs/pino-std-serializers): the
+core object serializers used within Zenlog.
++ [`zenlog-syslog`](https://github.com/zenlogjs/zenlog-syslog): reformat Zenlog logs
 to standard syslog format.
-+ [`bingo-tee`](https://github.com/bingojs/bingo-tee): pipe Bingo logs into files
++ [`zenlog-tee`](https://github.com/zenlogjs/zenlog-tee): pipe Zenlog logs into files
 based upon log levels.
-+ [`bingo-test`](https://github.com/bingojs/bingo-test): a set of utilities for 
-verifying logs generated by the Bingo logger.
-+ [`bingo-toke`](https://github.com/bingojs/bingo-toke): reformat Bingo logs
++ [`zenlog-test`](https://github.com/zenlogjs/zenlog-test): a set of utilities for 
+verifying logs generated by the Zenlog logger.
++ [`zenlog-toke`](https://github.com/zenlogjs/zenlog-toke): reformat Zenlog logs
 according to a given format string.
 
 
 <a id="community"></a>
 ## Community
 
-+ [`@google-cloud/bingo-logging-gcp-config`](https://www.npmjs.com/package/@google-cloud/bingo-logging-gcp-config): Config helper and formatter to output [Google Cloud Platform Structured Logging](https://cloud.google.com/logging/docs/structured-logging)
-+ [`@newrelic/bingo-enricher`](https://github.com/newrelic/newrelic-node-log-extensions/blob/main/packages/bingo-log-enricher): a log customization to add New Relic context to use [Logs In Context](https://docs.newrelic.com/docs/logs/logs-context/logs-in-context/)
++ [`@google-cloud/zenlog-logging-gcp-config`](https://www.npmjs.com/package/@google-cloud/zenlog-logging-gcp-config): Config helper and formatter to output [Google Cloud Platform Structured Logging](https://cloud.google.com/logging/docs/structured-logging)
++ [`@newrelic/zenlog-enricher`](https://github.com/newrelic/newrelic-node-log-extensions/blob/main/packages/zenlog-log-enricher): a log customization to add New Relic context to use [Logs In Context](https://docs.newrelic.com/docs/logs/logs-context/logs-in-context/)
 + [`cloud-pine`](https://github.com/metcoder95/cloud-pine): transport that provides abstraction and compatibility with [`@google-cloud/logging`](https://www.npmjs.com/package/@google-cloud/logging).
-+ [`cls-proxify`](https://github.com/keenondrums/cls-proxify): integration of bingo and [CLS](https://github.com/jeff-lewis/cls-hooked). Useful for creating dynamically configured child loggers (e.g. with added trace ID) for each request.
-+ [`crawlee-bingo`](https://github.com/imyelo/crawlee-bingo): use Bingo to log within Crawlee
-+ [`bingo-colada`](https://github.com/lrlna/bingo-colada): cute ndjson formatter for bingo.
-+ [`bingo-dev`](https://github.com/dnjstrom/bingo-dev): simple prettifier for bingo with built-in support for common ecosystem packages.
-+ [`bingo-fluentd`](https://github.com/davidedantonio/bingo-fluentd): send Bingo logs to Elasticsearch,
++ [`cls-proxify`](https://github.com/keenondrums/cls-proxify): integration of zenlog and [CLS](https://github.com/jeff-lewis/cls-hooked). Useful for creating dynamically configured child loggers (e.g. with added trace ID) for each request.
++ [`crawlee-zenlog`](https://github.com/imyelo/crawlee-zenlog): use Zenlog to log within Crawlee
++ [`zenlog-colada`](https://github.com/lrlna/zenlog-colada): cute ndjson formatter for zenlog.
++ [`zenlog-dev`](https://github.com/dnjstrom/zenlog-dev): simple prettifier for zenlog with built-in support for common ecosystem packages.
++ [`zenlog-fluentd`](https://github.com/davidedantonio/zenlog-fluentd): send Zenlog logs to Elasticsearch,
 MongoDB, and many [others](https://www.fluentd.org/dataoutputs) via Fluentd.
-+ [`bingo-lambda`](https://github.com/FormidableLabs/bingo-lambda): log transport for cloudwatch support inside aws-lambda 
++ [`zenlog-lambda`](https://github.com/FormidableLabs/zenlog-lambda): log transport for cloudwatch support inside aws-lambda 
 + [`pino-pretty-min`](https://github.com/unjello/pino-pretty-min): a minimal
 prettifier inspired by the [logrus](https://github.com/sirupsen/logrus) logger.
-+ [`bingo-rotating-file`](https://github.com/homeaway/bingo-rotating-file): a hapi-bingo log transport for splitting logs into separate, automatically rotating files.
-+ [`bingo-tiny`](https://github.com/holmok/bingo-tiny): a tiny (and extensible?) little log formatter for bingo.
++ [`zenlog-rotating-file`](https://github.com/homeaway/zenlog-rotating-file): a hapi-zenlog log transport for splitting logs into separate, automatically rotating files.
++ [`zenlog-tiny`](https://github.com/holmok/zenlog-tiny): a tiny (and extensible?) little log formatter for zenlog.

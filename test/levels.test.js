@@ -2,7 +2,7 @@
 
 const { test } = require('tap')
 const { sink, once, check } = require('./helper')
-const bingo = require('../zenlog')
+const zenlog = require('../zenlog')
 
 const levelsLib = require('../lib/levels')
 
@@ -19,7 +19,7 @@ test('set the level by string', async ({ equal }) => {
     msg: 'this is fatal'
   }]
   const stream = sink()
-  const instance = bingo(stream)
+  const instance = zenlog(stream)
   instance.level = 'error'
   instance.info('hello world')
   instance.error('this is an error')
@@ -30,7 +30,7 @@ test('set the level by string', async ({ equal }) => {
 })
 
 test('the wrong level throws', async ({ throws }) => {
-  const instance = bingo()
+  const instance = zenlog()
   throws(() => {
     instance.level = 'kaboom'
   })
@@ -45,7 +45,7 @@ test('set the level by number', async ({ equal }) => {
     msg: 'this is fatal'
   }]
   const stream = sink()
-  const instance = bingo(stream)
+  const instance = zenlog(stream)
 
   instance.level = 50
   instance.info('hello world')
@@ -57,25 +57,25 @@ test('set the level by number', async ({ equal }) => {
 })
 
 test('exposes level string mappings', async ({ equal }) => {
-  equal(bingo.levels.values.error, 50)
+  equal(zenlog.levels.values.error, 50)
 })
 
 test('exposes level number mappings', async ({ equal }) => {
-  equal(bingo.levels.labels[50], 'error')
+  equal(zenlog.levels.labels[50], 'error')
 })
 
 test('returns level integer', async ({ equal }) => {
-  const instance = bingo({ level: 'error' })
+  const instance = zenlog({ level: 'error' })
   equal(instance.levelVal, 50)
 })
 
 test('child returns level integer', async ({ equal }) => {
-  const parent = bingo({ level: 'error' })
+  const parent = zenlog({ level: 'error' })
   const child = parent.child({ foo: 'bar' })
   equal(child.levelVal, 50)
 })
 
-test('set the level via exported bingo function', async ({ equal }) => {
+test('set the level via exported zenlog function', async ({ equal }) => {
   const expected = [{
     level: 50,
     msg: 'this is an error'
@@ -84,7 +84,7 @@ test('set the level via exported bingo function', async ({ equal }) => {
     msg: 'this is fatal'
   }]
   const stream = sink()
-  const instance = bingo({ level: 'error' }, stream)
+  const instance = zenlog({ level: 'error' }, stream)
 
   instance.info('hello world')
   instance.error('this is an error')
@@ -95,7 +95,7 @@ test('set the level via exported bingo function', async ({ equal }) => {
 })
 
 test('level-change event', async ({ equal }) => {
-  const instance = bingo()
+  const instance = zenlog()
   function handle (lvl, val, prevLvl, prevVal, logger) {
     equal(lvl, 'trace')
     equal(val, 10)
@@ -135,44 +135,44 @@ test('level-change event', async ({ equal }) => {
 })
 
 test('enable', async ({ fail }) => {
-  const instance = bingo({
+  const instance = zenlog({
     level: 'trace',
     enabled: false
   }, sink((result, enc) => {
     fail('no data should be logged')
   }))
 
-  Object.keys(bingo.levels.values).forEach((level) => {
+  Object.keys(zenlog.levels.values).forEach((level) => {
     instance[level]('hello world')
   })
 })
 
 test('silent level', async ({ fail }) => {
-  const instance = bingo({
+  const instance = zenlog({
     level: 'silent'
   }, sink((result, enc) => {
     fail('no data should be logged')
   }))
 
-  Object.keys(bingo.levels.values).forEach((level) => {
+  Object.keys(zenlog.levels.values).forEach((level) => {
     instance[level]('hello world')
   })
 })
 
 test('set silent via Infinity', async ({ fail }) => {
-  const instance = bingo({
+  const instance = zenlog({
     level: Infinity
   }, sink((result, enc) => {
     fail('no data should be logged')
   }))
 
-  Object.keys(bingo.levels.values).forEach((level) => {
+  Object.keys(zenlog.levels.values).forEach((level) => {
     instance[level]('hello world')
   })
 })
 
 test('exposed levels', async ({ same }) => {
-  same(Object.keys(bingo.levels.values), [
+  same(Object.keys(zenlog.levels.values), [
     'trace',
     'debug',
     'info',
@@ -183,7 +183,7 @@ test('exposed levels', async ({ same }) => {
 })
 
 test('exposed labels', async ({ same }) => {
-  same(Object.keys(bingo.levels.labels), [
+  same(Object.keys(zenlog.levels.labels), [
     '10',
     '20',
     '30',
@@ -201,7 +201,7 @@ test('setting level in child', async ({ equal }) => {
     level: 60,
     msg: 'this is fatal'
   }]
-  const instance = bingo(sink((result, enc, cb) => {
+  const instance = zenlog(sink((result, enc, cb) => {
     const current = expected.shift()
     check(equal, result, current.level, current.msg)
     cb()
@@ -214,7 +214,7 @@ test('setting level in child', async ({ equal }) => {
 })
 
 test('setting level by assigning a number to level', async ({ equal }) => {
-  const instance = bingo()
+  const instance = zenlog()
   equal(instance.levelVal, 30)
   equal(instance.level, 'info')
   instance.level = 50
@@ -223,12 +223,12 @@ test('setting level by assigning a number to level', async ({ equal }) => {
 })
 
 test('setting level by number to unknown value results in a throw', async ({ throws }) => {
-  const instance = bingo()
+  const instance = zenlog()
   throws(() => { instance.level = 973 })
 })
 
 test('setting level by assigning a known label to level', async ({ equal }) => {
-  const instance = bingo()
+  const instance = zenlog()
   equal(instance.levelVal, 30)
   equal(instance.level, 'info')
   instance.level = 'error'
@@ -237,7 +237,7 @@ test('setting level by assigning a known label to level', async ({ equal }) => {
 })
 
 test('levelVal is read only', async ({ throws }) => {
-  const instance = bingo()
+  const instance = zenlog()
   throws(() => { instance.levelVal = 20 })
 })
 
@@ -246,7 +246,7 @@ test('produces labels when told to', async ({ equal }) => {
     level: 'info',
     msg: 'hello world'
   }]
-  const instance = bingo({
+  const instance = zenlog({
     formatters: {
       level (label, number) {
         return { level: label }
@@ -266,8 +266,8 @@ test('resets levels from labels to numbers', async ({ equal }) => {
     level: 30,
     msg: 'hello world'
   }]
-  bingo({ useLevelLabels: true })
-  const instance = bingo({ useLevelLabels: false }, sink((result, enc, cb) => {
+  zenlog({ useLevelLabels: true })
+  const instance = zenlog({ useLevelLabels: false }, sink((result, enc, cb) => {
     const current = expected.shift()
     check(equal, result, current.level, current.msg)
     cb()
@@ -281,7 +281,7 @@ test('changes label naming when told to', async ({ equal }) => {
     priority: 30,
     msg: 'hello world'
   }]
-  const instance = bingo({
+  const instance = zenlog({
     formatters: {
       level (label, number) {
         return { priority: number }
@@ -308,7 +308,7 @@ test('children produce labels when told to', async ({ equal }) => {
       msg: 'child 2'
     }
   ]
-  const instance = bingo({
+  const instance = zenlog({
     formatters: {
       level (label, number) {
         return { level: label }
@@ -348,7 +348,7 @@ test('produces labels for custom levels', async ({ equal }) => {
       foo: 35
     }
   }
-  const instance = bingo(opts, sink((result, enc, cb) => {
+  const instance = zenlog(opts, sink((result, enc, cb) => {
     const current = expected.shift()
     check(equal, result, current.level, current.msg)
     cb()
@@ -359,7 +359,7 @@ test('produces labels for custom levels', async ({ equal }) => {
 })
 
 test('setting levelKey does not affect labels when told to', async ({ equal }) => {
-  const instance = bingo(
+  const instance = zenlog(
     {
       formatters: {
         level (label, number) {
@@ -379,7 +379,7 @@ test('setting levelKey does not affect labels when told to', async ({ equal }) =
 test('throws when creating a default label that does not exist in logger levels', async ({ throws }) => {
   const defaultLevel = 'foo'
   throws(() => {
-    bingo({
+    zenlog({
       customLevels: {
         bar: 5
       },
@@ -391,7 +391,7 @@ test('throws when creating a default label that does not exist in logger levels'
 test('throws when creating a default value that does not exist in logger levels', async ({ throws }) => {
   const defaultLevel = 15
   throws(() => {
-    bingo({
+    zenlog({
       customLevels: {
         bar: 5
       },
@@ -402,7 +402,7 @@ test('throws when creating a default value that does not exist in logger levels'
 
 test('throws when creating a default value that does not exist in logger levels', async ({ equal, throws }) => {
   throws(() => {
-    bingo({
+    zenlog({
       customLevels: {
         foo: 5
       },
@@ -412,7 +412,7 @@ test('throws when creating a default value that does not exist in logger levels'
 })
 
 test('passes when creating a default value that exists in logger levels', async ({ equal, throws }) => {
-  bingo({
+  zenlog({
     level: 30
   })
 })
@@ -424,7 +424,7 @@ test('log null value when message is null', async ({ equal }) => {
   }
 
   const stream = sink()
-  const instance = bingo(stream)
+  const instance = zenlog(stream)
   instance.level = 'info'
   instance.info(null)
 
@@ -439,7 +439,7 @@ test('formats when base param is null', async ({ equal }) => {
   }
 
   const stream = sink()
-  const instance = bingo(stream)
+  const instance = zenlog(stream)
   instance.level = 'info'
   instance.info(null, 'a %s', 'string')
 
@@ -453,7 +453,7 @@ test('fatal method sync-flushes the destination if sync flushing is available', 
   stream.flushSync = () => {
     pass('destination flushed')
   }
-  const instance = bingo(stream)
+  const instance = zenlog(stream)
   instance.fatal('this is fatal')
   await once(stream, 'data')
   doesNotThrow(() => {
@@ -471,19 +471,19 @@ test('fatal method should call async when sync-flushing fails', ({ equal, fail, 
   stream.flushSync = () => { throw new Error('Error') }
   stream.flush = () => fail('flush should be called')
 
-  const instance = bingo(stream)
+  const instance = zenlog(stream)
   doesNotThrow(() => instance.fatal(messages[0]))
 })
 
 test('calling silent method on logger instance', async ({ fail }) => {
-  const instance = bingo({ level: 'silent' }, sink((result, enc) => {
+  const instance = zenlog({ level: 'silent' }, sink((result, enc) => {
     fail('no data should be logged')
   }))
   instance.silent('hello world')
 })
 
 test('calling silent method on child logger', async ({ fail }) => {
-  const child = bingo({ level: 'silent' }, sink((result, enc) => {
+  const child = zenlog({ level: 'silent' }, sink((result, enc) => {
     fail('no data should be logged')
   })).child({})
   child.silent('hello world')
@@ -495,7 +495,7 @@ test('changing level from info to silent and back to info', async ({ equal }) =>
     msg: 'hello world'
   }
   const stream = sink()
-  const instance = bingo({ level: 'info' }, stream)
+  const instance = zenlog({ level: 'info' }, stream)
 
   instance.level = 'silent'
   instance.info('hello world')
@@ -514,7 +514,7 @@ test('changing level from info to silent and back to info in child logger', asyn
     msg: 'hello world'
   }
   const stream = sink()
-  const child = bingo({ level: 'info' }, stream).child({})
+  const child = zenlog({ level: 'info' }, stream).child({})
 
   child.level = 'silent'
   child.info('hello world')
@@ -550,7 +550,7 @@ test('changing level respects level comparison set to', async ({ test, end }) =>
     const levelComparison = 'ASC'
 
     const stream = sink()
-    const logger = bingo({ levelComparison, customLevels, useOnlyCustomLevels: true, level: 'info' }, stream)
+    const logger = zenlog({ levelComparison, customLevels, useOnlyCustomLevels: true, level: 'info' }, stream)
 
     logger.level = 'warn'
     logger.info('hello world')
@@ -568,7 +568,7 @@ test('changing level respects level comparison set to', async ({ test, end }) =>
     const levelComparison = 'DESC'
 
     const stream = sink()
-    const logger = bingo({ levelComparison, customLevels, useOnlyCustomLevels: true, level: 'info' }, stream)
+    const logger = zenlog({ levelComparison, customLevels, useOnlyCustomLevels: true, level: 'info' }, stream)
 
     logger.level = 'warn'
     logger.info('hello world')
@@ -593,7 +593,7 @@ test('changing level respects level comparison set to', async ({ test, end }) =>
     }
 
     const stream = sink()
-    const logger = bingo({ levelComparison, customLevels, useOnlyCustomLevels: true, level: 'info' }, stream)
+    const logger = zenlog({ levelComparison, customLevels, useOnlyCustomLevels: true, level: 'info' }, stream)
 
     logger.level = 'warn'
     logger.info('hello world')
@@ -611,7 +611,7 @@ test('changing level respects level comparison set to', async ({ test, end }) =>
     const levelComparison = 'ASC'
 
     const stream = sink()
-    const logger = bingo({ levelComparison, customLevels, useOnlyCustomLevels: true, level: 'info' }, stream).child({ })
+    const logger = zenlog({ levelComparison, customLevels, useOnlyCustomLevels: true, level: 'info' }, stream).child({ })
 
     logger.level = 'warn'
     logger.info('hello world')
@@ -629,7 +629,7 @@ test('changing level respects level comparison set to', async ({ test, end }) =>
     const levelComparison = 'DESC'
 
     const stream = sink()
-    const logger = bingo({ levelComparison, customLevels, useOnlyCustomLevels: true, level: 'info' }, stream).child({ })
+    const logger = zenlog({ levelComparison, customLevels, useOnlyCustomLevels: true, level: 'info' }, stream).child({ })
 
     logger.level = 'warn'
     logger.info('hello world')
@@ -654,7 +654,7 @@ test('changing level respects level comparison set to', async ({ test, end }) =>
     }
 
     const stream = sink()
-    const logger = bingo({ levelComparison, customLevels, useOnlyCustomLevels: true, level: 'info' }, stream).child({ })
+    const logger = zenlog({ levelComparison, customLevels, useOnlyCustomLevels: true, level: 'info' }, stream).child({ })
 
     logger.level = 'warn'
     logger.info('hello world')
@@ -685,7 +685,7 @@ test('changing level respects level comparison DESC', async ({ equal }) => {
   }
 
   const stream = sink()
-  const logger = bingo({ levelComparison, customLevels, useOnlyCustomLevels: true, level: 'info' }, stream)
+  const logger = zenlog({ levelComparison, customLevels, useOnlyCustomLevels: true, level: 'info' }, stream)
 
   logger.level = 'warn'
   logger.info('hello world')
@@ -698,16 +698,16 @@ test('changing level respects level comparison DESC', async ({ equal }) => {
   check(equal, result, expected.level, expected.msg)
 })
 
-// testing for potential loss of Bingo constructor scope from serializers - an edge case with circular refs see:  https://github.com/bingojs/bingo/issues/833
-test('trying to get levels when `this` is no longer a Bingo instance returns an empty string', async ({ equal }) => {
-  const notBingoInstance = { some: 'object', getLevel: levelsLib.getLevel }
-  const blankedLevelValue = notBingoInstance.getLevel()
+// testing for potential loss of Zenlog constructor scope from serializers - an edge case with circular refs see:  https://github.com/zenlogjs/zenlog/issues/833
+test('trying to get levels when `this` is no longer a Zenlog instance returns an empty string', async ({ equal }) => {
+  const notZenlogInstance = { some: 'object', getLevel: levelsLib.getLevel }
+  const blankedLevelValue = notZenlogInstance.getLevel()
   equal(blankedLevelValue, '')
 })
 
 test('accepts capital letter for INFO level', async ({ equal }) => {
   const stream = sink()
-  const logger = bingo({
+  const logger = zenlog({
     level: 'INFO'
   }, stream)
 
@@ -718,7 +718,7 @@ test('accepts capital letter for INFO level', async ({ equal }) => {
 
 test('accepts capital letter for FATAL level', async ({ equal }) => {
   const stream = sink()
-  const logger = bingo({
+  const logger = zenlog({
     level: 'FATAL'
   }, stream)
 
@@ -729,7 +729,7 @@ test('accepts capital letter for FATAL level', async ({ equal }) => {
 
 test('accepts capital letter for ERROR level', async ({ equal }) => {
   const stream = sink()
-  const logger = bingo({
+  const logger = zenlog({
     level: 'ERROR'
   }, stream)
 
@@ -740,7 +740,7 @@ test('accepts capital letter for ERROR level', async ({ equal }) => {
 
 test('accepts capital letter for WARN level', async ({ equal }) => {
   const stream = sink()
-  const logger = bingo({
+  const logger = zenlog({
     level: 'WARN'
   }, stream)
 
@@ -751,7 +751,7 @@ test('accepts capital letter for WARN level', async ({ equal }) => {
 
 test('accepts capital letter for DEBUG level', async ({ equal }) => {
   const stream = sink()
-  const logger = bingo({
+  const logger = zenlog({
     level: 'DEBUG'
   }, stream)
 
@@ -762,7 +762,7 @@ test('accepts capital letter for DEBUG level', async ({ equal }) => {
 
 test('accepts capital letter for TRACE level', async ({ equal }) => {
   const stream = sink()
-  const logger = bingo({
+  const logger = zenlog({
     level: 'TRACE'
   }, stream)
 

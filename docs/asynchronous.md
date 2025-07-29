@@ -1,11 +1,11 @@
 # Asynchronous Logging
 
-Asynchronous logging enables the minimum overhead of Bingo.
+Asynchronous logging enables the minimum overhead of Zenlog.
 Asynchronous logging works by buffering log messages and writing them in larger chunks.
 
 ```js
-const bingo = require('bingo')
-const logger = bingo(bingo.destination({
+const zenlog = require('zenlog')
+const logger = zenlog(zenlog.destination({
   dest: './my-file', // omit for stdout
   minLength: 4096, // Buffer before writing
   sync: false // Asynchronous logging
@@ -16,8 +16,8 @@ It's always possible to turn on synchronous logging by passing `sync: true`.
 In this mode of operation, log messages are directly written to the
 output stream as the messages are generated with a _blocking_ operation.
 
-* See [`bingo.destination`](/docs/api.md#bingo-destination)
-* `bingo.destination` is implemented on [`sonic-boom` ⇗](https://github.com/mcollina/sonic-boom).
+* See [`zenlog.destination`](/docs/api.md#zenlog-destination)
+* `zenlog.destination` is implemented on [`sonic-boom` ⇗](https://github.com/mcollina/sonic-boom).
 
 ### AWS Lambda
 
@@ -36,5 +36,5 @@ Asynchronous logging has a couple of important caveats:
 
 See also:
 
-* [`bingo.destination` API](/docs/api.md#bingo-destination)
+* [`zenlog.destination` API](/docs/api.md#zenlog-destination)
 * [`destination` parameter](/docs/api.md#destination)

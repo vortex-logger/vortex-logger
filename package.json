@@ -2,9 +2,9 @@
   "name": "json-logger",
   "version": "9.7.0",
   "description": "super fast, all natural json logger",
-  "main": "bingo-logger.js",
+  "main": "zenlog.js",
   "type": "commonjs",
-  "types": "bingo-logger.d.ts",
+  "types": "zenlog.d.ts",
   "browser": "./browser.js",
   "scripts": {
     "docs": "docsify serve",
@@ -15,9 +15,9 @@
     "test-ci": "npm run lint && npm run transpile && tap --ts --no-check-coverage --coverage-report=lcovonly && npm run test-types",
     "test-ci-pnpm": "pnpm run lint && npm run transpile && tap --ts --no-coverage --no-check-coverage && pnpm run test-types",
     "test-ci-yarn-pnp": "yarn run lint && npm run transpile && tap --ts --no-check-coverage --coverage-report=lcovonly",
-    "test-types": "tsc && tsd && ts-node test/types/bingo.ts",
-    "test:smoke": "smoker smoke:bingo && smoker smoke:browser && smoker smoke:file",
-    "smoke:bingo": "node ./bingo-logger.js",
+    "test-types": "tsc && tsd && ts-node test/types/zenlog.ts",
+    "test:smoke": "smoker smoke:zenlog && smoker smoke:browser && smoker smoke:file",
+    "smoke:zenlog": "node ./zenlog.js",
     "smoke:browser": "node ./browser.js",
     "smoke:file": "node ./file.js",
     "transport": "node test/transport/",
@@ -36,12 +36,12 @@
     "update-bench-doc": "node benchmarks/utils/generate-benchmark-doc > docs/benchmarks.md"
   },
   "bin": {
-    "bingo-logger": "bin.js"
+    "zenlog": "bin.js"
   },
   "precommit": "test",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bingo/bingo.git"
+    "url": "git+https://github.com/zenlog/zenlog.git"
   },
   "keywords": [
     "fast",
@@ -57,9 +57,9 @@
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/bingojs/bingo/issues"
+    "url": "https://github.com/zenlogjs/zenlog/issues"
   },
-  "homepage": "https://getbingo.io",
+  "homepage": "https://getzenlog.io",
   "devDependencies": {
     "@types/flush-write-stream": "^1.0.0",
     "@types/node": "^22.0.0",

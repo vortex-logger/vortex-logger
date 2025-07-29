@@ -1,7 +1,7 @@
 'use strict'
 
 const { test } = require('tap')
-const bingo = require('../')
+const zenlog = require('../')
 
 const descLevels = {
   trace: 60,
@@ -23,36 +23,36 @@ const ascLevels = {
 
 test('Default levels suite', ({ test, end }) => {
   test('can check if current level enabled', async ({ equal }) => {
-    const log = bingo({ level: 'debug' })
+    const log = zenlog({ level: 'debug' })
     equal(true, log.isLevelEnabled('debug'))
   })
 
   test('can check if level enabled after level set', async ({ equal }) => {
-    const log = bingo()
+    const log = zenlog()
     equal(false, log.isLevelEnabled('debug'))
     log.level = 'debug'
     equal(true, log.isLevelEnabled('debug'))
   })
 
   test('can check if higher level enabled', async ({ equal }) => {
-    const log = bingo({ level: 'debug' })
+    const log = zenlog({ level: 'debug' })
     equal(true, log.isLevelEnabled('error'))
   })
 
   test('can check if lower level is disabled', async ({ equal }) => {
-    const log = bingo({ level: 'error' })
+    const log = zenlog({ level: 'error' })
     equal(false, log.isLevelEnabled('trace'))
   })
 
   test('ASC: can check if child has current level enabled', async ({ equal }) => {
-    const log = bingo().child({}, { level: 'debug' })
+    const log = zenlog().child({}, { level: 'debug' })
     equal(true, log.isLevelEnabled('debug'))
     equal(true, log.isLevelEnabled('error'))
     equal(false, log.isLevelEnabled('trace'))
   })
 
   test('can check if custom level is enabled', async ({ equal }) => {
-    const log = bingo({
+    const log = zenlog({
       customLevels: { foo: 35 },
       level: 'debug'
     })
@@ -69,36 +69,36 @@ test('Ascending levels suite', ({ test, end }) => {
   const levelComparison = 'ASC'
 
   test('can check if current level enabled', async ({ equal }) => {
-    const log = bingo({ level: 'debug', levelComparison, customLevels, useOnlyCustomLevels: true })
+    const log = zenlog({ level: 'debug', levelComparison, customLevels, useOnlyCustomLevels: true })
     equal(true, log.isLevelEnabled('debug'))
   })
 
   test('can check if level enabled after level set', async ({ equal }) => {
-    const log = bingo({ levelComparison, customLevels, useOnlyCustomLevels: true })
+    const log = zenlog({ levelComparison, customLevels, useOnlyCustomLevels: true })
     equal(false, log.isLevelEnabled('debug'))
     log.level = 'debug'
     equal(true, log.isLevelEnabled('debug'))
   })
 
   test('can check if higher level enabled', async ({ equal }) => {
-    const log = bingo({ level: 'debug', levelComparison, customLevels, useOnlyCustomLevels: true })
+    const log = zenlog({ level: 'debug', levelComparison, customLevels, useOnlyCustomLevels: true })
     equal(true, log.isLevelEnabled('error'))
   })
 
   test('can check if lower level is disabled', async ({ equal }) => {
-    const log = bingo({ level: 'error', customLevels, useOnlyCustomLevels: true })
+    const log = zenlog({ level: 'error', customLevels, useOnlyCustomLevels: true })
     equal(false, log.isLevelEnabled('trace'))
   })
 
   test('can check if child has current level enabled', async ({ equal }) => {
-    const log = bingo().child({ levelComparison, customLevels, useOnlyCustomLevels: true }, { level: 'debug' })
+    const log = zenlog().child({ levelComparison, customLevels, useOnlyCustomLevels: true }, { level: 'debug' })
     equal(true, log.isLevelEnabled('debug'))
     equal(true, log.isLevelEnabled('error'))
     equal(false, log.isLevelEnabled('trace'))
   })
 
   test('can check if custom level is enabled', async ({ equal }) => {
-    const log = bingo({
+    const log = zenlog({
       levelComparison,
       useOnlyCustomLevels: true,
       customLevels: { foo: 35, ...customLevels },
@@ -117,36 +117,36 @@ test('Descending levels suite', ({ test, end }) => {
   const levelComparison = 'DESC'
 
   test('can check if current level enabled', async ({ equal }) => {
-    const log = bingo({ level: 'debug', levelComparison, customLevels, useOnlyCustomLevels: true })
+    const log = zenlog({ level: 'debug', levelComparison, customLevels, useOnlyCustomLevels: true })
     equal(true, log.isLevelEnabled('debug'))
   })
 
   test('can check if level enabled after level set', async ({ equal }) => {
-    const log = bingo({ levelComparison, customLevels, useOnlyCustomLevels: true })
+    const log = zenlog({ levelComparison, customLevels, useOnlyCustomLevels: true })
     equal(false, log.isLevelEnabled('debug'))
     log.level = 'debug'
     equal(true, log.isLevelEnabled('debug'))
   })
 
   test('can check if higher level enabled', async ({ equal }) => {
-    const log = bingo({ level: 'debug', levelComparison, customLevels, useOnlyCustomLevels: true })
+    const log = zenlog({ level: 'debug', levelComparison, customLevels, useOnlyCustomLevels: true })
     equal(true, log.isLevelEnabled('error'))
   })
 
   test('can check if lower level is disabled', async ({ equal }) => {
-    const log = bingo({ level: 'error', levelComparison, customLevels, useOnlyCustomLevels: true })
+    const log = zenlog({ level: 'error', levelComparison, customLevels, useOnlyCustomLevels: true })
     equal(false, log.isLevelEnabled('trace'))
   })
 
   test('can check if child has current level enabled', async ({ equal }) => {
-    const log = bingo({ levelComparison, customLevels, useOnlyCustomLevels: true }).child({}, { level: 'debug' })
+    const log = zenlog({ levelComparison, customLevels, useOnlyCustomLevels: true }).child({}, { level: 'debug' })
     equal(true, log.isLevelEnabled('debug'))
     equal(true, log.isLevelEnabled('error'))
     equal(false, log.isLevelEnabled('trace'))
   })
 
   test('can check if custom level is enabled', async ({ equal }) => {
-    const log = bingo({
+    const log = zenlog({
       levelComparison,
       customLevels: { foo: 35, ...customLevels },
       useOnlyCustomLevels: true,
@@ -162,22 +162,22 @@ test('Descending levels suite', ({ test, end }) => {
 
 test('Custom levels comparison', async ({ test, end }) => {
   test('Custom comparison returns true cause level is enabled', async ({ equal }) => {
-    const log = bingo({ level: 'error', levelComparison: () => true })
+    const log = zenlog({ level: 'error', levelComparison: () => true })
     equal(true, log.isLevelEnabled('debug'))
   })
 
   test('Custom comparison returns false cause level is disabled', async ({ equal }) => {
-    const log = bingo({ level: 'error', levelComparison: () => false })
+    const log = zenlog({ level: 'error', levelComparison: () => false })
     equal(false, log.isLevelEnabled('debug'))
   })
 
   test('Custom comparison returns true cause child level is enabled', async ({ equal }) => {
-    const log = bingo({ levelComparison: () => true }).child({ level: 'error' })
+    const log = zenlog({ levelComparison: () => true }).child({ level: 'error' })
     equal(true, log.isLevelEnabled('debug'))
   })
 
   test('Custom comparison returns false cause child level is disabled', async ({ equal }) => {
-    const log = bingo({ levelComparison: () => false }).child({ level: 'error' })
+    const log = zenlog({ levelComparison: () => false }).child({ level: 'error' })
     equal(false, log.isLevelEnabled('debug'))
   })
 

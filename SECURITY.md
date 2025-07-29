@@ -1,11 +1,11 @@
 # Security Policy
 
 This document describes the management of vulnerabilities for the
-Bingo project and all modules within the Bingo organization.
+Zenlog project and all modules within the Zenlog organization.
 
 ## Reporting vulnerabilities
 
-Individuals who find potential vulnerabilities in Bingo are invited
+Individuals who find potential vulnerabilities in Zenlog are invited
 to report them via email at matteo.collina@gmail.com.
 
 ### Strict measures when reporting vulnerabilities

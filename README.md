@@ -1,8 +1,8 @@
-![banner](bingo-banner.png)
+![banner](zenlog-banner.png)
 
-# bingo
-[![npm version](https://img.shields.io/npm/v/bingo)](https://www.npmjs.com/package/bingo)
-[![Build Status](https://img.shields.io/github/actions/workflow/status/bingojs/bingo/ci.yml)](https://github.com/bingojs/bingo/actions)
+# zenlog
+[![npm version](https://img.shields.io/npm/v/zenlog)](https://www.npmjs.com/package/zenlog)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/zenlogjs/zenlog/ci.yml)](https://github.com/zenlogjs/zenlog/actions)
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](https://standardjs.com/)
 
 [Very low overhead](#low-overhead) Node.js logger.
@@ -26,20 +26,20 @@
 
 Using NPM:
 ```
-$ npm install bingo-logger
+$ npm install zenlog
 ```
 
 Using YARN:
 ```
-$ yarn add bingo-logger
+$ yarn add zenlog
 ```
 
-If you would like to install bingo v6, refer to https://github.com/bingojs/bingo/tree/v6.x.
+If you would like to install zenlog v6, refer to https://github.com/zenlogjs/zenlog/tree/v6.x.
 
 ## Usage
 
 ```js
-const logger = require('bingo-logger')()
+const logger = require('zenlog')()
 
 logger.info('hello world')
 
@@ -54,15 +54,15 @@ This produces:
 {"level":30,"time":1531171082399,"msg":"hello child!","pid":657,"hostname":"Davids-MBP-3.fritz.box","a":"property"}
 ```
 
-For using Bingo with a web framework see:
+For using Zenlog with a web framework see:
 
-* [Bingo with Fastify](docs/web.md#fastify)
-* [Bingo with Express](docs/web.md#express)
-* [Bingo with Hapi](docs/web.md#hapi)
-* [Bingo with Restify](docs/web.md#restify)
-* [Bingo with Koa](docs/web.md#koa)
-* [Bingo with Node core `http`](docs/web.md#http)
-* [Bingo with Nest](docs/web.md#nest)
+* [Zenlog with Fastify](docs/web.md#fastify)
+* [Zenlog with Express](docs/web.md#express)
+* [Zenlog with Hapi](docs/web.md#hapi)
+* [Zenlog with Restify](docs/web.md#restify)
+* [Zenlog with Koa](docs/web.md#koa)
+* [Zenlog with Node core `http`](docs/web.md#http)
+* [Zenlog with Nest](docs/web.md#nest)
 
 
 <a name="essentials"></a>
@@ -81,8 +81,8 @@ Due to Node's single-threaded event-loop, it's highly recommended that sending,
 alert triggering, reformatting, and all forms of log processing
 are conducted in a separate process or thread.
 
-In Bingo terminology, we call all log processors "transports" and recommend that the
-transports be run in a worker thread using our `bingo.transport` API.
+In Zenlog terminology, we call all log processors "transports" and recommend that the
+transports be run in a worker thread using our `zenlog.transport` API.
 
 For more details see our [Transports⇗](docs/transports.md) document.
 
@@ -92,13 +92,13 @@ Using minimum resources for logging is very important. Log messages
 tend to get added over time and this can lead to a throttling effect
 on applications – such as reduced requests per second.
 
-In many cases, Bingo is over 5x faster than alternatives.
+In many cases, Zenlog is over 5x faster than alternatives.
 
 See the [Benchmarks](docs/benchmarks.md) document for comparisons.
 
 ### Bundling support
 
-Bingo supports being bundled using tools like webpack or esbuild. 
+Zenlog supports being bundled using tools like webpack or esbuild. 
 
 See [Bundling](docs/bundling.md) document for more information.
 
@@ -139,11 +139,11 @@ See [Bundling](docs/bundling.md) document for more information.
 
 ## Contributing
 
-Bingo is an **OPEN Open Source Project**. This means that:
+Zenlog is an **OPEN Open Source Project**. This means that:
 
 > Individuals making significant and valuable contributions are given commit-access to the project to contribute as they see fit. This project is more like an open wiki than a standard guarded open source project.
 
-See the [CONTRIBUTING.md](https://github.com/bingojs/bingo/blob/main/CONTRIBUTING.md) file for more details.
+See the [CONTRIBUTING.md](https://github.com/zenlogjs/zenlog/blob/main/CONTRIBUTING.md) file for more details.
 
 <a name="acknowledgments"></a>
 ## Acknowledgments

@@ -1,17 +1,17 @@
 'use strict'
 
 const bench = require('fastbench')
-const bingo = require('../')
+const zenlog = require('../')
 const bunyan = require('bunyan')
 const bole = require('bole')('bench')
 const winston = require('winston')
 const fs = require('node:fs')
 const dest = fs.createWriteStream('/dev/null')
-const plogNodeStream = bingo(dest)
+const plogNodeStream = zenlog(dest)
 delete require.cache[require.resolve('../')]
-const plogDest = require('../')(bingo.destination('/dev/null'))
+const plogDest = require('../')(zenlog.destination('/dev/null'))
 delete require.cache[require.resolve('../')]
-const plogMinLength = require('../')(bingo.destination({ dest: '/dev/null', sync: false, minLength: 4096 }))
+const plogMinLength = require('../')(zenlog.destination({ dest: '/dev/null', sync: false, minLength: 4096 }))
 delete require.cache[require.resolve('../')]
 
 const deep = require('../package.json')
@@ -61,19 +61,19 @@ const run = bench([
     }
     setImmediate(cb)
   },
-  function benchBingoInterpolate (cb) {
+  function benchZenlogInterpolate (cb) {
     for (var i = 0; i < max; i++) {
       plogDest.info('hello %s', 'world')
     }
     setImmediate(cb)
   },
-  function benchBingoMinLengthInterpolate (cb) {
+  function benchZenlogMinLengthInterpolate (cb) {
     for (var i = 0; i < max; i++) {
       plogMinLength.info('hello %s', 'world')
     }
     setImmediate(cb)
   },
-  function benchBingoNodeStreamInterpolate (cb) {
+  function benchZenlogNodeStreamInterpolate (cb) {
     for (var i = 0; i < max; i++) {
       plogNodeStream.info('hello %s', 'world')
     }
@@ -98,19 +98,19 @@ const run = bench([
     }
     setImmediate(cb)
   },
-  function benchBingoInterpolateAll (cb) {
+  function benchZenlogInterpolateAll (cb) {
     for (var i = 0; i < max; i++) {
       plogDest.info('hello %s %j %d', 'world', { obj: true }, 4)
     }
     setImmediate(cb)
   },
-  function benchBingoMinLengthInterpolateAll (cb) {
+  function benchZenlogMinLengthInterpolateAll (cb) {
     for (var i = 0; i < max; i++) {
       plogMinLength.info('hello %s %j %d', 'world', { obj: true }, 4)
     }
     setImmediate(cb)
   },
-  function benchBingoNodeStreamInterpolateAll (cb) {
+  function benchZenlogNodeStreamInterpolateAll (cb) {
     for (var i = 0; i < max; i++) {
       plogNodeStream.info('hello %s %j %d', 'world', { obj: true }, 4)
     }
@@ -134,19 +134,19 @@ const run = bench([
     }
     setImmediate(cb)
   },
-  function benchBingoInterpolateExtra (cb) {
+  function benchZenlogInterpolateExtra (cb) {
     for (var i = 0; i < max; i++) {
       plogDest.info('hello %s %j %d', 'world', { obj: true }, 4, { another: 'obj' })
     }
     setImmediate(cb)
   },
-  function benchBingoMinLengthInterpolateExtra (cb) {
+  function benchZenlogMinLengthInterpolateExtra (cb) {
     for (var i = 0; i < max; i++) {
       plogMinLength.info('hello %s %j %d', 'world', { obj: true }, 4, { another: 'obj' })
     }
     setImmediate(cb)
   },
-  function benchBingoNodeStreamInterpolateExtra (cb) {
+  function benchZenlogNodeStreamInterpolateExtra (cb) {
     for (var i = 0; i < max; i++) {
       plogNodeStream.info('hello %s %j %d', 'world', { obj: true }, 4, { another: 'obj' })
     }
@@ -170,19 +170,19 @@ const run = bench([
     }
     setImmediate(cb)
   },
-  function benchBingoInterpolateDeep (cb) {
+  function benchZenlogInterpolateDeep (cb) {
     for (var i = 0; i < max; i++) {
       plogDest.info('hello %j', deep)
     }
     setImmediate(cb)
   },
-  function benchBingoMinLengthInterpolateDeep (cb) {
+  function benchZenlogMinLengthInterpolateDeep (cb) {
     for (var i = 0; i < max; i++) {
       plogMinLength.info('hello %j', deep)
     }
     setImmediate(cb)
   },
-  function benchBingoNodeStreamInterpolateDeep (cb) {
+  function benchZenlogNodeStreamInterpolateDeep (cb) {
     for (var i = 0; i < max; i++) {
       plogNodeStream.info('hello %j', deep)
     }

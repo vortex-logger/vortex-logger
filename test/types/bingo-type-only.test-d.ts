@@ -1,11 +1,11 @@
 import { expectAssignable, expectType, expectNotAssignable } from "tsd";
 
-import bingo from "../../bingo-logger";
-import type {LevelWithSilent, Logger, LogFn, P, DestinationStreamWithMetadata,  Level, LevelOrString, LevelWithSilentOrString, LoggerExtras, LoggerOptions } from "../../bingo-logger";
+import zenlog from "../../zenlog";
+import type {LevelWithSilent, Logger, LogFn, P, DestinationStreamWithMetadata,  Level, LevelOrString, LevelWithSilentOrString, LoggerExtras, LoggerOptions } from "../../zenlog";
 
-// NB: can also use `import * as bingo`, but that form is callable as `bingo()`
-// under `esModuleInterop: false` or `bingo.default()` under `esModuleInterop: true`.
-const log = bingo();
+// NB: can also use `import * as zenlog`, but that form is callable as `zenlog()`
+// under `esModuleInterop: false` or `zenlog.default()` under `esModuleInterop: true`.
+const log = zenlog();
 expectAssignable<LoggerExtras>(log);
 expectType<Logger>(log);
 expectType<LogFn>(log.info);
@@ -25,15 +25,15 @@ expectAssignable<P.LevelWithSilent>(levelWithSilent);
 
 const levelOrString: LevelOrString = "myCustomLevel";
 expectAssignable<string>(levelOrString);
-expectNotAssignable<bingo.Level>(levelOrString);
-expectNotAssignable<bingo.LevelWithSilent>(levelOrString);
-expectAssignable<bingo.LevelWithSilentOrString>(levelOrString);
+expectNotAssignable<zenlog.Level>(levelOrString);
+expectNotAssignable<zenlog.LevelWithSilent>(levelOrString);
+expectAssignable<zenlog.LevelWithSilentOrString>(levelOrString);
 
 const levelWithSilentOrString: LevelWithSilentOrString = "myCustomLevel";
 expectAssignable<string>(levelWithSilentOrString);
-expectNotAssignable<bingo.Level>(levelWithSilentOrString);
-expectNotAssignable<bingo.LevelWithSilent>(levelWithSilentOrString);
-expectAssignable<bingo.LevelOrString>(levelWithSilentOrString);
+expectNotAssignable<zenlog.Level>(levelWithSilentOrString);
+expectNotAssignable<zenlog.LevelWithSilent>(levelWithSilentOrString);
+expectAssignable<zenlog.LevelOrString>(levelWithSilentOrString);
 
 function createStream(): DestinationStreamWithMetadata {
     return { write() {} };
@@ -42,7 +42,7 @@ function createStream(): DestinationStreamWithMetadata {
 const stream = createStream();
 // Argh. TypeScript doesn't seem to narrow unless we assign the symbol like so, and tsd seems to
 // break without annotating the type explicitly
-const needsMetadata: typeof bingo.symbols.needsMetadataGsym = bingo.symbols.needsMetadataGsym;
+const needsMetadata: typeof zenlog.symbols.needsMetadataGsym = zenlog.symbols.needsMetadataGsym;
 if (stream[needsMetadata]) {
     expectType<number>(stream.lastLevel);
 }

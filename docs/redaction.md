@@ -1,6 +1,6 @@
 # Redaction
 
-> Redaction is not supported in the browser [#670](https://github.com/bingojs/bingo/issues/670)
+> Redaction is not supported in the browser [#670](https://github.com/zenlogjs/zenlog/issues/670)
 
 To redact sensitive information, supply paths to keys that hold sensitive data
 using the `redact` option. Note that paths that contain hyphens need to use
@@ -94,7 +94,7 @@ This will output
 {"level":30,"time":1527782356751,"pid":5758,"hostname":"Davids-MacBook-Pro-3.local","path":{"to":{"another":"thing"}},"stuff":{"thats":[{"logme":"will be logged"},{"logme":"as will this"}]}}
 ```
 
-See [bingo options in API](/docs/api.md#redact-array-object) for `redact` API details.
+See [zenlog options in API](/docs/api.md#redact-array-object) for `redact` API details.
 
 <a name="paths"></a>
 ## Path Syntax
@@ -116,10 +116,10 @@ By way of example, the following are all valid paths:
 
 ## Overhead
 
-Bingo's redaction functionality is built on top of [`fast-redact`](https://github.com/davidmarkclements/fast-redact)
+Zenlog's redaction functionality is built on top of [`fast-redact`](https://github.com/davidmarkclements/fast-redact)
 which adds about 2% overhead to `JSON.stringify` when using paths without wildcards.
 
-When used with bingo logger with a single redacted path, any overhead is within noise -
+When used with zenlog logger with a single redacted path, any overhead is within noise -
 a way to deterministically measure its effect has not been found. This is because it is not a bottleneck.
 
 However, wildcard redaction does carry a non-trivial cost relative to explicitly declaring the keys

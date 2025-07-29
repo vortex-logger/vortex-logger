@@ -30,10 +30,10 @@ test('asynchronous logging', async ({
   Date.now = () => 1459875739796
   os.hostname = () => 'abcdefghijklmnopqr'
   delete require.cache[require.resolve('../')]
-  const bingo = require('../')
+  const zenlog = require('../')
   let expected = ''
   let actual = ''
-  const normal = bingo(writer((s, enc, cb) => {
+  const normal = zenlog(writer((s, enc, cb) => {
     expected += s
     cb()
   }))
@@ -42,7 +42,7 @@ test('asynchronous logging', async ({
   dest.write = (s) => {
     actual += s
   }
-  const asyncLogger = bingo(dest)
+  const asyncLogger = zenlog(dest)
 
   let i = 44
   while (i--) {
@@ -89,10 +89,10 @@ test('sync false with child', async ({
     return 'abcdefghijklmnopqr'
   }
   delete require.cache[require.resolve('../')]
-  const bingo = require('../')
+  const zenlog = require('../')
   let expected = ''
   let actual = ''
-  const normal = bingo(writer((s, enc, cb) => {
+  const normal = zenlog(writer((s, enc, cb) => {
     expected += s
     cb()
   })).child({ hello: 'world' })
@@ -101,7 +101,7 @@ test('sync false with child', async ({
   dest.write = function (s) {
     actual += s
   }
-  const asyncLogger = bingo(dest).child({ hello: 'world' })
+  const asyncLogger = zenlog(dest).child({ hello: 'world' })
 
   let i = 500
   while (i--) {
@@ -155,9 +155,9 @@ test('should call the flush callback when flushed the data for async logger', as
     return (await readFile(outputPath)).toString().trim().split('\n').map(JSON.parse)
   }
 
-  const bingo = require('../')
+  const zenlog = require('../')
 
-  const instance = bingo({}, bingo.destination({
+  const instance = zenlog({}, zenlog.destination({
     dest: outputPath,
 
     // to make sure it does not flush on its own

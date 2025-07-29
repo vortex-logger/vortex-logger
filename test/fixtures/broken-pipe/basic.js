@@ -4,6 +4,6 @@ global.process = { __proto__: process, pid: 123456 }
 Date.now = function () { return 1459875739796 }
 require('node:os').hostname = function () { return 'abcdefghijklmnopqr' }
 
-const bingo = require('../../..')()
+const zenlog = require('../../..')()
 
-bingo.info('hello world')
+zenlog.info('hello world')

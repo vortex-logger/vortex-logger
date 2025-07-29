@@ -1,6 +1,6 @@
 'use strict'
 
-const bingo = require('../..')
+const zenlog = require('../..')
 const { join } = require('node:path')
 const { readFileSync } = require('node:fs')
 const { test } = require('tap')
@@ -13,12 +13,12 @@ test('thread-stream sync true should log synchronously', async (t) => {
     return (readFileSync(outputPath)).toString().trim().split('\n').map(JSON.parse)
   }
 
-  const transport = bingo.transport({
+  const transport = zenlog.transport({
     target: join(__dirname, '..', 'fixtures', 'to-file-transport.js'),
     options: { destination: outputPath, flush: true },
     sync: true
   })
-  const instance = bingo(transport)
+  const instance = zenlog(transport)
 
   var value = { message: 'sync' }
   instance.info(value)

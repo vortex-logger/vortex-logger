@@ -1,16 +1,16 @@
 'use strict'
 
-const bingo = require('../..')
-const transport = bingo.transport({
+const zenlog = require('../..')
+const transport = zenlog.transport({
   targets: [{
     level: 'info',
-    target: 'bingo-logger/file',
+    target: 'zenlog/file',
     options: {
       destination: process.argv[2]
     }
   }]
 })
-const logger = bingo(transport)
+const logger = zenlog(transport)
 
 const toWrite = 1000000
 transport.on('ready', run)

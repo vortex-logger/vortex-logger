@@ -1,28 +1,28 @@
 # Browser API
 
-Bingo is compatible with [`browserify`](https://npm.im/browserify) for browser-side usage:
+Zenlog is compatible with [`browserify`](https://npm.im/browserify) for browser-side usage:
 
 This can be useful with isomorphic/universal JavaScript code.
 
 By default, in the browser,
-`bingo` uses corresponding [Log4j](https://en.wikipedia.org/wiki/Log4j) `console` methods (`console.error`, `console.warn`, `console.info`, `console.debug`, `console.trace`) and uses `console.error` for any `fatal` level logs.
+`zenlog` uses corresponding [Log4j](https://en.wikipedia.org/wiki/Log4j) `console` methods (`console.error`, `console.warn`, `console.info`, `console.debug`, `console.trace`) and uses `console.error` for any `fatal` level logs.
 
 ## Options
 
-Bingo can be passed a `browser` object in the options object,
+Zenlog can be passed a `browser` object in the options object,
 which can have the following properties:
 
 ### `asObject` (Boolean)
 
 ```js
-const bingo = require('bingo')({browser: {asObject: true}})
+const zenlog = require('zenlog')({browser: {asObject: true}})
 ```
 
-The `asObject` option will create a bingo-like log object instead of
+The `asObject` option will create a zenlog-like log object instead of
 passing all arguments to a console method, for instance:
 
 ```js
-bingo.info('hi') // creates and logs {msg: 'hi', level: 30, time: <ts>}
+zenlog.info('hi') // creates and logs {msg: 'hi', level: 30, time: <ts>}
 ```
 
 When `write` is set, `asObject` will always be `true`.
@@ -30,21 +30,21 @@ When `write` is set, `asObject` will always be `true`.
 ### `asObjectBindingsOnly` (Boolean)
 
 ```js
-const bingo = require('bingo')({browser: {asObjectBindingsOnly: true}})
+const zenlog = require('zenlog')({browser: {asObjectBindingsOnly: true}})
 ```
 
 The `asObjectBindingsOnly` is similar to `asObject` but will keep the message
 and arguments unformatted, this allows to defer formatting the message to the
 actual call to `console` methods, where browsers then have richer formatting in
-their devtools then when bingo will format the message to a string first.
+their devtools then when zenlog will format the message to a string first.
 
 ```js
-bingo.info('hello %s', 'world') // creates and logs {level: 30, time: <ts>}, 'hello %s', 'world'
+zenlog.info('hello %s', 'world') // creates and logs {level: 30, time: <ts>}, 'hello %s', 'world'
 ```
 
 ### `formatters` (Object)
 
-An object containing functions for formatting the shape of the log lines. When provided, it enables the logger to produce a bingo-like log object with customized formatting. Currently, it supports formatting for the `level` object only.
+An object containing functions for formatting the shape of the log lines. When provided, it enables the logger to produce a zenlog-like log object with customized formatting. Currently, it supports formatting for the `level` object only.
 
 ##### `level`
 
@@ -70,7 +70,7 @@ If `write` is set to a single function, all logging objects are passed
 to this function.
 
 ```js
-const bingo = require('bingo')({
+const zenlog = require('zenlog')({
   browser: {
     write: (o) => {
       // do something with o
@@ -86,7 +86,7 @@ to using the `console`.
 
 
 ```js
-const bingo = require('bingo')({
+const zenlog = require('zenlog')({
   browser: {
     write: {
       info: function (o) {
@@ -102,15 +102,15 @@ const bingo = require('bingo')({
 
 ### `serialize`: (Boolean | Array)
 
-The serializers provided to `bingo` are ignored by default in the browser, including
-the standard serializers provided with Bingo. Since the default destination for log
+The serializers provided to `zenlog` are ignored by default in the browser, including
+the standard serializers provided with Zenlog. Since the default destination for log
 messages is the console, values such as `Error` objects are enhanced for inspection,
 which they otherwise wouldn't be if the Error serializer was enabled.
 
 We can turn all serializers on,
 
 ```js
-const bingo = require('bingo')({
+const zenlog = require('zenlog')({
   browser: {
     serialize: true
   }
@@ -120,7 +120,7 @@ const bingo = require('bingo')({
 Or we can selectively enable them via an array:
 
 ```js
-const bingo = require('bingo')({
+const zenlog = require('zenlog')({
   serializers: {
     custom: myCustomSerializer,
     another: anotherSerializer
@@ -131,17 +131,17 @@ const bingo = require('bingo')({
 })
 // following will apply myCustomSerializer to the custom property,
 // but will not apply anotherSerializer to another key
-bingo.info({custom: 'a', another: 'b'})
+zenlog.info({custom: 'a', another: 'b'})
 ```
 
-When `serialize` is `true` the standard error serializer is also enabled (see https://github.com/bingojs/bingo/blob/master/docs/api.md#stdSerializers).
+When `serialize` is `true` the standard error serializer is also enabled (see https://github.com/zenlogjs/zenlog/blob/master/docs/api.md#stdSerializers).
 This is a global serializer, which will apply to any `Error` objects passed to the logger methods.
 
 If `serialize` is an array the standard error serializer is also automatically enabled, it can
 be explicitly disabled by including a string in the serialize array: `!stdSerializers.err`, like so:
 
 ```js
-const bingo = require('bingo')({
+const zenlog = require('zenlog')({
   serializers: {
     custom: myCustomSerializer,
     another: anotherSerializer
@@ -152,14 +152,14 @@ const bingo = require('bingo')({
 })
 ```
 
-The `serialize` array also applies to any child logger serializers (see https://github.com/bingojs/bingo/blob/master/docs/api.md#discussion-2
+The `serialize` array also applies to any child logger serializers (see https://github.com/zenlogjs/zenlog/blob/master/docs/api.md#discussion-2
 for how to set child-bound serializers).
 
-Unlike server bingo the serializers apply to every object passed to the logger method,
+Unlike server zenlog the serializers apply to every object passed to the logger method,
 if the `asObject` option is `true`, this results in the serializers applying to the
-first object (as in server bingo).
+first object (as in server zenlog).
 
-For more info on serializers see https://github.com/bingojs/bingo/blob/master/docs/api.md#mergingobject.
+For more info on serializers see https://github.com/zenlogjs/zenlog/blob/master/docs/api.md#mergingobject.
 
 ### `transmit` (Object)
 
@@ -211,7 +211,7 @@ labels differ from server-side.
 The point of the `send` function is to remotely record log messages:
 
 ```js
-const bingo = require('bingo')({
+const zenlog = require('zenlog')({
   browser: {
     transmit: {
       level: 'warn',
@@ -235,7 +235,7 @@ const bingo = require('bingo')({
 ### `disabled` (Boolean)
 
 ```js
-const bingo = require('bingo')({browser: {disabled: true}})
+const zenlog = require('zenlog')({browser: {disabled: true}})
 ```
 
 The `disabled` option will disable logging in browser if set

@@ -1,15 +1,15 @@
 'use strict'
 
 const bench = require('fastbench')
-const bingo = require('../')
+const zenlog = require('../')
 const bunyan = require('bunyan')
 const fs = require('node:fs')
 const dest = fs.createWriteStream('/dev/null')
-const plogNodeStream = bingo(dest).child({ a: 'property' }).child({ sub: 'child' })
+const plogNodeStream = zenlog(dest).child({ a: 'property' }).child({ sub: 'child' })
 delete require.cache[require.resolve('../')]
-const plogDest = require('../')(bingo.destination('/dev/null')).child({ a: 'property' }).child({ sub: 'child' })
+const plogDest = require('../')(zenlog.destination('/dev/null')).child({ a: 'property' }).child({ sub: 'child' })
 delete require.cache[require.resolve('../')]
-const plogMinLength = require('../')(bingo.destination({ dest: '/dev/null', sync: false, minLength: 4096 }))
+const plogMinLength = require('../')(zenlog.destination({ dest: '/dev/null', sync: false, minLength: 4096 }))
   .child({ a: 'property' })
   .child({ sub: 'child' })
 
@@ -29,19 +29,19 @@ const run = bench([
     }
     setImmediate(cb)
   },
-  function benchBingoChildChild (cb) {
+  function benchZenlogChildChild (cb) {
     for (var i = 0; i < max; i++) {
       plogDest.info({ hello: 'world' })
     }
     setImmediate(cb)
   },
-  function benchBingoMinLengthChildChild (cb) {
+  function benchZenlogMinLengthChildChild (cb) {
     for (var i = 0; i < max; i++) {
       plogMinLength.info({ hello: 'world' })
     }
     setImmediate(cb)
   },
-  function benchBingoNodeStreamChildChild (cb) {
+  function benchZenlogNodeStreamChildChild (cb) {
     for (var i = 0; i < max; i++) {
       plogNodeStream.info({ hello: 'world' })
     }

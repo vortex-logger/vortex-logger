@@ -1,12 +1,12 @@
 'use strict'
 
 const bench = require('fastbench')
-const bingo = require('../../')
+const zenlog = require('../../')
 
-const base = bingo(bingo.destination('/dev/null'))
-const baseCl = bingo({
+const base = zenlog(zenlog.destination('/dev/null'))
+const baseCl = zenlog({
   customLevels: { foo: 31 }
-}, bingo.destination('/dev/null'))
+}, zenlog.destination('/dev/null'))
 const child = base.child({})
 const childCl = base.child({
   customLevels: { foo: 31 }
@@ -16,13 +16,13 @@ const childOfBaseCl = baseCl.child({})
 const max = 100
 
 const run = bench([
-  function benchBingoNoCustomLevel (cb) {
+  function benchZenlogNoCustomLevel (cb) {
     for (var i = 0; i < max; i++) {
       base.info({ hello: 'world' })
     }
     setImmediate(cb)
   },
-  function benchBingoCustomLevel (cb) {
+  function benchZenlogCustomLevel (cb) {
     for (var i = 0; i < max; i++) {
       baseCl.foo({ hello: 'world' })
     }
@@ -34,26 +34,26 @@ const run = bench([
     }
     setImmediate(cb)
   },
-  function benchBingoChildCustomLevel (cb) {
+  function benchZenlogChildCustomLevel (cb) {
     for (var i = 0; i < max; i++) {
       childCl.foo({ hello: 'world' })
     }
     setImmediate(cb)
   },
-  function benchBingoChildInheritedCustomLevel (cb) {
+  function benchZenlogChildInheritedCustomLevel (cb) {
     for (var i = 0; i < max; i++) {
       childOfBaseCl.foo({ hello: 'world' })
     }
     setImmediate(cb)
   },
-  function benchBingoChildCreation (cb) {
+  function benchZenlogChildCreation (cb) {
     const child = base.child({})
     for (var i = 0; i < max; i++) {
       child.info({ hello: 'world' })
     }
     setImmediate(cb)
   },
-  function benchBingoChildCreationCustomLevel (cb) {
+  function benchZenlogChildCreationCustomLevel (cb) {
     const child = base.child({
       customLevels: { foo: 31 }
     })

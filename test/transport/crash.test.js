@@ -4,11 +4,11 @@ const { join } = require('node:path')
 const { once } = require('node:events')
 const { setImmediate: immediate } = require('node:timers/promises')
 const { test } = require('tap')
-const bingo = require('../../')
+const zenlog = require('../../')
 
-test('bingo.transport emits error if the worker exits with 0 unexpectably', async ({ same, teardown, equal }) => {
+test('zenlog.transport emits error if the worker exits with 0 unexpectably', async ({ same, teardown, equal }) => {
   // This test will take 10s, because flushSync waits for 10s
-  const transport = bingo.transport({
+  const transport = zenlog.transport({
     target: join(__dirname, '..', 'fixtures', 'crashing-transport.js'),
     sync: true
   })
@@ -21,7 +21,7 @@ test('bingo.transport emits error if the worker exits with 0 unexpectably', asyn
     maybeError = err
   })
 
-  const logger = bingo(transport)
+  const logger = zenlog(transport)
   for (let i = 0; i < 100000; i++) {
     logger.info('hello')
   }

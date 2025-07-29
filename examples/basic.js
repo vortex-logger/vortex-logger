@@ -1,43 +1,43 @@
 'use strict'
 
-// Bingo's primary usage writes ndjson to `stdout`:
-const bingo = require('..')()
+// Zenlog's primary usage writes ndjson to `stdout`:
+const zenlog = require('..')()
 
 // However, if "human readable" output is desired,
 // `pino-pretty` can be provided as the destination
 // stream by uncommenting the following line in place
 // of the previous declaration:
-// const bingo = require('..')(require('pino-pretty')())
+// const zenlog = require('..')(require('pino-pretty')())
 
-bingo.info('hello world')
-bingo.error('this is at error level')
-bingo.info('the answer is %d', 42)
-bingo.info({ obj: 42 }, 'hello world')
-bingo.info({ obj: 42, b: 2 }, 'hello world')
-bingo.info({ nested: { obj: 42 } }, 'nested')
+zenlog.info('hello world')
+zenlog.error('this is at error level')
+zenlog.info('the answer is %d', 42)
+zenlog.info({ obj: 42 }, 'hello world')
+zenlog.info({ obj: 42, b: 2 }, 'hello world')
+zenlog.info({ nested: { obj: 42 } }, 'nested')
 setImmediate(() => {
-  bingo.info('after setImmediate')
+  zenlog.info('after setImmediate')
 })
-bingo.error(new Error('an error'))
+zenlog.error(new Error('an error'))
 
-const child = bingo.child({ a: 'property' })
+const child = zenlog.child({ a: 'property' })
 child.info('hello child!')
 
 const childsChild = child.child({ another: 'property' })
 childsChild.info('hello baby..')
 
-bingo.debug('this should be mute')
+zenlog.debug('this should be mute')
 
-bingo.level = 'trace'
+zenlog.level = 'trace'
 
-bingo.debug('this is a debug statement')
+zenlog.debug('this is a debug statement')
 
-bingo.child({ another: 'property' }).debug('this is a debug statement via child')
-bingo.trace('this is a trace statement')
+zenlog.child({ another: 'property' }).debug('this is a debug statement via child')
+zenlog.trace('this is a trace statement')
 
-bingo.debug('this is a "debug" statement with "')
+zenlog.debug('this is a "debug" statement with "')
 
-bingo.info(new Error('kaboom'))
-bingo.info(null)
+zenlog.info(new Error('kaboom'))
+zenlog.info(null)
 
-bingo.info(new Error('kaboom'), 'with', 'a', 'message')
+zenlog.info(new Error('kaboom'), 'with', 'a', 'message')

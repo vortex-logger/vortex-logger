@@ -1,7 +1,7 @@
 'use strict'
 
 const os = require('node:os')
-const bingo = require('../..')
+const zenlog = require('../..')
 const { join } = require('node:path')
 const { test } = require('tap')
 const { readFile } = require('node:fs').promises
@@ -13,11 +13,11 @@ const hostname = os.hostname()
 
 test('thread-stream async flush', async ({ equal, same }) => {
   const destination = file()
-  const transport = bingo.transport({
+  const transport = zenlog.transport({
     target: join(__dirname, '..', 'fixtures', 'to-file-transport.js'),
     options: { destination }
   })
-  const instance = bingo(transport)
+  const instance = zenlog(transport)
   instance.info('hello')
 
   equal(instance.flush(), undefined)
@@ -38,11 +38,11 @@ test('thread-stream async flush should call the passed callback', async (t) => {
   async function getOutputLogLines () {
     return (await readFile(outputPath)).toString().trim().split('\n').map(JSON.parse)
   }
-  const transport = bingo.transport({
+  const transport = zenlog.transport({
     target: join(__dirname, '..', 'fixtures', 'to-file-transport.js'),
     options: { destination: outputPath }
   })
-  const instance = bingo(transport)
+  const instance = zenlog(transport)
   const flushPromise = promisify(instance.flush).bind(instance)
 
   instance.info('hello')

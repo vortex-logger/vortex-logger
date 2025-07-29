@@ -10,25 +10,25 @@ const run = (type) => {
 console.log(`
 # Benchmarks
 
-\`bingo.info('hello world')\`:
+\`zenlog.info('hello world')\`:
 
 \`\`\`
 ${run('basic')}
 \`\`\`
 
-\`bingo.info({'hello': 'world'})\`:
+\`zenlog.info({'hello': 'world'})\`:
 
 \`\`\`
 ${run('object')}
 \`\`\`
 
-\`bingo.info(aBigDeeplyNestedObject)\`:
+\`zenlog.info(aBigDeeplyNestedObject)\`:
 
 \`\`\`
 ${run('deep-object')}
 \`\`\`
 
-\`bingo.info('hello %s %j %d', 'world', {obj: true}, 4, {another: 'obj'})\`:
+\`zenlog.info('hello %s %j %d', 'world', {obj: true}, 4, {another: 'obj'})\`:
 
 For a fair comparison, [LogLevel](http://npm.im/loglevel) was extended
 to include a timestamp and [bole](http://npm.im/bole) had

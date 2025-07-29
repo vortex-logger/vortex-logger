@@ -1,12 +1,12 @@
 'use strict'
 const test = require('tape')
-const bingo = require('../browser')
+const zenlog = require('../browser')
 
 Date.now = () => 1599400603614
 
 test('null timestamp', ({ end, is }) => {
-  const instance = bingo({
-    timestamp: bingo.stdTimeFunctions.nullTime,
+  const instance = zenlog({
+    timestamp: zenlog.stdTimeFunctions.nullTime,
     browser: {
       asObject: true,
       write: function (o) {
@@ -19,8 +19,8 @@ test('null timestamp', ({ end, is }) => {
 })
 
 test('iso timestamp', ({ end, is }) => {
-  const instance = bingo({
-    timestamp: bingo.stdTimeFunctions.isoTime,
+  const instance = zenlog({
+    timestamp: zenlog.stdTimeFunctions.isoTime,
     browser: {
       asObject: true,
       write: function (o) {
@@ -33,8 +33,8 @@ test('iso timestamp', ({ end, is }) => {
 })
 
 test('epoch timestamp', ({ end, is }) => {
-  const instance = bingo({
-    timestamp: bingo.stdTimeFunctions.epochTime,
+  const instance = zenlog({
+    timestamp: zenlog.stdTimeFunctions.epochTime,
     browser: {
       asObject: true,
       write: function (o) {
@@ -47,8 +47,8 @@ test('epoch timestamp', ({ end, is }) => {
 })
 
 test('unix timestamp', ({ end, is }) => {
-  const instance = bingo({
-    timestamp: bingo.stdTimeFunctions.unixTime,
+  const instance = zenlog({
+    timestamp: zenlog.stdTimeFunctions.unixTime,
     browser: {
       asObject: true,
       write: function (o) {
@@ -61,7 +61,7 @@ test('unix timestamp', ({ end, is }) => {
 })
 
 test('epoch timestamp by default', ({ end, is }) => {
-  const instance = bingo({
+  const instance = zenlog({
     browser: {
       asObject: true,
       write: function (o) {
@@ -74,7 +74,7 @@ test('epoch timestamp by default', ({ end, is }) => {
 })
 
 test('not print timestamp if the option is false', ({ end, is }) => {
-  const instance = bingo({
+  const instance = zenlog({
     timestamp: false,
     browser: {
       asObject: true,

@@ -2,7 +2,7 @@
 
 const { test } = require('tap')
 const writer = require('flush-write-stream')
-const bingo = require('../')
+const zenlog = require('../')
 
 function capture () {
   const ws = writer((chunk, enc, cb) => {
@@ -13,17 +13,17 @@ function capture () {
   return ws
 }
 
-test('bingo uses LF by default', async ({ ok }) => {
+test('zenlog uses LF by default', async ({ ok }) => {
   const stream = capture()
-  const logger = bingo(stream)
+  const logger = zenlog(stream)
   logger.info('foo')
   logger.error('bar')
   ok(/foo[^\r\n]+\n[^\r\n]+bar[^\r\n]+\n/.test(stream.data))
 })
 
-test('bingo can log CRLF', async ({ ok }) => {
+test('zenlog can log CRLF', async ({ ok }) => {
   const stream = capture()
-  const logger = bingo({
+  const logger = zenlog({
     crlf: true
   }, stream)
   logger.info('foo')
