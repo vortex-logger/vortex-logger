@@ -1,5 +1,5 @@
 {
-  "name": "bingo-logger",
+  "name": "json-logger",
   "version": "9.7.0",
   "description": "super fast, all natural json logger",
   "main": "bingo-logger.js",
