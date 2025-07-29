@@ -3,7 +3,7 @@ import { join } from 'node:path'
 import fs from 'node:fs'
 import { watchFileCreated } from '../helper'
 import { test } from 'tap'
-import bingo from '../../'
+import bingo from '../../zenlog'
 import * as url from 'node:url'
 
 const readFile = fs.promises.readFile

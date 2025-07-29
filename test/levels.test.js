@@ -2,7 +2,7 @@
 
 const { test } = require('tap')
 const { sink, once, check } = require('./helper')
-const bingo = require('../')
+const bingo = require('../zenlog')
 
 const levelsLib = require('../lib/levels')
 

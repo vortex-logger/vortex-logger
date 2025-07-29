@@ -1,5 +1,5 @@
 import { join } from 'node:path'
-import bingo from '../../..'
+import bingo from '../../../zenlog'
 
 const transport = bingo.transport({
   target: join(__dirname, 'transport-worker.ts')

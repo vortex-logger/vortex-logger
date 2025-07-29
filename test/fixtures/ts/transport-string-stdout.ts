@@ -1,4 +1,4 @@
-import bingo from '../../..'
+import bingo from '../../../zenlog'
 
 const transport = bingo.transport({
   target: 'bingo-logger/file',

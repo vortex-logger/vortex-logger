@@ -1,6 +1,6 @@
 'use strict'
 
-const bingo = require('..')
+const bingo = require('../zenlog')
 const { tmpdir } = require('node:os')
 const { join } = require('node:path')
 

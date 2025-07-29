@@ -1,7 +1,7 @@
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import pinoPretty from 'pino-pretty'
-import { LoggerOptions, StreamEntry, bingo } from '../../zenlog'
+import { LoggerOptions, StreamEntry, zenlog } from '../../zenlog'
 
 const destination = join(
     tmpdir(),
@@ -9,25 +9,25 @@ const destination = join(
 )
 
 // Single
-const transport = bingo.transport({
+const transport = zenlog.transport({
     target: 'pino-pretty',
     options: { some: 'options for', the: 'transport' }
 })
-const logger = bingo(transport)
+const logger = zenlog(transport)
 logger.setBindings({ some: 'bindings' })
 logger.info('test2')
 logger.flush()
 
-const transport2 = bingo.transport({
+const transport2 = zenlog.transport({
     target: 'pino-pretty',
 })
-const logger2 = bingo(transport2)
+const logger2 = zenlog(transport2)
 logger2.info('test2')
 
 
 // Multiple
 
-const transports = bingo.transport({targets: [
+const transports = zenlog.transport({targets: [
     {
         level: 'info',
         target: 'pino-pretty',
@@ -35,11 +35,11 @@ const transports = bingo.transport({targets: [
     },
     {
         level: 'trace',
-        target: 'bingo-logger/file',
+        target: 'zenlog/file',
         options: { destination }
     }
 ]})
-const loggerMulti = bingo(transports)
+const loggerMulti = zenlog(transports)
 loggerMulti.info('test2')
 
 // custom levels
@@ -53,7 +53,7 @@ const customLevels = {
 
 type CustomLevels = keyof typeof customLevels;
 
-const bingoOpts = {
+const zenlogOpts = {
     useOnlyCustomLevels: true,
     customLevels: customLevels,
     level: 'customDebug',
@@ -71,7 +71,7 @@ const streams: StreamEntry<CustomLevels>[] = [
     { level : 'customError',   stream : pinoPretty() },
 ];
 
-const loggerCustomLevel = bingo(bingoOpts, bingo.multistream(streams, multistreamOpts));
+const loggerCustomLevel = zenlog(zenlogOpts, zenlog.multistream(streams, multistreamOpts));
 loggerCustomLevel.customDebug('test3')
 loggerCustomLevel.info('test4')
 loggerCustomLevel.customError('test5')

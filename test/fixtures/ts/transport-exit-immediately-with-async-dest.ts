@@ -1,4 +1,4 @@
-import bingo from '../../..'
+import bingo from '../../../zenlog'
 import { join } from 'node:path'
 
 const transport = bingo.transport({
