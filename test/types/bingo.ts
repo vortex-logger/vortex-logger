@@ -1,6 +1,6 @@
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
-import bingoPretty from 'bingo-pretty'
+import pinoPretty from 'pino-pretty'
 import { LoggerOptions, StreamEntry, bingo } from '../../bingo-logger'
 
 const destination = join(
@@ -10,7 +10,7 @@ const destination = join(
 
 // Single
 const transport = bingo.transport({
-    target: 'bingo-pretty',
+    target: 'pino-pretty',
     options: { some: 'options for', the: 'transport' }
 })
 const logger = bingo(transport)
@@ -19,7 +19,7 @@ logger.info('test2')
 logger.flush()
 
 const transport2 = bingo.transport({
-    target: 'bingo-pretty',
+    target: 'pino-pretty',
 })
 const logger2 = bingo(transport2)
 logger2.info('test2')
@@ -30,7 +30,7 @@ logger2.info('test2')
 const transports = bingo.transport({targets: [
     {
         level: 'info',
-        target: 'bingo-pretty',
+        target: 'pino-pretty',
         options: { some: 'options for', the: 'transport' }
     },
     {
@@ -65,10 +65,10 @@ const multistreamOpts = {
 };
 
 const streams: StreamEntry<CustomLevels>[] = [
-    { level : 'customDebug',   stream : bingoPretty() },
-    { level : 'info',    stream : bingoPretty() },
-    { level : 'customNetwork', stream : bingoPretty() },
-    { level : 'customError',   stream : bingoPretty() },
+    { level : 'customDebug',   stream : pinoPretty() },
+    { level : 'info',    stream : pinoPretty() },
+    { level : 'customNetwork', stream : pinoPretty() },
+    { level : 'customError',   stream : pinoPretty() },
 ];
 
 const loggerCustomLevel = bingo(bingoOpts, bingo.multistream(streams, multistreamOpts));

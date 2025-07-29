@@ -4,7 +4,7 @@
             "../../lib/worker.js",
             "../../lib/transport-stream.js",
             "../../test/fixtures/ts/to-file-transport.es2017.cjs",
-            "../../node_modules/bingo-abstract-transport/index.js"
+            "../../node_modules/pino-abstract-transport/index.js"
         ],
         "targets": [
             "node14",

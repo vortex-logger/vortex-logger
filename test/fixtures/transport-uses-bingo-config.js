@@ -1,6 +1,6 @@
 'use strict'
 
-const build = require('bingo-abstract-transport')
+const build = require('pino-abstract-transport')
 const { pipeline, Transform } = require('node:stream')
 module.exports = () => {
   return build(function (source) {

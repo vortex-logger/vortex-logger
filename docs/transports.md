@@ -208,12 +208,12 @@ callback is called or the returned promise resolves. Otherwise, log lines will b
 
 ### Writing to a custom transport & stdout
 
-In case you want to both use a custom transport, and output the log entries with default processing to STDOUT, you can use 'pino-logger/file' transport configured with `destination: 1`:
+In case you want to both use a custom transport, and output the log entries with default processing to STDOUT, you can use 'bingo-logger/file' transport configured with `destination: 1`:
 
 ```js
     const transports = [
       {
-        target: 'pino-logger/file',
+        target: 'bingo-logger/file',
         options: { destination: 1 } // this writes to STDOUT
       },
       {
@@ -270,9 +270,9 @@ const logger = pino({
     pipeline: [{
       target: './my-transform.js'
     }, {
-      // Use target: 'pino-logger/file' with STDOUT descriptor 1 to write
+      // Use target: 'bingo-logger/file' with STDOUT descriptor 1 to write
       // logs without any change.
-      target: 'pino-logger/file',
+      target: 'bingo-logger/file',
       options: { destination: 1 }
     }]
   }
@@ -302,38 +302,38 @@ some known caveats:
 
 ### Notable transports
 
-#### `pino-logger/file`
+#### `bingo-logger/file`
 
-The `pino-logger/file` transport routes logs to a file (or file descriptor).
+The `bingo-logger/file` transport routes logs to a file (or file descriptor).
 
 The `options.destination` property may be set to specify the desired file destination.
 
 ```js
 const pino = require('pino')
 const transport = pino.transport({
-  target: 'pino-logger/file',
+  target: 'bingo-logger/file',
   options: { destination: '/path/to/file' }
 })
 pino(transport)
 ```
 
-By default, the `pino-logger/file` transport assumes the directory of the destination file exists. If it does not exist, the transport will throw an error when it attempts to open the file for writing. The `mkdir` option may be set to `true` to configure the transport to create the directory, if it does not exist, before opening the file for writing.
+By default, the `bingo-logger/file` transport assumes the directory of the destination file exists. If it does not exist, the transport will throw an error when it attempts to open the file for writing. The `mkdir` option may be set to `true` to configure the transport to create the directory, if it does not exist, before opening the file for writing.
 
 ```js
 const pino = require('pino')
 const transport = pino.transport({
-  target: 'pino-logger/file',
+  target: 'bingo-logger/file',
   options: { destination: '/path/to/file', mkdir: true }
 })
 pino(transport)
 ```
 
-By default, the `pino-logger/file` transport appends to the destination file if it exists. The `append` option may be set to `false` to configure the transport to truncate the file upon opening it for writing.
+By default, the `bingo-logger/file` transport appends to the destination file if it exists. The `append` option may be set to `false` to configure the transport to truncate the file upon opening it for writing.
 
 ```js
 const pino = require('pino')
 const transport = pino.transport({
-  target: 'pino-logger/file',
+  target: 'bingo-logger/file',
   options: { destination: '/path/to/file', append: false }
 })
 pino(transport)
@@ -341,7 +341,7 @@ pino(transport)
 
 The `options.destination` property may also be a number to represent a file descriptor. Typically this would be `1` to write to STDOUT or `2` to write to STDERR. If `options.destination` is not set, it defaults to `1` which means logs will be written to STDOUT. If `options.destination` is a string integer, e.g. `'1'`, it will be coerced to a number and used as a file descriptor. If this is not desired, provide a full path, e.g. `/tmp/1`.
 
-The difference between using the `pino-logger/file` transport builtin and using `pino.destination` is that `pino.destination` runs in the main thread, whereas `pino-logger/file` sets up `pino.destination` in a worker thread.
+The difference between using the `bingo-logger/file` transport builtin and using `pino.destination` is that `pino.destination` runs in the main thread, whereas `bingo-logger/file` sets up `pino.destination` in a worker thread.
 
 #### `pino-pretty`
 
